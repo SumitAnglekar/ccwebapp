@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
+@RequestMapping("/v1")
 public class UserController {
 
     @Autowired
@@ -17,7 +18,7 @@ public class UserController {
 
     @RequestMapping(method= RequestMethod.POST, value="/user")
     public User addTopic(@RequestBody User user) {
-       return userRepository.save(user);
+        return userRepository.save(user);
     }
 
 }
