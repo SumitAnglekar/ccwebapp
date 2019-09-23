@@ -27,8 +27,8 @@ public class UserController {
     }
 
     @GetMapping("/user/self")
-    public User getUser() {
-        return userRepository.findUserByEmailaddress("sumit@gmail.com").get();
+    public User getUser(Authentication authentication ) {
+        return userRepository.findUserByEmailaddress(authentication.getName()).get();
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/user/self")

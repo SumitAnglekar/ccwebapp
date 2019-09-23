@@ -26,8 +26,8 @@ public class BasicConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth)
             throws Exception {
             auth.jdbcAuthentication().dataSource(dataSource)
-                .authoritiesByUsernameQuery("select emailaddress as username,'USER' from user_table where emailaddress=?")
-                .usersByUsernameQuery("select emailaddress as username, password, true from user_table where emailaddress=?");
+                .authoritiesByUsernameQuery("select email_address as username,'USER' from user_table where email_address=?")
+                .usersByUsernameQuery("select email_address as username, password, true from user_table where email_address=?");
 
     }
 
