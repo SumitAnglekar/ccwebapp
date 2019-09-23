@@ -20,6 +20,7 @@ public class UserController {
 
     @RequestMapping(method= RequestMethod.POST, value="/user")
     public User addUser(@RequestBody User user, HttpServletResponse response) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
        return userRepository.save(user);
     }
 

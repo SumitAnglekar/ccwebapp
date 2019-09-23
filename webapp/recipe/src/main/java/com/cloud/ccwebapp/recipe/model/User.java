@@ -20,6 +20,7 @@ public class User {
 
     @JsonIgnore
     private String password;
+
     private String emailaddress;
 
     @CreationTimestamp
@@ -36,7 +37,7 @@ public class User {
 
     }
 
-    public User(String first_name, String last_name, String password, String emailaddress, String account_created, String account_updated) {
+    public User(String first_name, String last_name, String password, String emailaddress, Date account_created, Date account_updated) {
         this.first_name = first_name;
         this.last_name = last_name;
         this.password = password;
@@ -69,9 +70,12 @@ public class User {
         this.last_name = last_name;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
+
+    @JsonProperty
     public void setPassword(String password) {
         this.password = password;
     }
