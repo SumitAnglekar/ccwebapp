@@ -36,7 +36,7 @@ public class User {
 
     }
 
-    public User(String first_name, String last_name, String password, String emailddress, Date account_created, Date account_updated) {
+    public User(String first_name, String last_name, String password, String emailaddress, String account_created, String account_updated) {
         this.first_name = first_name;
         this.last_name = last_name;
         this.password = password;
