@@ -6,7 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-@Entity(name = "UserTable")
+@Entity(name = "User_Table")
 public class User {
 
     @Id
@@ -15,7 +15,7 @@ public class User {
     private String first_name;
     private String last_name;
     private String password;
-    private String email_address;
+    private String emailaddress;
     private String account_created;
     private String account_updated;
 
@@ -23,11 +23,11 @@ public class User {
 
     }
 
-    public User(String first_name, String last_name, String password, String email_address, String account_created, String account_updated) {
+    public User(String first_name, String last_name, String password, String emailaddress, String account_created, String account_updated) {
         this.first_name = first_name;
         this.last_name = last_name;
         this.password = password;
-        this.email_address = email_address;
+        this.emailaddress = emailaddress;
         this.account_created = account_created;
         this.account_updated = account_updated;
     }
@@ -64,12 +64,12 @@ public class User {
         this.password = password;
     }
 
-    public String getEmail_address() {
-        return email_address;
+    public String getEmailaddress() {
+        return emailaddress;
     }
 
-    public void setEmail_address(String email_address) {
-        this.email_address = email_address;
+    public void setEmailaddress(String emailaddress) {
+        this.emailaddress = emailaddress;
     }
 
     public String getAccount_created() {
