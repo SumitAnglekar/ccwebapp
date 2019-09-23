@@ -1,15 +1,15 @@
 package com.cloud.ccwebapp.recipe.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.beans.factory.annotation.Value;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Date;
 
-@Entity(name = "UserTable")
+@Entity(name = "User_Table")
 public class User {
 
     @Id
@@ -17,8 +17,10 @@ public class User {
     private int id;
     private String first_name;
     private String last_name;
+
+    @JsonIgnore
     private String password;
-    private String email_address;
+    private String emailaddress;
 
     @CreationTimestamp
     @Temporal(TemporalType.DATE)
@@ -34,11 +36,11 @@ public class User {
 
     }
 
-    public User(String first_name, String last_name, String password, String email_address, Date account_created, Date account_updated) {
+    public User(String first_name, String last_name, String password, String emailddress, Date account_created, Date account_updated) {
         this.first_name = first_name;
         this.last_name = last_name;
         this.password = password;
-        this.email_address = email_address;
+        this.emailaddress = emailaddress;
         this.account_created = account_created;
         this.account_updated = account_updated;
     }
@@ -70,17 +72,16 @@ public class User {
     public String getPassword() {
         return password;
     }
-
     public void setPassword(String password) {
         this.password = password;
     }
 
-    public String getEmail_address() {
-        return email_address;
+    public String getEmailaddress() {
+        return emailaddress;
     }
 
-    public void setEmail_address(String email_address) {
-        this.email_address = email_address;
+    public void setEmailaddress(String emailaddress) {
+        this.emailaddress = emailaddress;
     }
 
     public Date getAccount_created() {

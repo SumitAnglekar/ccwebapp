@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+
 
 @RestController
 @RequestMapping("/v1")
@@ -17,7 +19,7 @@ public class UserController {
     private UserRepository userRepository;
 
     @RequestMapping(method= RequestMethod.POST, value="/user")
-    public User addUser(@RequestBody User user) {
+    public User addUser(@RequestBody User user, HttpServletResponse response) {
        return userRepository.save(user);
     }
 
