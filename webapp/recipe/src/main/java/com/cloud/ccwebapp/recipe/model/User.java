@@ -6,8 +6,12 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.beans.factory.annotation.Value;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity(name = "User_Table")
 public class User {
@@ -21,6 +25,7 @@ public class User {
     @JsonIgnore
     private String password;
 
+    @JsonProperty("email_address")
     private String emailaddress;
 
     @CreationTimestamp
@@ -102,5 +107,17 @@ public class User {
 
     public void setAccount_updated(Date account_updated) {
         this.account_updated = account_updated;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return id == user.id &&
+                Objects.equals(first_name, user.first_name) &&
+                Objects.equals(last_name, user.last_name) &&
+                Objects.equals(password, user.password) &&
+                emailaddress.equals(user.emailaddress);
     }
 }
