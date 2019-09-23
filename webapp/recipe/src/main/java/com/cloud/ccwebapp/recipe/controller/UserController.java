@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+
 
 @RestController
 @RequestMapping("/v1")
@@ -17,9 +19,9 @@ public class UserController {
     PasswordEncoder passwordEncoder;
 
     @RequestMapping(method= RequestMethod.POST, value="/user")
-    public User addTopic(@RequestBody User user) {
+    public User addUser(@RequestBody User user, HttpServletResponse response) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+       return userRepository.save(user);
     }
 
     @GetMapping("/user/self")
