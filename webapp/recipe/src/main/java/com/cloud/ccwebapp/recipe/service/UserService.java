@@ -43,10 +43,8 @@ public class UserService {
             // check if valid fields are updated
             if (!dbUser.getFirst_name().equals(user.getFirst_name())
                     || !dbUser.getLast_name().equals(user.getLast_name())
+                    || !passwordEncoder.matches(user.getPassword(), dbUser.getPassword())
                     || !dbUser.getPassword().equals(user.getPassword())) {
-                if (!dbUser.getPassword().equals(user.getPassword())) {
-                    // check if password is strong
-                }
 
                 // ok to save
                 if (user.getFirst_name() != null) {
@@ -56,6 +54,12 @@ public class UserService {
                     dbUser.setLast_name(user.getLast_name());
                 }
                 if (user.getPassword() != null) {
+                    if (!passwordEncoder.matches(user.getPassword(), dbUser.getPassword())) {
+                        // check if password is strong
+                        if (!isPasswordStrong(user.getPassword())) {
+                            return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+                        }
+                    }
                     dbUser.setPassword(passwordEncoder.encode(user.getPassword()));
                 }
 
@@ -67,5 +71,20 @@ public class UserService {
 
         // return bad request
         return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Password must satisfy following constraints:
+     *      - must contain a digit
+     *      - must contain a lower case letter
+     *      - must contain an upper case letter
+     *      - must contain a special character (!@#$%^&+=)
+     *      - must be at least 8 characters in length
+     *      - must not contain any whitespace characters
+     * @param password
+     * @return boolean
+     */
+    public boolean isPasswordStrong(String password) {
+        return password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&+=])(?=\\S+$).{8,}$");
     }
 }
