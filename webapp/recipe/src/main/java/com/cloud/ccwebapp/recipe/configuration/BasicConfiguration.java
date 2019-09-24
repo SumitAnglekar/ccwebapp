@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -26,14 +27,16 @@ public class BasicConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth)
             throws Exception {
             auth.jdbcAuthentication().dataSource(dataSource)
-                .authoritiesByUsernameQuery("select email_address as username,'USER' from user_table where email_address=?")
-                .usersByUsernameQuery("select email_address as username, password, true from user_table where email_address=?");
+                .authoritiesByUsernameQuery("select emailaddress as username,'USER' from user_table where emailaddress=?")
+                .usersByUsernameQuery("select emailaddress as username, password, true from user_table where emailaddress=?");
 
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
+                .and()
                 .csrf().disable()
                 .authorizeRequests()
                 .anyRequest()
