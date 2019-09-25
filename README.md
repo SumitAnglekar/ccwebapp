@@ -22,7 +22,7 @@
 
 
 ## Running Tests
-1. Traverse to /ccwebapp/webapp/recipe/src/test/java/com/cloud/ccwebapp/recipe/repository/UserRepositoryIntegrationTest.java
+1. Run the "run all tests" configuration for JUnit
 2. Run method  whenFindByEmail_thenReturnUser()
 3. You can also test all the endpoints by following steps
 4. Run the web application with "-Dspring.datasource.password=XXXX" parameter passed as VM argument. Replace XXXX with the database password
