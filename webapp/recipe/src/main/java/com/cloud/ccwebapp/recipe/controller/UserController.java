@@ -4,6 +4,7 @@ import com.cloud.ccwebapp.recipe.model.User;
 import com.cloud.ccwebapp.recipe.repository.UserRepository;
 import com.cloud.ccwebapp.recipe.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,16 +25,17 @@ public class UserController {
     PasswordEncoder passwordEncoder;
 
     @RequestMapping(method= RequestMethod.POST, value="/user")
-    public User addUser(@RequestBody User user, HttpServletResponse response) {
+    public ResponseEntity<User> addUser(@RequestBody User user) {
         // check if user is present
+        ResponseEntity<User> responseEntity;
         try {
             User user1 = userService.saveUser(user);
-            return user;
+            responseEntity = new ResponseEntity<User>(user1, HttpStatus.CREATED);
         } catch(Exception e) {
             System.out.println(e.getMessage());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return null;
+            responseEntity = new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
         }
+        return responseEntity;
     }
 
     @GetMapping("/user/self")
