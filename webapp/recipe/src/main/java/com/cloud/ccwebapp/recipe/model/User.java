@@ -14,13 +14,11 @@ import java.util.UUID;
 public class User {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
     private String first_name;
     private String last_name;
 
-   //@Column(name="password")
-    //@NotEmpty(message = "Password shouldn't be left blank")
-    //@Size(min = 2, max = 30)
     @JsonIgnore
     private String password;
 
@@ -40,7 +38,7 @@ public class User {
     private Date account_updated;
 
     public User(){
-      id = UUID.randomUUID();
+      //id = UUID.randomUUID();
     }
 
     public UUID getId() {
