@@ -23,10 +23,5 @@
 
 ## Running Tests
 1. Run the "run all tests" configuration for JUnit
-2. Run method  whenFindByEmail_thenReturnUser()
-3. You can also test all the endpoints by following steps
-4. Run the web application with "-Dspring.datasource.password=XXXX" parameter passed as VM argument. Replace XXXX with the database password
-5. Open postman and test all the endpoints by passing correct Basic Authorization (wherever needed) and correct request body
-6. Some of the endpoints are "http://loclhost:8080/v1/user", "http://localhost:8080/v1/user/self"
 
 ## CI/CD
