@@ -10,7 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
 
 
 @RestController
@@ -26,8 +25,15 @@ public class UserController {
 
     @RequestMapping(method= RequestMethod.POST, value="/user")
     public User addUser(@RequestBody User user, HttpServletResponse response) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        // check if user is present
+        try {
+            User user1 = userService.saveUser(user);
+            return user;
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return null;
+        }
     }
 
     @GetMapping("/user/self")

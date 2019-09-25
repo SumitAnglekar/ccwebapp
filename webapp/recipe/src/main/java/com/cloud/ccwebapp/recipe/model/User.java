@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 import java.util.Date;
 
 @Entity(name = "User_Table")
@@ -17,10 +18,15 @@ public class User {
     private String first_name;
     private String last_name;
 
+   //@Column(name="password")
+    //@NotEmpty(message = "Password shouldn't be left blank")
+    //@Size(min = 2, max = 30)
     @JsonIgnore
     private String password;
 
+    @NotEmpty(message = "Email address shouldn't be left blank")
     @JsonProperty("email_address")
+    @Pattern(regexp = "^(.+)@(.+)$")
     private String emailaddress;
 
     @CreationTimestamp
