@@ -43,7 +43,8 @@ public class UserService {
             // check if valid fields are updated
             if (!dbUser.getFirst_name().equals(user.getFirst_name())
                     || !dbUser.getLast_name().equals(user.getLast_name())
-                    || !passwordEncoder.matches(user.getPassword(), dbUser.getPassword())
+                    || ((user.getPassword()!=null  && !user.getPassword().isEmpty() ) &&
+                    !passwordEncoder.matches(user.getPassword(), dbUser.getPassword()))
                     || !dbUser.getPassword().equals(user.getPassword())) {
 
                 // ok to save
