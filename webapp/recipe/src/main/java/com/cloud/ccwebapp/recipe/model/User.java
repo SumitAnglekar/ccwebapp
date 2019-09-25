@@ -6,14 +6,15 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.Pattern;
 import java.util.Date;
+import java.util.UUID;
 
 @Entity(name = "User_Table")
 public class User {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private int id;
+    private UUID id;
     private String first_name;
     private String last_name;
 
@@ -21,6 +22,7 @@ public class User {
     private String password;
 
     @JsonProperty("email_address")
+    @Pattern(regexp =  )
     private String emailaddress;
 
     @CreationTimestamp
@@ -34,25 +36,18 @@ public class User {
     private Date account_updated;
 
     public User(){
-
+      id = UUID.randomUUID();
     }
 
-    public User(String first_name, String last_name, String password, String emailaddress, Date account_created, Date account_updated) {
-        this.first_name = first_name;
-        this.last_name = last_name;
-        this.password = password;
-        this.emailaddress = emailaddress;
-        this.account_created = account_created;
-        this.account_updated = account_updated;
-    }
-
-    public int getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(UUID id) {
         this.id = id;
+
     }
+
 
     public String getFirst_name() {
         return first_name;
