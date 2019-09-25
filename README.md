@@ -9,7 +9,10 @@
 | Sumit Anglekar | 001475969 | anglekar.s@husky.neu.edu |
 
 ## Technology Stack
-
+1. SpringBoot
+2. Spring Security
+3. Hibernate
+4. Postgres Database
 
 ## Build Instructions
 1. Clone the git repository 
