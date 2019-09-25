@@ -22,7 +22,7 @@ public class User {
     private String password;
 
     @JsonProperty("email_address")
-    @Pattern(regexp =  )
+    @Pattern(regexp = "^(.+)@(.+)$")
     private String emailaddress;
 
     @CreationTimestamp
