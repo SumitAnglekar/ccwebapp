@@ -53,7 +53,7 @@ public class UserService {
                 if (user.getLast_name() != null) {
                     dbUser.setLast_name(user.getLast_name());
                 }
-                if (user.getPassword() != null) {
+                if (user.getPassword()!=null  && !user.getPassword().isEmpty() ) {
                     if (!passwordEncoder.matches(user.getPassword(), dbUser.getPassword())) {
                         // check if password is strong
                         if (!isPasswordStrong(user.getPassword())) {
