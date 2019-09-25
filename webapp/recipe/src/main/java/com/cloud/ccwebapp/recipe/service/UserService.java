@@ -73,6 +73,22 @@ public class UserService {
         return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
     }
 
+    public User saveUser(User user) throws Exception {
+        Optional<User> dbRecord = userRepository.findUserByEmailaddress(user.getEmailaddress());
+        if (dbRecord.isPresent()) {
+            throw new Exception("User already present!!");
+        }
+        else {
+            if(isPasswordStrong(user.getPassword())) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+                return userRepository.save(user);
+            }
+            else{
+                throw new Exception("Password not valid!!");
+            }
+        }
+    }
+
     /**
      * Password must satisfy following constraints:
      *      - must contain a digit
@@ -87,4 +103,6 @@ public class UserService {
     public boolean isPasswordStrong(String password) {
         return password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&+=])(?=\\S+$).{8,}$");
     }
+
+
 }
