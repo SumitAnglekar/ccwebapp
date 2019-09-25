@@ -31,7 +31,7 @@ public class UserService {
         if (user.getEmailaddress() != null
                 || user.getAccount_created() != null
                 || user.getAccount_updated() != null
-                /*|| user.getId() != null*/) {
+                || user.getId() != null) {
             return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
         }
 
