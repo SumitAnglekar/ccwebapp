@@ -21,11 +21,11 @@ public class UserService {
     PasswordEncoder passwordEncoder;
 
     public ResponseEntity<User> updateUser(User user, Authentication auth) {
-        // check if user is updating his own record
-        if (user.getEmailaddress() != null
-                && !user.getEmailaddress().equals(auth.getName())) {
-            return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
-        }
+//        // check if user is updating his own record
+//        if (user.getEmailaddress() != null
+//                && !user.getEmailaddress().equals(auth.getName())) {
+//            return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
+//        }
 
         // check if user has updated other fields
         if (user.getEmailaddress() != null
