@@ -24,7 +24,7 @@ public class User {
 
     @NotEmpty(message = "Email address shouldn't be left blank")
     @JsonProperty("email_address")
-    @Pattern(regexp = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)(\\.[A-Za-z]{2,})$")
+    @Pattern(regexp = "^(.+)@(.+)$")
     private String emailaddress;
 
     @CreationTimestamp
