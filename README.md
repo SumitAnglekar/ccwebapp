@@ -16,12 +16,13 @@
 
 ## Build Instructions
 1. Clone the git repository 
-2. Traverse to the folder ./ccwebapp/webapp
+2. Traverse to the folder ./ccwebapp/webapp/recipe.
+3. Run the command to build the module: mvn clean install.
 
 ## Deploy Instructions
 
 
 ## Running Tests
-1. Run the "run all tests" configuration for JUnit
+1. Run the "run all tests" configuration for JUnit.
 
 ## CI/CD
