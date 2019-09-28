@@ -52,9 +52,11 @@ public class Recipe {
     @UniqueElements
     private List<String> ingredients;
 
+    @OneToMany(cascade = CascadeType.ALL)
     private List<OrderedList> steps;
 
-    private NutritionalInformation nutrition_information
+    @OneToOne(cascade = CascadeType.ALL)
+    private NutritionalInformation nutrition_information;
 
     public Recipe() {
     }
@@ -138,6 +140,7 @@ public class Recipe {
     public void setIngredients(List<String> ingredients) {
         this.ingredients = ingredients;
     }
+
 
     public List<OrderedList> getSteps() {
         return steps;
