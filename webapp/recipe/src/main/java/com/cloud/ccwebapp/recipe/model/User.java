@@ -102,4 +102,6 @@ public class User {
     public void setAccount_updated(Date account_updated) {
         this.account_updated = account_updated;
     }
+
+
 }

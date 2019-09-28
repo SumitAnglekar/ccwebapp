@@ -8,10 +8,16 @@ import org.springframework.data.annotation.ReadOnlyProperty;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static javax.swing.text.StyleConstants.Size;
+
+@Entity
 public class Recipe {
 
     @Id
@@ -33,23 +39,28 @@ public class Recipe {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @ReadOnlyProperty
-    private UUID author_id ;
+    private User author_id ;
 
-
+    @Min(value = 1, message = "cook_time_in_min must be greater than 1")
     private int cook_time_in_min;
 
+    @Min(value = 1, message = "prep_time_in_min must be greater than 1")
     private int prep_time_in_min;
 
     @ReadOnlyProperty
     private int total_time_in_min;
 
-
+    @NotBlank(message = "title cannot be blank")
     private String title;
+
+    @NotBlank(message = "cuisine cannot be blank")
+    private String cuisine;
 
     @Range(min = 1,max = 5)
     private int servings;
 
     @UniqueElements
+    @NotNull
     private List<String> ingredients;
 
     @OneToMany(cascade = CascadeType.ALL)
@@ -85,11 +96,11 @@ public class Recipe {
         this.updated_ts = updated_ts;
     }
 
-    public UUID getAuthor_id() {
+    public User getAuthor_id() {
         return author_id;
     }
 
-    public void setAuthor_id(UUID author_id) {
+    public void setAuthor_id(User author_id) {
         this.author_id = author_id;
     }
 
@@ -156,5 +167,23 @@ public class Recipe {
 
     public void setNutrition_information(NutritionalInformation nutrition_information) {
         this.nutrition_information = nutrition_information;
+    }
+
+    @Override
+    public String toString() {
+        return "Recipe{" +
+                "id=" + id +
+                ", created_ts=" + created_ts +
+                ", updated_ts=" + updated_ts +
+                ", author_id=" + author_id +
+                ", cook_time_in_min=" + cook_time_in_min +
+                ", prep_time_in_min=" + prep_time_in_min +
+                ", total_time_in_min=" + total_time_in_min +
+                ", title='" + title + '\'' +
+                ", servings=" + servings +
+                ", ingredients=" + ingredients +
+                ", steps=" + steps +
+                ", nutrition_information=" + nutrition_information +
+                '}';
     }
 }
