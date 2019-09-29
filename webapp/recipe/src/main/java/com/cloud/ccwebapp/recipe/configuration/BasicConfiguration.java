@@ -1,5 +1,6 @@
 package com.cloud.ccwebapp.recipe.configuration;
 
+import com.cloud.ccwebapp.recipe.exception.CustomizedResponseEntityExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 import javax.sql.DataSource;
 
@@ -22,11 +24,13 @@ public class BasicConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private DataSource dataSource;
 
+    @Autowired
+    private AuthenticationEntryPoint authenticationEntryPoint;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth)
             throws Exception {
-            auth.jdbcAuthentication().dataSource(dataSource)
+        auth.jdbcAuthentication().dataSource(dataSource)
                 .authoritiesByUsernameQuery("select emailaddress as username,'USER' from user_table where emailaddress=?")
                 .usersByUsernameQuery("select emailaddress as username, password, true from user_table where emailaddress=?");
 
@@ -42,7 +46,8 @@ public class BasicConfiguration extends WebSecurityConfigurerAdapter {
                 .anyRequest()
                 .authenticated()
                 .and()
-                .httpBasic();
+                .httpBasic().authenticationEntryPoint(authenticationEntryPoint);
+
     }
 
     @Override
@@ -54,6 +59,5 @@ public class BasicConfiguration extends WebSecurityConfigurerAdapter {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 
 }
