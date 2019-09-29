@@ -4,6 +4,7 @@ import com.cloud.ccwebapp.recipe.model.User;
 import com.cloud.ccwebapp.recipe.repository.UserRepository;
 import com.cloud.ccwebapp.recipe.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -25,7 +26,7 @@ public class UserController {
     PasswordEncoder passwordEncoder;
 
     @RequestMapping(method= RequestMethod.POST, value="/user")
-    public ResponseEntity<User> addUser(@RequestBody User user) {
+    public ResponseEntity<User> addUser(@RequestBody User user, String message) {
         // check if user is present
         ResponseEntity<User> responseEntity;
         if(user.getId() == null &&  user.getAccount_created() == null && user.getAccount_updated() == null) {
@@ -34,7 +35,9 @@ public class UserController {
                 responseEntity = new ResponseEntity<User>(user1, HttpStatus.CREATED);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
-                responseEntity = new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+                HttpHeaders responseHeaders = new HttpHeaders();
+                responseHeaders.set(user.getEmailaddress(),"User already present in the database");
+                responseEntity = new ResponseEntity<User>(responseHeaders,HttpStatus.BAD_REQUEST);
             }
         } else {
             responseEntity = new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
