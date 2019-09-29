@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/v1/user")
 public class UserController {
 
     @Autowired
@@ -25,7 +25,7 @@ public class UserController {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    @RequestMapping(method= RequestMethod.POST, value="/user")
+    @RequestMapping(method= RequestMethod.POST, value="/")
     public ResponseEntity<User> addUser(@RequestBody User user) {
         // check if user is present
         ResponseEntity<User> responseEntity;
@@ -43,12 +43,12 @@ public class UserController {
         return responseEntity;
     }
 
-    @GetMapping("/user/self")
+    @GetMapping("/self")
     public User getUser(Authentication authentication ) {
         return userRepository.findUserByEmailaddress(authentication.getName()).get();
     }
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/user/self")
+    @RequestMapping(method = RequestMethod.PUT, value = "/self")
     public ResponseEntity<User> updateUser(@RequestBody User user, Authentication authentication) {
         return userService.updateUser(user, authentication);
     }
