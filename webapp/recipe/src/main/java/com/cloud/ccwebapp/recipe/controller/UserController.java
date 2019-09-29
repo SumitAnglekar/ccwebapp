@@ -10,22 +10,22 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
-
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/v1/user")
 public class UserController {
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private UserService userService;
-    @Autowired
-    PasswordEncoder passwordEncoder;
 
-    @RequestMapping(method= RequestMethod.POST, value="/user")
+
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<User> addUser(@RequestBody User user) throws Exception {
+
         // check if user is present
         ResponseEntity<User> responseEntity;
         if(user.getId() == null &&  user.getAccount_created() == null && user.getAccount_updated() == null) {
@@ -39,12 +39,12 @@ public class UserController {
         return responseEntity;
     }
 
-    @GetMapping("/user/self")
+    @GetMapping("/self")
     public User getUser(Authentication authentication ) {
         return userRepository.findUserByEmailaddress(authentication.getName()).get();
     }
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/user/self")
+    @RequestMapping(method = RequestMethod.PUT, value = "/self")
     public ResponseEntity<User> updateUser(@RequestBody User user, Authentication authentication) {
         return userService.updateUser(user, authentication);
     }

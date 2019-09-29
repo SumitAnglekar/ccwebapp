@@ -10,6 +10,7 @@ import org.springframework.data.annotation.ReadOnlyProperty;
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
@@ -60,14 +61,16 @@ public class Recipe {
     private int servings;
 
     @UniqueElements
-    @NotNull
+    @NotEmpty(message = "recipe must have ingredients")
     @ElementCollection
     private List<String> ingredients;
 
     @OneToMany(cascade = CascadeType.ALL)
+    @NotEmpty(message = "recipe must have steps")
     private List<OrderedList> steps;
 
     @OneToOne(cascade = CascadeType.ALL)
+    @NotNull(message = "recipe must have nutrition_information")
     private NutritionalInformation nutrition_information;
 
     public Recipe() {
@@ -172,6 +175,13 @@ public class Recipe {
         this.nutrition_information = nutrition_information;
     }
 
+    public String getCuisine() {
+        return cuisine;
+    }
+
+    public void setCuisine(String cuisine) {
+        this.cuisine = cuisine;
+    }
 
     @Override
     public String toString() {
