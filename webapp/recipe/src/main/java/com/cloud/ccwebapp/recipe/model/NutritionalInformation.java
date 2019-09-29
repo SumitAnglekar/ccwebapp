@@ -7,7 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Entity
@@ -20,18 +22,23 @@ public class NutritionalInformation {
     private UUID id;
 
     @Min(value = 0, message = "calories cannot be negative")
+    @NotNull(message = "calories should be present")
     private int calories;
 
-    @Min(value = 0, message = "cholesterol cannot be negative")
+    @DecimalMin(value = "0.0", message = "cholesterol cannot be negative")
+    @NotNull(message = "cholesterol should be present")
     private float cholesterol_in_mg;
 
     @Min(value = 0, message = "sodium cannot be negative")
+    @NotNull(message = "sodium should be present")
     private int sodium_in_mg;
 
-    @Min(value = 0, message = "carbohydrates cannot be negative")
+    @DecimalMin(value = "0.0", message = "carbohydrates cannot be negative")
+    @NotNull(message = "carbohydrates should be present")
     private float carbohydrates_in_grams;
 
-    @Min(value = 0, message = "protein cannot be negative")
+    @DecimalMin(value = "0.0", message = "protein cannot be negative")
+    @NotNull(message = "proteins should be present")
     private float protein_in_grams;
 
     public NutritionalInformation() {}
