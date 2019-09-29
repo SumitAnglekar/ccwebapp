@@ -25,17 +25,14 @@ public class UserController {
     PasswordEncoder passwordEncoder;
 
     @RequestMapping(method= RequestMethod.POST, value="/user")
-    public ResponseEntity<User> addUser(@RequestBody User user) {
+    public ResponseEntity<User> addUser(@RequestBody User user) throws Exception {
         // check if user is present
         ResponseEntity<User> responseEntity;
         if(user.getId() == null &&  user.getAccount_created() == null && user.getAccount_updated() == null) {
-            try {
+
                 User user1 = userService.saveUser(user);
                 responseEntity = new ResponseEntity<User>(user1, HttpStatus.CREATED);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                responseEntity = new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
-            }
+
         } else {
             responseEntity = new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
         }
