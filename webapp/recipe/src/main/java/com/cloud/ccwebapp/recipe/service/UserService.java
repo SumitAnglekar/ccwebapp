@@ -1,5 +1,6 @@
 package com.cloud.ccwebapp.recipe.service;
 
+import com.cloud.ccwebapp.recipe.exception.UserAlreadyPresentException;
 import com.cloud.ccwebapp.recipe.model.User;
 import com.cloud.ccwebapp.recipe.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +78,7 @@ public class UserService {
     public User saveUser(User user) throws Exception {
         Optional<User> dbRecord = userRepository.findUserByEmailaddress(user.getEmailaddress());
         if (dbRecord.isPresent()) {
-            throw new Exception("User already present!!");
+            throw new UserAlreadyPresentException("User already present!!");
         }
         else {
             if(isPasswordStrong(user.getPassword())) {
