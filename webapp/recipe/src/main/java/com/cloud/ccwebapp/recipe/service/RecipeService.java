@@ -1,16 +1,14 @@
 package com.cloud.ccwebapp.recipe.service;
 
+import com.cloud.ccwebapp.recipe.controller.RecipeController;
 import com.cloud.ccwebapp.recipe.model.Recipe;
-import com.cloud.ccwebapp.recipe.model.User;
 import com.cloud.ccwebapp.recipe.repository.RecipeRepository;
-import com.cloud.ccwebapp.recipe.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class RecipeService {
@@ -34,4 +32,11 @@ public class RecipeService {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
+
+    public void deleteRecipe(UUID uuid, Recipe recipe) throws Exception{
+        Optional<Recipe> dbRecord = recipeRepository.findRecipesById(uuid);
+       if(dbRecord.isPresent()){
+           dbRecord.delete;
+       }
+    }
 }
