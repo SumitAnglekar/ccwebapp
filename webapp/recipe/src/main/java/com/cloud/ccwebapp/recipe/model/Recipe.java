@@ -61,7 +61,7 @@ public class Recipe {
     private int servings;
 
     @UniqueElements
-    @NotNull
+    @NotEmpty(message = "recipe must have ingredients")
     @ElementCollection
     private List<String> ingredients;
 
@@ -70,7 +70,7 @@ public class Recipe {
     private List<OrderedList> steps;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @NotEmpty(message = "recipe must have nutrition_information")
+    @NotNull(message = "recipe must have nutrition_information")
     private NutritionalInformation nutrition_information;
 
     public Recipe() {
@@ -175,6 +175,13 @@ public class Recipe {
         this.nutrition_information = nutrition_information;
     }
 
+    public String getCuisine() {
+        return cuisine;
+    }
+
+    public void setCuisine(String cuisine) {
+        this.cuisine = cuisine;
+    }
 
     @Override
     public String toString() {
