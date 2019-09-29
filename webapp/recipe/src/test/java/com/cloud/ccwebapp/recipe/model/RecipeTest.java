@@ -21,15 +21,13 @@ public class RecipeTest {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
-    @Test
-    public void whenRecipeHasNoConstraintViolations() {
-        // Default recipe values
-        Recipe recipeWithNoIngredients = new Recipe();
-        recipeWithNoIngredients.setCook_time_in_min(1);
-        recipeWithNoIngredients.setPrep_time_in_min(1);
-        recipeWithNoIngredients.setTitle("Test Recipe");
-        recipeWithNoIngredients.setCuisine("Test Cuisine");
-        recipeWithNoIngredients.setServings(1);
+    public Recipe getDefaultRecipeObject() {
+        Recipe defaultRecipeObject = new Recipe();
+        defaultRecipeObject.setCook_time_in_min(1);
+        defaultRecipeObject.setPrep_time_in_min(1);
+        defaultRecipeObject.setTitle("Test Recipe");
+        defaultRecipeObject.setCuisine("Test Cuisine");
+        defaultRecipeObject.setServings(1);
 
         // Default OrderedList value
         List<OrderedList> testSteps = new ArrayList<>();
@@ -37,7 +35,7 @@ public class RecipeTest {
         testStep.setPosition(1);
         testStep.setItems("Test Step");
         testSteps.add(testStep);
-        recipeWithNoIngredients.setSteps(testSteps);
+        defaultRecipeObject.setSteps(testSteps);
 
         // Default Nutritional Information
         NutritionalInformation testNutrition = new NutritionalInformation();
@@ -46,301 +44,109 @@ public class RecipeTest {
         testNutrition.setSodium_in_mg(0);
         testNutrition.setCarbohydrates_in_grams(0);
         testNutrition.setProtein_in_grams(0);
-        recipeWithNoIngredients.setNutrition_information(testNutrition);
+        defaultRecipeObject.setNutrition_information(testNutrition);
 
         // Default Ingredients
         List<String> testIngredients = new ArrayList<>();
         testIngredients.add("test Ingredient");
-        recipeWithNoIngredients.setIngredients(testIngredients);
+        defaultRecipeObject.setIngredients(testIngredients);
 
-        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithNoIngredients);
+        return defaultRecipeObject;
+    }
+
+    @Test
+    public void whenRecipeHasNoConstraintViolations() {
+        // Default recipe values
+        Recipe recipeWithNoViolations = getDefaultRecipeObject();
+
+        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithNoViolations);
         assertThat(violations.size()).isEqualTo(0);
     }
 
     @Test
     public void whenRecipeHasCookTimeViolation() {
-        // Default recipe values
-        Recipe recipeWithNoIngredients = new Recipe();
-        recipeWithNoIngredients.setPrep_time_in_min(1);
-        recipeWithNoIngredients.setTitle("Test Recipe");
-        recipeWithNoIngredients.setCuisine("Test Cuisine");
-        recipeWithNoIngredients.setServings(1);
 
         //Violation
-        recipeWithNoIngredients.setCook_time_in_min(0);
+        Recipe recipeWithViolation = getDefaultRecipeObject();
+        recipeWithViolation.setCook_time_in_min(0);
 
-        // Default OrderedList value
-        List<OrderedList> testSteps = new ArrayList<>();
-        OrderedList testStep = new OrderedList();
-        testStep.setPosition(1);
-        testStep.setItems("Test Step");
-        testSteps.add(testStep);
-        recipeWithNoIngredients.setSteps(testSteps);
-
-        // Default Nutritional Information
-        NutritionalInformation testNutrition = new NutritionalInformation();
-        testNutrition.setCalories(0);
-        testNutrition.setCholesterol_in_mg(0);
-        testNutrition.setSodium_in_mg(0);
-        testNutrition.setCarbohydrates_in_grams(0);
-        testNutrition.setProtein_in_grams(0);
-        recipeWithNoIngredients.setNutrition_information(testNutrition);
-
-        // Default Ingredients
-        List<String> testIngredients = new ArrayList<>();
-        testIngredients.add("test Ingredient");
-        recipeWithNoIngredients.setIngredients(testIngredients);
-
-        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithNoIngredients);
+        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithViolation);
         assertThat(violations.size()).isEqualTo(1);
     }
 
     @Test
     public void whenRecipeHasPrepTimeViolation() {
-        // Default recipe values
-        Recipe recipeWithNoIngredients = new Recipe();
-        recipeWithNoIngredients.setCook_time_in_min(1);
-        recipeWithNoIngredients.setTitle("Test Recipe");
-        recipeWithNoIngredients.setCuisine("Test Cuisine");
-        recipeWithNoIngredients.setServings(1);
 
         // Violation
-        recipeWithNoIngredients.setPrep_time_in_min(0);
+        Recipe recipeWithViolation = getDefaultRecipeObject();
+        recipeWithViolation.setPrep_time_in_min(0);
 
-        // Default OrderedList value
-        List<OrderedList> testSteps = new ArrayList<>();
-        OrderedList testStep = new OrderedList();
-        testStep.setPosition(1);
-        testStep.setItems("Test Step");
-        testSteps.add(testStep);
-        recipeWithNoIngredients.setSteps(testSteps);
-
-        // Default Nutritional Information
-        NutritionalInformation testNutrition = new NutritionalInformation();
-        testNutrition.setCalories(0);
-        testNutrition.setCholesterol_in_mg(0);
-        testNutrition.setSodium_in_mg(0);
-        testNutrition.setCarbohydrates_in_grams(0);
-        testNutrition.setProtein_in_grams(0);
-        recipeWithNoIngredients.setNutrition_information(testNutrition);
-
-        // Default Ingredients
-        List<String> testIngredients = new ArrayList<>();
-        testIngredients.add("test Ingredient");
-        recipeWithNoIngredients.setIngredients(testIngredients);
-
-        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithNoIngredients);
+        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithViolation);
         assertThat(violations.size()).isEqualTo(1);
     }
 
     @Test
     public void whenRecipeHasTitleViolation() {
-        // Default recipe values
-        Recipe recipeWithNoIngredients = new Recipe();
-        recipeWithNoIngredients.setCook_time_in_min(1);
-        recipeWithNoIngredients.setPrep_time_in_min(1);
-        recipeWithNoIngredients.setCuisine("Test Cuisine");
-        recipeWithNoIngredients.setServings(1);
 
         // Violation - no title
-        //recipeWithNoIngredients.setTitle("Test Recipe");
+        Recipe recipeWithViolation = getDefaultRecipeObject();
+        recipeWithViolation.setTitle(null);
 
-        // Default OrderedList value
-        List<OrderedList> testSteps = new ArrayList<>();
-        OrderedList testStep = new OrderedList();
-        testStep.setPosition(1);
-        testStep.setItems("Test Step");
-        testSteps.add(testStep);
-        recipeWithNoIngredients.setSteps(testSteps);
-
-        // Default Nutritional Information
-        NutritionalInformation testNutrition = new NutritionalInformation();
-        testNutrition.setCalories(0);
-        testNutrition.setCholesterol_in_mg(0);
-        testNutrition.setSodium_in_mg(0);
-        testNutrition.setCarbohydrates_in_grams(0);
-        testNutrition.setProtein_in_grams(0);
-        recipeWithNoIngredients.setNutrition_information(testNutrition);
-
-        // Default Ingredients
-        List<String> testIngredients = new ArrayList<>();
-        testIngredients.add("test Ingredient");
-        recipeWithNoIngredients.setIngredients(testIngredients);
-
-        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithNoIngredients);
+        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithViolation);
         assertThat(violations.size()).isEqualTo(1);
     }
 
     @Test
     public void whenRecipeHasCuisineViolation() {
-        // Default recipe values
-        Recipe recipeWithNoIngredients = new Recipe();
-        recipeWithNoIngredients.setCook_time_in_min(1);
-        recipeWithNoIngredients.setPrep_time_in_min(1);
-        recipeWithNoIngredients.setTitle("Test Recipe");
-        recipeWithNoIngredients.setServings(1);
-
         // Violation - no cuisine
-        // recipeWithNoIngredients.setCuisine("Test Cuisine");
+        Recipe recipeWithViolation = getDefaultRecipeObject();
+        recipeWithViolation.setCuisine(null);
 
-        // Default OrderedList value
-        List<OrderedList> testSteps = new ArrayList<>();
-        OrderedList testStep = new OrderedList();
-        testStep.setPosition(1);
-        testStep.setItems("Test Step");
-        testSteps.add(testStep);
-        recipeWithNoIngredients.setSteps(testSteps);
-
-        // Default Nutritional Information
-        NutritionalInformation testNutrition = new NutritionalInformation();
-        testNutrition.setCalories(0);
-        testNutrition.setCholesterol_in_mg(0);
-        testNutrition.setSodium_in_mg(0);
-        testNutrition.setCarbohydrates_in_grams(0);
-        testNutrition.setProtein_in_grams(0);
-        recipeWithNoIngredients.setNutrition_information(testNutrition);
-
-        // Default Ingredients
-        List<String> testIngredients = new ArrayList<>();
-        testIngredients.add("test Ingredient");
-        recipeWithNoIngredients.setIngredients(testIngredients);
-
-        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithNoIngredients);
+        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithViolation);
         assertThat(violations.size()).isEqualTo(1);
     }
 
     @Test
     public void whenRecipeHasServingsViolation() {
-        // Default recipe values
-        Recipe recipeWithNoIngredients = new Recipe();
-        recipeWithNoIngredients.setCook_time_in_min(1);
-        recipeWithNoIngredients.setPrep_time_in_min(1);
-        recipeWithNoIngredients.setTitle("Test Recipe");
-        recipeWithNoIngredients.setCuisine("Test Cuisine");
 
         // Violation - negative servings
-        recipeWithNoIngredients.setServings(-2);
+        Recipe recipeWithViolation = getDefaultRecipeObject();
+        recipeWithViolation.setServings(-2);
 
-        // Default OrderedList value
-        List<OrderedList> testSteps = new ArrayList<>();
-        OrderedList testStep = new OrderedList();
-        testStep.setPosition(1);
-        testStep.setItems("Test Step");
-        testSteps.add(testStep);
-        recipeWithNoIngredients.setSteps(testSteps);
-
-        // Default Nutritional Information
-        NutritionalInformation testNutrition = new NutritionalInformation();
-        testNutrition.setCalories(0);
-        testNutrition.setCholesterol_in_mg(0);
-        testNutrition.setSodium_in_mg(0);
-        testNutrition.setCarbohydrates_in_grams(0);
-        testNutrition.setProtein_in_grams(0);
-        recipeWithNoIngredients.setNutrition_information(testNutrition);
-
-        // Default Ingredients
-        List<String> testIngredients = new ArrayList<>();
-        testIngredients.add("test Ingredient");
-        recipeWithNoIngredients.setIngredients(testIngredients);
-
-        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithNoIngredients);
+        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithViolation);
         assertThat(violations.size()).isEqualTo(1);
     }
 
     @Test
     public void whenRecipeHasStepsViolation() {
-        // Default recipe values
-        Recipe recipeWithNoIngredients = new Recipe();
-        recipeWithNoIngredients.setCook_time_in_min(1);
-        recipeWithNoIngredients.setPrep_time_in_min(1);
-        recipeWithNoIngredients.setTitle("Test Recipe");
-        recipeWithNoIngredients.setCuisine("Test Cuisine");
-        recipeWithNoIngredients.setServings(1);
-
         // Violation - no steps
+        Recipe recipeWithViolation = getDefaultRecipeObject();
         List<OrderedList> testSteps = new ArrayList<>();
-        recipeWithNoIngredients.setSteps(testSteps);
+        recipeWithViolation.setSteps(testSteps);
 
-        // Default Nutritional Information
-        NutritionalInformation testNutrition = new NutritionalInformation();
-        testNutrition.setCalories(0);
-        testNutrition.setCholesterol_in_mg(0);
-        testNutrition.setSodium_in_mg(0);
-        testNutrition.setCarbohydrates_in_grams(0);
-        testNutrition.setProtein_in_grams(0);
-        recipeWithNoIngredients.setNutrition_information(testNutrition);
-
-        // Default Ingredients
-        List<String> testIngredients = new ArrayList<>();
-        testIngredients.add("test Ingredient");
-        recipeWithNoIngredients.setIngredients(testIngredients);
-
-        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithNoIngredients);
+        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithViolation);
         assertThat(violations.size()).isEqualTo(1);
     }
 
     @Test
     public void whenRecipeHasNutritionalInformationViolation() {
-        // Default recipe values
-        Recipe recipeWithNoIngredients = new Recipe();
-        recipeWithNoIngredients.setCook_time_in_min(1);
-        recipeWithNoIngredients.setPrep_time_in_min(1);
-        recipeWithNoIngredients.setTitle("Test Recipe");
-        recipeWithNoIngredients.setCuisine("Test Cuisine");
-        recipeWithNoIngredients.setServings(1);
-
-        // Default OrderedList value
-        List<OrderedList> testSteps = new ArrayList<>();
-        OrderedList testStep = new OrderedList();
-        testStep.setPosition(1);
-        testStep.setItems("Test Step");
-        testSteps.add(testStep);
-        recipeWithNoIngredients.setSteps(testSteps);
 
         // Violation - Null Nutritional Information
-        recipeWithNoIngredients.setNutrition_information(null);
+        Recipe recipeWithViolation = getDefaultRecipeObject();
+        recipeWithViolation.setNutrition_information(null);
 
-        // Default Ingredients
-        List<String> testIngredients = new ArrayList<>();
-        testIngredients.add("test Ingredient");
-        recipeWithNoIngredients.setIngredients(testIngredients);
-
-        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithNoIngredients);
+        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithViolation);
         assertThat(violations.size()).isEqualTo(1);
     }
 
     @Test
     public void whenNullIngredients_thenConstraintViolation() {
-        // Default recipe values
-        Recipe recipeWithNoIngredients = new Recipe();
-        recipeWithNoIngredients.setCook_time_in_min(1);
-        recipeWithNoIngredients.setPrep_time_in_min(1);
-        recipeWithNoIngredients.setTitle("Test Recipe");
-        recipeWithNoIngredients.setCuisine("Test Cuisine");
-        recipeWithNoIngredients.setServings(1);
-
-        // Default OrderedList value
-        List<OrderedList> testSteps = new ArrayList<>();
-        OrderedList testStep = new OrderedList();
-        testStep.setPosition(1);
-        testStep.setItems("Test Step");
-        testSteps.add(testStep);
-        recipeWithNoIngredients.setSteps(testSteps);
-
-        // Default Nutritional Information
-        NutritionalInformation testNutrition = new NutritionalInformation();
-        testNutrition.setCalories(0);
-        testNutrition.setCholesterol_in_mg(0);
-        testNutrition.setSodium_in_mg(0);
-        testNutrition.setCarbohydrates_in_grams(0);
-        testNutrition.setProtein_in_grams(0);
-        recipeWithNoIngredients.setNutrition_information(testNutrition);
-
         // Empty Ingredients
+        Recipe recipeWithViolation = getDefaultRecipeObject();
         List<String> testIngredients = new ArrayList<>();
-        recipeWithNoIngredients.setIngredients(testIngredients);
+        recipeWithViolation.setIngredients(testIngredients);
 
-        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithNoIngredients);
+        Set<ConstraintViolation<Recipe>> violations = validator.validate(recipeWithViolation);
         assertThat(violations.size()).isEqualTo(1);
     }
 }
