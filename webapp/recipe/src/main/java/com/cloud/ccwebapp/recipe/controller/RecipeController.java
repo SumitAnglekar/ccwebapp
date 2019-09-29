@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/v1/recipe")
 public class RecipeController {
@@ -33,7 +35,7 @@ public class RecipeController {
      * Posts new recipe
      */
     @RequestMapping(method = RequestMethod.POST, value = "/")
-    public ResponseEntity<Recipe> saveRecipe(@RequestBody Recipe recipe, Authentication authentication) {
+    public ResponseEntity<Recipe> saveRecipe(@Valid @RequestBody Recipe recipe, Authentication authentication) {
         return recipeService.saveRecipe(recipe, authentication);
     }
 
