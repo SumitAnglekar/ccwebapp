@@ -1,5 +1,6 @@
 package com.cloud.ccwebapp.recipe.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Range;
@@ -9,13 +10,11 @@ import org.springframework.data.annotation.ReadOnlyProperty;
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
-import static javax.swing.text.StyleConstants.Size;
 
 @Entity
 public class Recipe {
@@ -39,7 +38,8 @@ public class Recipe {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @ReadOnlyProperty
-    private User author_id ;
+    @JsonProperty("author_id")
+    private User author;
 
     @Min(value = 1, message = "cook_time_in_min must be greater than 1")
     private int cook_time_in_min;
@@ -61,6 +61,7 @@ public class Recipe {
 
     @UniqueElements
     @NotNull
+    @ElementCollection
     private List<String> ingredients;
 
     @OneToMany(cascade = CascadeType.ALL)
@@ -70,6 +71,8 @@ public class Recipe {
     private NutritionalInformation nutrition_information;
 
     public Recipe() {
+        steps =new ArrayList<>();
+        ingredients = new ArrayList<>();
     }
 
     public UUID getId() {
@@ -96,12 +99,12 @@ public class Recipe {
         this.updated_ts = updated_ts;
     }
 
-    public User getAuthor_id() {
-        return author_id;
+    public User getAuthor() {
+        return author;
     }
 
-    public void setAuthor_id(User author_id) {
-        this.author_id = author_id;
+    public void setAuthor(User author) {
+        this.author = author;
     }
 
     public int getCook_time_in_min() {
@@ -169,21 +172,24 @@ public class Recipe {
         this.nutrition_information = nutrition_information;
     }
 
+
     @Override
     public String toString() {
         return "Recipe{" +
                 "id=" + id +
                 ", created_ts=" + created_ts +
                 ", updated_ts=" + updated_ts +
-                ", author_id=" + author_id +
+                ", author_id=" + author.getId() +
                 ", cook_time_in_min=" + cook_time_in_min +
                 ", prep_time_in_min=" + prep_time_in_min +
                 ", total_time_in_min=" + total_time_in_min +
                 ", title='" + title + '\'' +
+                ", cuisine='" + cuisine + '\'' +
                 ", servings=" + servings +
                 ", ingredients=" + ingredients +
                 ", steps=" + steps +
                 ", nutrition_information=" + nutrition_information +
                 '}';
     }
+
 }
