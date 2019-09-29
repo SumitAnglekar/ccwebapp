@@ -4,14 +4,11 @@ import com.cloud.ccwebapp.recipe.model.User;
 import com.cloud.ccwebapp.recipe.repository.UserRepository;
 import com.cloud.ccwebapp.recipe.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletResponse;
 
 
 @RestController
@@ -19,13 +16,13 @@ import javax.servlet.http.HttpServletResponse;
 public class UserController {
 
     @Autowired
+    PasswordEncoder passwordEncoder;
+    @Autowired
     private UserRepository userRepository;
     @Autowired
     private UserService userService;
-    @Autowired
-    PasswordEncoder passwordEncoder;
 
-    @RequestMapping(method= RequestMethod.POST, value="/")
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<User> addUser(@RequestBody User user) {
         // check if user is present
         ResponseEntity<User> responseEntity;
