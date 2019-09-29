@@ -38,7 +38,7 @@ public class Recipe {
     @ReadOnlyProperty
     private Date updated_ts;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @ReadOnlyProperty
     @JsonProperty("author_id")
     private User author;
