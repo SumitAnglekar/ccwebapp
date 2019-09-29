@@ -26,7 +26,7 @@ public class UserController {
     PasswordEncoder passwordEncoder;
 
     @RequestMapping(method= RequestMethod.POST, value="/user")
-    public ResponseEntity<User> addUser(@RequestBody User user, String message) {
+    public ResponseEntity<User> addUser(@RequestBody User user) {
         // check if user is present
         ResponseEntity<User> responseEntity;
         if(user.getId() == null &&  user.getAccount_created() == null && user.getAccount_updated() == null) {
@@ -35,9 +35,7 @@ public class UserController {
                 responseEntity = new ResponseEntity<User>(user1, HttpStatus.CREATED);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
-                HttpHeaders responseHeaders = new HttpHeaders();
-                responseHeaders.set(user.getEmailaddress(),"User already present in the database");
-                responseEntity = new ResponseEntity<User>(responseHeaders,HttpStatus.BAD_REQUEST);
+                responseEntity = new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
             }
         } else {
             responseEntity = new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
