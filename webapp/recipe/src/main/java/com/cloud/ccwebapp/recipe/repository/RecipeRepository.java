@@ -8,5 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface RecipeRepository extends CrudRepository<Recipe, UUID> {
+    public Optional<Recipe> findRecipesById(UUID uuid);
 
 }
