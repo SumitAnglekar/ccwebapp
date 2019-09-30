@@ -3,12 +3,10 @@ package com.cloud.ccwebapp.recipe.controller;
 import com.cloud.ccwebapp.recipe.model.Recipe;
 import com.cloud.ccwebapp.recipe.service.RecipeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/recipe")
@@ -35,6 +33,11 @@ public class RecipeController {
     @RequestMapping(method = RequestMethod.POST, value = "/")
     public ResponseEntity<Recipe> saveRecipe(@RequestBody Recipe recipe, Authentication authentication) {
         return recipeService.saveRecipe(recipe, authentication);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/{id}")
+    public ResponseEntity<Recipe> updateUser(@RequestBody Recipe recipe, Authentication authentication,@PathVariable String id) throws Exception {
+        return recipeService.updateRecipe(recipe, authentication,id);
     }
 
 }
