@@ -1,5 +1,7 @@
 package com.cloud.ccwebapp.recipe.controller;
 
+import com.cloud.ccwebapp.recipe.exception.RecipeNotFoundException;
+import com.cloud.ccwebapp.recipe.exception.UserNotAuthorizedException;
 import com.cloud.ccwebapp.recipe.model.Recipe;
 import com.cloud.ccwebapp.recipe.model.User;
 import com.cloud.ccwebapp.recipe.repository.RecipeRepository;
@@ -35,7 +37,7 @@ public class RecipeController {
         if (dbRecord.isPresent()) {
             return new ResponseEntity<>(dbRecord.get(), HttpStatus.OK);
         } else {
-            throw new Exception("Id is invalid");
+            throw new RecipeNotFoundException("Id is invalid");
         }
     }
 
@@ -51,10 +53,10 @@ public class RecipeController {
             if (recipeDb.getAuthor().getId().equals(userDb.getId())) {
                 recipeRepository.delete(recipeDb);
             } else {
-                throw new Exception("User is invalid");
+                throw new UserNotAuthorizedException("User is invalid");
             }
         } else {
-            throw new Exception("Recipe Id is invalid");
+            throw new RecipeNotFoundException("Recipe Id is invalid");
         }
 
     }

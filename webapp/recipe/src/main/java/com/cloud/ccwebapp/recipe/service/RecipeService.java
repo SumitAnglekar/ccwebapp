@@ -34,7 +34,6 @@ public class RecipeService {
             recipeRepository.save(recipe);
             return new ResponseEntity<Recipe>(recipe, HttpStatus.CREATED);
         }
-
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
