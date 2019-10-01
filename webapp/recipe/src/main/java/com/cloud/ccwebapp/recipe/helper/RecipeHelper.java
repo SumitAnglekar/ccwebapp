@@ -45,5 +45,13 @@ public class RecipeHelper {
             }
         }
 
+        if(recipe.getNutrition_information() == null) {
+            throw new InvalidInputException("Nutrition_Information cannot be null!!");
+        }
+            else{
+
+            }
+
+
     }
 }
