@@ -1,5 +1,6 @@
 package com.cloud.ccwebapp.recipe.controller;
 
+import com.cloud.ccwebapp.recipe.exception.CustomizedResponseEntityExceptionHandler;
 import com.cloud.ccwebapp.recipe.model.Recipe;
 import com.cloud.ccwebapp.recipe.model.User;
 import com.cloud.ccwebapp.recipe.repository.RecipeRepository;
@@ -9,14 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Optional;
 import java.util.UUID;
 
 
 @RestController
 @RequestMapping("/v1/recipe")
+@Validated(CustomizedResponseEntityExceptionHandler.class)
 public class RecipeController {
 
     @Autowired
@@ -56,6 +60,7 @@ public class RecipeController {
         } else {
             throw new Exception("Recipe Id is invalid");
         }
+
 
     }
 
