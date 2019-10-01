@@ -48,9 +48,23 @@ public class RecipeHelper {
         if(recipe.getNutrition_information() == null) {
             throw new InvalidInputException("Nutrition_Information cannot be null!!");
         }
-            else{
-
+        else{
+           if(recipe.getNutrition_information().getSodium_in_mg()<=0){
+               throw new InvalidInputException("Sodium_in_mg must be greater than 0 !!!");
+           }
+            if(recipe.getNutrition_information().getProtein_in_grams()<=0){
+                throw new InvalidInputException("Protein_in_grams must be greater than 0 !!!");
             }
+            if(recipe.getNutrition_information().getCarbohydrates_in_grams()<=0){
+                throw new InvalidInputException("Carbohydrates_in_grams must be greater than 0 !!!");
+            }
+            if(recipe.getNutrition_information().getCalories()<=0){
+                throw new InvalidInputException("Calories must be greater than 0 !!!");
+            }
+            if(recipe.getNutrition_information().getCholesterol_in_mg()<=0){
+                throw new InvalidInputException("Cholesterol_in_mg must be greater than 0 !!!");
+            }
+        }
 
 
     }
