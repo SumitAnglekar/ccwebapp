@@ -42,7 +42,8 @@ public class User {
     @Column(name = "account_updated")
     private Date account_updated;
 
-    public User(){ }
+    public User() {
+    }
 
     public UUID getId() {
         return id;

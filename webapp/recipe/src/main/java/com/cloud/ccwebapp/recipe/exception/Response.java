@@ -10,10 +10,10 @@ public class Response {
     private Date timestamp;
 
     public Response(String error, String details) {
-            super();
-            this.error = error;
-            this.details = details;
-            this.timestamp = new Date();
+        super();
+        this.error = error;
+        this.details = details;
+        this.timestamp = new Date();
     }
 
     public String getError() {
@@ -24,7 +24,9 @@ public class Response {
         return details;
     }
 
-    public Date getTimestamp() { return timestamp; }
+    public Date getTimestamp() {
+        return timestamp;
+    }
 
     @Override
     public String toString() {
