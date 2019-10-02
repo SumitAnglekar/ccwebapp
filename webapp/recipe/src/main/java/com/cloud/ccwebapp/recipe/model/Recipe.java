@@ -7,7 +7,6 @@ import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.data.annotation.ReadOnlyProperty;
 
 import javax.persistence.*;
-import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -65,12 +64,10 @@ public class Recipe {
 
     @OneToMany(cascade = CascadeType.ALL)
     @NotEmpty(message = "recipe must have steps")
-    @Valid
     private List<OrderedList> steps;
 
     @OneToOne(cascade = CascadeType.ALL)
     @NotNull(message = "recipe must have nutrition_information")
-    @Valid
     private NutritionalInformation nutrition_information;
 
     public Recipe() {

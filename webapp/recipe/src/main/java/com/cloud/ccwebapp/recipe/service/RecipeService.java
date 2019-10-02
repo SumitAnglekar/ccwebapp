@@ -41,7 +41,7 @@ public class RecipeService {
         }
     }
 
-    public void deleteRecipe(UUID id, Authentication authentication) throw Exception{
+    public void deleteRecipe(UUID id, Authentication authentication) throws Exception {
         Optional<Recipe> dbRecordRecipe = recipeRepository.findRecipesById(id);
         if (dbRecordRecipe.isPresent()) {
             Recipe recipeDb = dbRecordRecipe.get();
