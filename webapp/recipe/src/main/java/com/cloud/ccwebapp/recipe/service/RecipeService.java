@@ -32,7 +32,36 @@ public class RecipeService {
     @Autowired
     private RecipeHelper recipeHelper;
 
-    public ResponseEntity<Recipe> saveRecipe(Recipe recipe, Authentication authentication) throws Exception {
+    public ResponseEntity<Recipe> getRecipe(UUID id){
+        Optional<Recipe> dbRecord = recipeRepository.findRecipesById(id);
+        if (dbRecord.isPresent()) {
+            return new ResponseEntity<>(dbRecord.get(), HttpStatus.OK);
+        } else {
+            throw new RecipeNotFoundException("Recipe Id is invalid");
+        }
+    }
+
+    public void deleteRecipe(UUID id, Authentication authentication) throw Exception{
+        Optional<Recipe> dbRecordRecipe = recipeRepository.findRecipesById(id);
+        if (dbRecordRecipe.isPresent()) {
+            Recipe recipeDb = dbRecordRecipe.get();
+            Optional<User> dbAuthUser = userRepository.findUserByEmailaddress(authentication.getName());
+
+            if (!dbAuthUser.isPresent()) {
+                throw new Exception("Invalid User");
+            }
+            User authUser = dbAuthUser.get();
+            if (recipeDb.getAuthor_id().equals(authUser.getId())) {
+                recipeRepository.delete(recipeDb);
+            } else {
+                throw new Exception("User is invalid");
+            }
+        } else {
+            throw new Exception("Recipe Id is invalid");
+        }
+    }
+
+    public ResponseEntity<Recipe> saveRecipe(Recipe recipe, Authentication authentication) {
         //get user's id
         Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
         if (dbRecord.isPresent()) {
