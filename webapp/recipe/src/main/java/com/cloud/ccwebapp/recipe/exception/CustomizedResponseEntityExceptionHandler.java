@@ -11,14 +11,37 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.persistence.RollbackException;
+import javax.validation.ConstraintViolationException;
+
 @ControllerAdvice
 @RestController
 public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(UserAlreadyPresentException.class)
     @ResponseBody
     public final ResponseEntity<Object> handleUserAlreadyPresentException(UserAlreadyPresentException ex, WebRequest request) {
-        Response exceptionResponse = new Response(ex.getMessage(),
-                request.getDescription(false));
+        Response exceptionResponse = new Response(HttpStatus.BAD_REQUEST.toString(),ex.getMessage());
+        return new ResponseEntity(exceptionResponse.toString(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RecipeNotFoundException.class)
+    @ResponseBody
+    public final ResponseEntity<Object> handleRecipeNotFoundException(RecipeNotFoundException ex, WebRequest request) {
+        Response exceptionResponse = new Response(HttpStatus.NOT_FOUND.toString(),ex.getMessage());
+        return new ResponseEntity(exceptionResponse.toString(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UserNotAuthorizedException.class)
+    @ResponseBody
+    public final ResponseEntity<Object> UserNotAuthorizedException(UserNotAuthorizedException ex, WebRequest request) {
+        Response exceptionResponse = new Response(HttpStatus.UNAUTHORIZED.toString(), ex.getMessage());
+        return new ResponseEntity(exceptionResponse.toString(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(InvalidInputException.class)
+    @ResponseBody
+    public final ResponseEntity<Object> InvalidInputException(InvalidInputException ex, WebRequest request) {
+        Response exceptionResponse = new Response(HttpStatus.BAD_REQUEST.toString(), ex.getMessage());
         return new ResponseEntity(exceptionResponse.toString(), HttpStatus.BAD_REQUEST);
     }
 
@@ -29,5 +52,7 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
                 ex.getBindingResult().toString());
         return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
+
+
 
 }
