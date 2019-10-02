@@ -1,5 +1,6 @@
 package com.cloud.ccwebapp.recipe.controller;
 
+import com.cloud.ccwebapp.recipe.exception.UserAlreadyPresentException;
 import com.cloud.ccwebapp.recipe.model.User;
 import com.cloud.ccwebapp.recipe.repository.UserRepository;
 import com.cloud.ccwebapp.recipe.service.UserService;
@@ -34,7 +35,7 @@ public class UserController {
             responseEntity = new ResponseEntity<User>(user1, HttpStatus.CREATED);
 
         } else {
-            responseEntity = new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+            throw new UserAlreadyPresentException("Given user already present in the db");
         }
         return responseEntity;
     }

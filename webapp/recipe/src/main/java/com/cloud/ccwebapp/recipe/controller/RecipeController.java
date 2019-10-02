@@ -1,5 +1,7 @@
 package com.cloud.ccwebapp.recipe.controller;
 
+import com.cloud.ccwebapp.recipe.exception.RecipeNotFoundException;
+import com.cloud.ccwebapp.recipe.exception.UserNotAuthorizedException;
 import com.cloud.ccwebapp.recipe.exception.CustomizedResponseEntityExceptionHandler;
 import com.cloud.ccwebapp.recipe.model.Recipe;
 import com.cloud.ccwebapp.recipe.model.User;
@@ -34,33 +36,14 @@ public class RecipeController {
     //Get Recipe
     @RequestMapping(method = RequestMethod.GET, value = "/{id}")
     public ResponseEntity<Recipe> getRecipe(@PathVariable UUID id) throws Exception {
-        Optional<Recipe> dbRecord = recipeRepository.findRecipesById(id);
-        if (dbRecord.isPresent()) {
-            return new ResponseEntity<>(dbRecord.get(), HttpStatus.OK);
-        } else {
-            throw new Exception("Id is invalid");
-        }
+
+        return recipeService.getRecipe(id);
     }
 
     //Delete Recipe
     @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
     public void deleteRecipe(@PathVariable UUID id, Authentication authentication) throws Exception {
-        Optional<Recipe> dbRecordRecipe = recipeRepository.findRecipesById(id);
-        Optional<User> dbRecordUser = userRepository.findUserByEmailaddress(authentication.getName());
-        if (dbRecordRecipe.isPresent()) {
-            Recipe recipeDb = dbRecordRecipe.get();
-            User userDb = dbRecordUser.get();
-
-            if (recipeDb.getAuthor().getId().equals(userDb.getId())) {
-                recipeRepository.delete(recipeDb);
-            } else {
-                throw new Exception("User is invalid");
-            }
-        } else {
-            throw new Exception("Recipe Id is invalid");
-        }
-
-
+        recipeService.deleteRecipe(id, authentication);
     }
 
     /**
