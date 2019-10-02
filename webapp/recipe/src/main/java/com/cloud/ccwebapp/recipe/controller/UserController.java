@@ -28,10 +28,10 @@ public class UserController {
 
         // check if user is present
         ResponseEntity<User> responseEntity;
-        if(user.getId() == null &&  user.getAccount_created() == null && user.getAccount_updated() == null) {
+        if (user.getId() == null && user.getAccount_created() == null && user.getAccount_updated() == null) {
 
-                User user1 = userService.saveUser(user);
-                responseEntity = new ResponseEntity<User>(user1, HttpStatus.CREATED);
+            User user1 = userService.saveUser(user);
+            responseEntity = new ResponseEntity<User>(user1, HttpStatus.CREATED);
 
         } else {
             responseEntity = new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
@@ -40,7 +40,7 @@ public class UserController {
     }
 
     @GetMapping("/self")
-    public User getUser(Authentication authentication ) {
+    public User getUser(Authentication authentication) {
         return userRepository.findUserByEmailaddress(authentication.getName()).get();
     }
 

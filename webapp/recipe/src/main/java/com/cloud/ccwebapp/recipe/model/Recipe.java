@@ -57,7 +57,7 @@ public class Recipe {
     @NotBlank(message = "cuisine cannot be blank")
     private String cuisine;
 
-    @Range(min = 1,max = 5)
+    @Range(min = 1, max = 5)
     private int servings;
 
     @UniqueElements
@@ -74,7 +74,7 @@ public class Recipe {
     private NutritionalInformation nutrition_information;
 
     public Recipe() {
-        steps =new ArrayList<>();
+        steps = new ArrayList<>();
         ingredients = new ArrayList<>();
     }
 

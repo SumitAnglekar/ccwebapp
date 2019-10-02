@@ -10,16 +10,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
 @Service
 public class UserService {
 
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserRepository userRepository;
 
     public ResponseEntity<User> updateUser(User user, Authentication auth) {
 //        // check if user is updating his own record
@@ -44,7 +43,7 @@ public class UserService {
             // check if valid fields are updated
             if (!dbUser.getFirst_name().equals(user.getFirst_name())
                     || !dbUser.getLast_name().equals(user.getLast_name())
-                    || ((user.getPassword()!=null  && !user.getPassword().isEmpty() ) &&
+                    || ((user.getPassword() != null && !user.getPassword().isEmpty()) &&
                     !passwordEncoder.matches(user.getPassword(), dbUser.getPassword()))
                     || !dbUser.getPassword().equals(user.getPassword())) {
 
@@ -55,7 +54,7 @@ public class UserService {
                 if (user.getLast_name() != null) {
                     dbUser.setLast_name(user.getLast_name());
                 }
-                if (user.getPassword()!=null  && !user.getPassword().isEmpty() ) {
+                if (user.getPassword() != null && !user.getPassword().isEmpty()) {
                     if (!passwordEncoder.matches(user.getPassword(), dbUser.getPassword())) {
                         // check if password is strong
                         if (!isPasswordStrong(user.getPassword())) {
@@ -79,28 +78,26 @@ public class UserService {
         Optional<User> dbRecord = userRepository.findUserByEmailaddress(user.getEmailaddress());
         if (dbRecord.isPresent()) {
             throw new UserAlreadyPresentException("User already present!!");
-        }
-        else {
-            if(isPasswordStrong(user.getPassword())) {
+        } else {
+            if (isPasswordStrong(user.getPassword())) {
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
                 return userRepository.save(user);
-            }
-            else{
+            } else {
                 throw new Exception("Password not valid!!");
             }
         }
     }
 
 
-
     /**
      * Password must satisfy following constraints:
-     *      - must contain a digit
-     *      - must contain a lower case letter
-     *      - must contain an upper case letter
-     *      - must contain a special character (!@#$%^&+=)
-     *      - must be at least 8 characters in length
-     *      - must not contain any whitespace characters
+     * - must contain a digit
+     * - must contain a lower case letter
+     * - must contain an upper case letter
+     * - must contain a special character (!@#$%^&+=)
+     * - must be at least 8 characters in length
+     * - must not contain any whitespace characters
+     *
      * @param password
      * @return boolean
      */

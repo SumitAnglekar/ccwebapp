@@ -41,7 +41,8 @@ public class NutritionalInformation {
     @NotNull(message = "proteins should be present")
     private float protein_in_grams;
 
-    public NutritionalInformation() {}
+    public NutritionalInformation() {
+    }
 
     public UUID getId() {
         return id;
