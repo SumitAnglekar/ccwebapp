@@ -1,6 +1,7 @@
 package com.cloud.ccwebapp.recipe.service;
 
 import com.cloud.ccwebapp.recipe.exception.UserAlreadyPresentException;
+import com.cloud.ccwebapp.recipe.helper.UserHelper;
 import com.cloud.ccwebapp.recipe.model.User;
 import com.cloud.ccwebapp.recipe.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,21 +20,13 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserHelper userHelper;
 
-    public ResponseEntity<User> updateUser(User user, Authentication auth) {
-//        // check if user is updating his own record
-//        if (user.getEmailaddress() != null
-//                && !user.getEmailaddress().equals(auth.getName())) {
-//            return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
-//        }
+    public ResponseEntity<User> updateUser(User user, Authentication auth) throws Exception {
 
-        // check if user has updated other fields
-        if (user.getEmailaddress() != null
-                || user.getAccount_created() != null
-                || user.getAccount_updated() != null
-                || user.getId() != null) {
-            return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
-        }
+        // check if user is valid
+        userHelper.isUserValid(user, false);
 
         // check if user is present
         Optional dbRecord = userRepository.findUserByEmailaddress(auth.getName());
@@ -48,22 +41,9 @@ public class UserService {
                     || !dbUser.getPassword().equals(user.getPassword())) {
 
                 // ok to save
-                if (user.getFirst_name() != null) {
-                    dbUser.setFirst_name(user.getFirst_name());
-                }
-                if (user.getLast_name() != null) {
-                    dbUser.setLast_name(user.getLast_name());
-                }
-                if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-                    if (!passwordEncoder.matches(user.getPassword(), dbUser.getPassword())) {
-                        // check if password is strong
-                        if (!isPasswordStrong(user.getPassword())) {
-                            return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
-                        }
-                    }
-                    dbUser.setPassword(passwordEncoder.encode(user.getPassword()));
-                }
-
+                dbUser.setFirst_name(user.getFirst_name());
+                dbUser.setLast_name(user.getLast_name());
+                dbUser.setPassword(passwordEncoder.encode(user.getPassword()));
                 // save
                 userRepository.save(dbUser);
                 return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
@@ -75,6 +55,9 @@ public class UserService {
     }
 
     public User saveUser(User user) throws Exception {
+        // check if user is valid
+        userHelper.isUserValid(user, true);
+
         Optional<User> dbRecord = userRepository.findUserByEmailaddress(user.getEmailaddress());
         if (dbRecord.isPresent()) {
             throw new UserAlreadyPresentException("User already present!!");

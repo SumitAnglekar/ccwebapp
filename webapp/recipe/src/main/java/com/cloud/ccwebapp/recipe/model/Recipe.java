@@ -1,6 +1,5 @@
 package com.cloud.ccwebapp.recipe.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Range;
@@ -38,10 +37,8 @@ public class Recipe {
     @ReadOnlyProperty
     private Date updated_ts;
 
-    @ManyToOne()
     @ReadOnlyProperty
-    @JsonProperty("author_id")
-    private User author;
+    private UUID author_id;
 
     @Min(value = 1, message = "cook_time_in_min must be greater than 1")
     private int cook_time_in_min;
@@ -105,12 +102,12 @@ public class Recipe {
         this.updated_ts = updated_ts;
     }
 
-    public User getAuthor() {
-        return author;
+    public UUID getAuthor_id() {
+        return author_id;
     }
 
-    public void setAuthor(User author) {
-        this.author = author;
+    public void setAuthor_id(UUID author_id) {
+        this.author_id = author_id;
     }
 
     public int getCook_time_in_min() {
@@ -192,7 +189,7 @@ public class Recipe {
                 "id=" + id +
                 ", created_ts=" + created_ts +
                 ", updated_ts=" + updated_ts +
-                ", author_id=" + author.getId() +
+                ", author_id=" + author_id +
                 ", cook_time_in_min=" + cook_time_in_min +
                 ", prep_time_in_min=" + prep_time_in_min +
                 ", total_time_in_min=" + total_time_in_min +

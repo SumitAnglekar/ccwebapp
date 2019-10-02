@@ -45,12 +45,15 @@ public class RecipeController {
     @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
     public void deleteRecipe(@PathVariable UUID id, Authentication authentication) throws Exception {
         Optional<Recipe> dbRecordRecipe = recipeRepository.findRecipesById(id);
-        Optional<User> dbRecordUser = userRepository.findUserByEmailaddress(authentication.getName());
         if (dbRecordRecipe.isPresent()) {
             Recipe recipeDb = dbRecordRecipe.get();
-            User userDb = dbRecordUser.get();
+            Optional<User> dbAuthUser = userRepository.findUserByEmailaddress(authentication.getName());
 
-            if (recipeDb.getAuthor().getId().equals(userDb.getId())) {
+            if (!dbAuthUser.isPresent()) {
+                throw new Exception("Invalid User");
+            }
+            User authUser = dbAuthUser.get();
+            if (recipeDb.getAuthor_id().equals(authUser.getId())) {
                 recipeRepository.delete(recipeDb);
             } else {
                 throw new Exception("User is invalid");

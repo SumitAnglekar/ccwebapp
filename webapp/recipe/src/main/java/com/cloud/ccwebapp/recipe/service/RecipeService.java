@@ -1,5 +1,6 @@
 package com.cloud.ccwebapp.recipe.service;
 
+import com.cloud.ccwebapp.recipe.exception.InvalidInputException;
 import com.cloud.ccwebapp.recipe.exception.RecipeNotFoundException;
 import com.cloud.ccwebapp.recipe.exception.UserNotAuthorizedException;
 import com.cloud.ccwebapp.recipe.helper.RecipeHelper;
@@ -41,7 +42,7 @@ public class RecipeService {
             recipeHelper.isRecipeValid(recipe);
 
             User user = dbRecord.get();
-            recipe.setAuthor(user);
+            recipe.setAuthor_id(user.getId());
             recipe.setTotal_time_in_min(recipe.getCook_time_in_min() + recipe.getPrep_time_in_min());
             recipeRepository.save(recipe);
             return new ResponseEntity<Recipe>(recipe, HttpStatus.CREATED);
@@ -54,7 +55,10 @@ public class RecipeService {
         Optional<Recipe> dbRecipe = recipeRepository.findById(UUID.fromString(recipeId));
         if (!dbRecipe.isPresent())
             throw new RecipeNotFoundException("Recipe is not present!!");
-        if (!dbRecipe.get().getAuthor().getEmailaddress().equals(authentication.getName()))
+        Optional<User> dbUser = userRepository.findById(dbRecipe.get().getAuthor_id());
+        if (!dbUser.isPresent())
+            throw new InvalidInputException("Unknown error");
+        if (!dbUser.get().getEmailaddress().equals(authentication.getName()))
             throw new UserNotAuthorizedException("You are not authorized to make changes!!");
         recipeHelper.isRecipeValid(recipe);
         if (dbRecipe.get() != null) {
