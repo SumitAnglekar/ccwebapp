@@ -13,11 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.Optional;
 import java.util.UUID;
-
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/v1/recipe")
@@ -69,7 +66,7 @@ public class RecipeController {
      * Posts new recipe
      */
     @RequestMapping(method = RequestMethod.POST, value = "/")
-    public ResponseEntity<Recipe> saveRecipe(@Valid @RequestBody Recipe recipe, Authentication authentication) {
+    public ResponseEntity<Recipe> saveRecipe(@RequestBody Recipe recipe, Authentication authentication) throws Exception {
         return recipeService.saveRecipe(recipe, authentication);
     }
 

@@ -33,10 +33,15 @@ public class RecipeService {
     @Autowired
     private RecipeHelper recipeHelper;
 
-    public ResponseEntity<Recipe> saveRecipe(Recipe recipe, Authentication authentication) {
+    public ResponseEntity<Recipe> saveRecipe(Recipe recipe, Authentication authentication) throws Exception {
         //get user's id
         Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
         if (dbRecord.isPresent()) {
+
+            // Ensure recipe is valid
+            // Helper will throw Exception if the recipe is invalid
+            recipeHelper.isRecipeValid(recipe);
+
             User user = dbRecord.get();
             recipe.setAuthor(user);
             recipe.setTotal_time_in_min(recipe.getCook_time_in_min() + recipe.getPrep_time_in_min());
