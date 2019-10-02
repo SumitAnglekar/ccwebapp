@@ -1,5 +1,6 @@
 package com.cloud.ccwebapp.recipe.controller;
 
+import com.cloud.ccwebapp.recipe.exception.CustomizedResponseEntityExceptionHandler;
 import com.cloud.ccwebapp.recipe.exception.UserAlreadyPresentException;
 import com.cloud.ccwebapp.recipe.model.User;
 import com.cloud.ccwebapp.recipe.repository.UserRepository;
@@ -9,11 +10,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
 @RequestMapping("/v1/user")
+@Validated(CustomizedResponseEntityExceptionHandler.class)
 public class UserController {
 
     @Autowired
@@ -46,7 +49,7 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/self")
-    public ResponseEntity<User> updateUser(@RequestBody User user, Authentication authentication) {
+    public ResponseEntity<User> updateUser(@RequestBody User user, Authentication authentication) throws Exception {
         return userService.updateUser(user, authentication);
     }
 

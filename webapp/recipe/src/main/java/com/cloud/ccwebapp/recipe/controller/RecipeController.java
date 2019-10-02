@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 import java.util.UUID;
 
-
 @RestController
 @RequestMapping("/v1/recipe")
 @Validated(CustomizedResponseEntityExceptionHandler.class)
@@ -50,7 +49,7 @@ public class RecipeController {
      * Posts new recipe
      */
     @RequestMapping(method = RequestMethod.POST, value = "/")
-    public ResponseEntity<Recipe> saveRecipe(@RequestBody Recipe recipe, Authentication authentication) {
+    public ResponseEntity<Recipe> saveRecipe(@RequestBody Recipe recipe, Authentication authentication) throws Exception {
         return recipeService.saveRecipe(recipe, authentication);
     }
 

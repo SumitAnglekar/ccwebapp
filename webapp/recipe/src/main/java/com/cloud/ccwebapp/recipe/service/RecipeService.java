@@ -1,5 +1,6 @@
 package com.cloud.ccwebapp.recipe.service;
 
+import com.cloud.ccwebapp.recipe.exception.InvalidInputException;
 import com.cloud.ccwebapp.recipe.exception.RecipeNotFoundException;
 import com.cloud.ccwebapp.recipe.exception.UserNotAuthorizedException;
 import com.cloud.ccwebapp.recipe.helper.RecipeHelper;
@@ -40,20 +41,23 @@ public class RecipeService {
         }
     }
 
-    public void deleteRecipe(UUID id, Authentication authentication){
+    public void deleteRecipe(UUID id, Authentication authentication) throws Exception {
         Optional<Recipe> dbRecordRecipe = recipeRepository.findRecipesById(id);
-        Optional<User> dbRecordUser = userRepository.findUserByEmailaddress(authentication.getName());
         if (dbRecordRecipe.isPresent()) {
             Recipe recipeDb = dbRecordRecipe.get();
-            User userDb = dbRecordUser.get();
+            Optional<User> dbAuthUser = userRepository.findUserByEmailaddress(authentication.getName());
 
-            if (recipeDb.getAuthor().getId().equals(userDb.getId())) {
-                 recipeRepository.delete(recipeDb);
+            if (!dbAuthUser.isPresent()) {
+                throw new Exception("Invalid User");
+            }
+            User authUser = dbAuthUser.get();
+            if (recipeDb.getAuthor_id().equals(authUser.getId())) {
+                recipeRepository.delete(recipeDb);
             } else {
-                throw new UserNotAuthorizedException("User is invalid");
+                throw new Exception("User is invalid");
             }
         } else {
-            throw new RecipeNotFoundException("Recipe Id is invalid");
+            throw new Exception("Recipe Id is invalid");
         }
     }
 
@@ -61,8 +65,13 @@ public class RecipeService {
         //get user's id
         Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
         if (dbRecord.isPresent()) {
+
+            // Ensure recipe is valid
+            // Helper will throw Exception if the recipe is invalid
+            recipeHelper.isRecipeValid(recipe);
+
             User user = dbRecord.get();
-            recipe.setAuthor(user);
+            recipe.setAuthor_id(user.getId());
             recipe.setTotal_time_in_min(recipe.getCook_time_in_min() + recipe.getPrep_time_in_min());
             recipeRepository.save(recipe);
             return new ResponseEntity<Recipe>(recipe, HttpStatus.CREATED);
@@ -75,7 +84,10 @@ public class RecipeService {
         Optional<Recipe> dbRecipe = recipeRepository.findById(UUID.fromString(recipeId));
         if (!dbRecipe.isPresent())
             throw new RecipeNotFoundException("Recipe is not present!!");
-        if (!dbRecipe.get().getAuthor().getEmailaddress().equals(authentication.getName()))
+        Optional<User> dbUser = userRepository.findById(dbRecipe.get().getAuthor_id());
+        if (!dbUser.isPresent())
+            throw new InvalidInputException("Unknown error");
+        if (!dbUser.get().getEmailaddress().equals(authentication.getName()))
             throw new UserNotAuthorizedException("You are not authorized to make changes!!");
         recipeHelper.isRecipeValid(recipe);
         if (dbRecipe.get() != null) {
