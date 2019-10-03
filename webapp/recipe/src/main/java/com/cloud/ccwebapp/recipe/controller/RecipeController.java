@@ -41,8 +41,8 @@ public class RecipeController {
 
     //Delete Recipe
     @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
-    public void deleteRecipe(@PathVariable UUID id, Authentication authentication) throws Exception {
-        recipeService.deleteRecipe(id, authentication);
+    public ResponseEntity<Recipe> deleteRecipe(@PathVariable UUID id, Authentication authentication) throws Exception {
+        return recipeService.deleteRecipe(id, authentication);
     }
 
     /**

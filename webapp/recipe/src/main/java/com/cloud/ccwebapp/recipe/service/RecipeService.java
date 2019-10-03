@@ -2,6 +2,7 @@ package com.cloud.ccwebapp.recipe.service;
 
 import com.cloud.ccwebapp.recipe.exception.InvalidInputException;
 import com.cloud.ccwebapp.recipe.exception.RecipeNotFoundException;
+import com.cloud.ccwebapp.recipe.exception.Response;
 import com.cloud.ccwebapp.recipe.exception.UserNotAuthorizedException;
 import com.cloud.ccwebapp.recipe.helper.RecipeHelper;
 import com.cloud.ccwebapp.recipe.model.Recipe;
@@ -41,24 +42,18 @@ public class RecipeService {
         }
     }
 
-    public void deleteRecipe(UUID id, Authentication authentication) throws Exception {
-        Optional<Recipe> dbRecordRecipe = recipeRepository.findRecipesById(id);
-        if (dbRecordRecipe.isPresent()) {
-            Recipe recipeDb = dbRecordRecipe.get();
-            Optional<User> dbAuthUser = userRepository.findUserByEmailaddress(authentication.getName());
-
-            if (!dbAuthUser.isPresent()) {
-                throw new Exception("Invalid User");
-            }
-            User authUser = dbAuthUser.get();
-            if (recipeDb.getAuthor_id().equals(authUser.getId())) {
-                recipeRepository.delete(recipeDb);
-            } else {
-                throw new Exception("User is invalid");
-            }
-        } else {
-            throw new Exception("Recipe Id is invalid");
-        }
+    public ResponseEntity<Recipe> deleteRecipe(UUID id, Authentication authentication) throws Exception {
+        Optional<Recipe> dbRecordRecipe = recipeRepository.findById(id);
+        if (!dbRecordRecipe.isPresent())
+            throw new RecipeNotFoundException("Recipe is not present!!");
+        Recipe recipeDb = dbRecordRecipe.get();
+        Optional<User> dbUser = userRepository.findById(recipeDb.getAuthor_id());
+        if (!dbUser.isPresent())
+            throw new InvalidInputException("Invalid user id");
+        if (!dbUser.get().getEmailaddress().equals(authentication.getName()))
+            throw new UserNotAuthorizedException("You are not authorized to make changes!!");
+        recipeRepository.delete(recipeDb);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     public ResponseEntity<Recipe> saveRecipe(Recipe recipe, Authentication authentication) {
