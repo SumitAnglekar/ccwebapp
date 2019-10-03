@@ -26,7 +26,7 @@ public class UserService {
     public ResponseEntity<User> updateUser(User user, Authentication auth) throws Exception {
 
         // check if user is valid
-        userHelper.isUserValid(user, false);
+        userHelper.isUserValid(user);
 
         // check if user is present
         Optional dbRecord = userRepository.findUserByEmailaddress(auth.getName());
@@ -56,7 +56,7 @@ public class UserService {
 
     public User saveUser(User user) throws Exception {
         // check if user is valid
-        userHelper.isUserValid(user, true);
+        userHelper.isUserValid(user);
 
         Optional<User> dbRecord = userRepository.findUserByEmailaddress(user.getEmailaddress());
         if (dbRecord.isPresent()) {
