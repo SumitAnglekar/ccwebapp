@@ -38,7 +38,7 @@ public class RecipeHelper {
             for (OrderedList orderedList : recipe.getSteps()) {
                 if (orderedList.getItems() == null || orderedList.getItems().isEmpty())
                     throw new InvalidInputException("Items of Steps cannot be null!!!");
-                if (orderedList.getPosition() == 0)
+                if (orderedList.getPosition() <= 0)
                     throw new InvalidInputException("Position of Steps must be greater than 0 && it is a mandatory field!!!");
             }
         }
