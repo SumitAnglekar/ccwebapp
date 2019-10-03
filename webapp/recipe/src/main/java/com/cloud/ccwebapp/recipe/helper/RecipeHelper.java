@@ -17,11 +17,11 @@ public class RecipeHelper {
             throw new InvalidInputException("Prep time should be greater than 0 and multiple of 5");
         }
 
-        if (recipe.getTitle().isEmpty()) {
+        if (recipe.getTitle() == null || recipe.getTitle().isEmpty()) {
             throw new InvalidInputException("Recipe Title cannot be null!!!");
         }
 
-        if (recipe.getCuisine().isEmpty()) {
+        if (recipe.getCuisine() == null || recipe.getCuisine().isEmpty()) {
             throw new InvalidInputException("Cuisine cannot be null!!!");
         }
 
