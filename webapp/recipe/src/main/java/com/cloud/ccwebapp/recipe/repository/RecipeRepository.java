@@ -1,6 +1,6 @@
 package com.cloud.ccwebapp.recipe.repository;
 
-import com.cloud.ccwebapp.recipe.model.User;
+import com.cloud.ccwebapp.recipe.model.Recipe;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends CrudRepository<User, UUID> {
-    Optional<User> findUserByEmailaddress(String email);
+public interface RecipeRepository extends CrudRepository<Recipe, UUID> {
+    Optional<Recipe> findRecipesById(UUID uuid);
+
 }
