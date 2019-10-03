@@ -47,7 +47,7 @@ public class RecipeService {
         if (!dbRecordRecipe.isPresent())
             throw new RecipeNotFoundException("Recipe is not present!!");
         Recipe recipeDb = dbRecordRecipe.get();
-        Optional<User> dbUser = userRepository.findById(dbRecordRecipe.get().getAuthor_id());
+        Optional<User> dbUser = userRepository.findById(recipeDb.getAuthor_id());
         if (!dbUser.isPresent())
             throw new InvalidInputException("Invalid user id");
         if (!dbUser.get().getEmailaddress().equals(authentication.getName()))
