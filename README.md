@@ -16,7 +16,8 @@
 5. Version Control : Git
 
 ## Build Instructions
-1. Clone the git repository: git@github.com:{SumitAnglekar94/shah-tejas/ishitasequeira}/ccwebapp.git
+1. Clone the git repository: git@github.com:<username>/ccwebapp.git
+   Usernames that can be used are SumitAnglekar94, shah-tejas, ishitasequeira
 2. Traverse to the folder ./ccwebapp/webapp/recipe.
 3. Download the required maven dependencies by going to File > Maven > Re-import dependencies
 4. Run the command to build the module: mvn clean install.
