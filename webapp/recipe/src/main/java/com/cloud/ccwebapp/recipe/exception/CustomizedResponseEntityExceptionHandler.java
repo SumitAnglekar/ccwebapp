@@ -51,4 +51,9 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
     }
 
 
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        Response exceptionResponse = new Response(HttpStatus.BAD_REQUEST.toString(), "Invalid Request Body");
+        return new ResponseEntity(exceptionResponse.toString(), HttpStatus.BAD_REQUEST);
+    }
 }

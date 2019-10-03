@@ -14,15 +14,15 @@ public class UserHelper {
     @Autowired
     private UserService userService;
 
-    public void isUserValid(User user, boolean newUser) {
+    public void isUserValid(User user) {
         if (user.getFirst_name() == null
                 || user.getLast_name() == null
                 || user.getPassword() == null
-                || (newUser && user.getEmailaddress() == null)) {
+                || user.getEmailaddress() == null) {
             throw new InvalidInputException("Incomplete Information");
         }
 
-        if (newUser && !user.getEmailaddress().matches(EMAIL_REGEX)) {
+        if (!user.getEmailaddress().matches(EMAIL_REGEX)) {
             throw new InvalidInputException("Email address not valid!");
         }
 
