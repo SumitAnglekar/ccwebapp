@@ -1,5 +1,6 @@
 package com.cloud.ccwebapp.recipe.service;
 
+import com.cloud.ccwebapp.recipe.exception.InvalidInputException;
 import com.cloud.ccwebapp.recipe.exception.UserAlreadyPresentException;
 import com.cloud.ccwebapp.recipe.helper.UserHelper;
 import com.cloud.ccwebapp.recipe.model.User;
@@ -26,13 +27,16 @@ public class UserService {
     public ResponseEntity<User> updateUser(User user, Authentication auth) throws Exception {
 
         // check if user is valid
-        userHelper.isUserPutValid(user);
+        userHelper.isUserValid(user);
 
         // check if user is present
         Optional dbRecord = userRepository.findUserByEmailaddress(auth.getName());
         if (dbRecord.isPresent()) {
             User dbUser = (User) dbRecord.get();
 
+            if(!user.getEmailaddress().equals(auth.getName())){
+                throw new InvalidInputException("Email Address does not match the auth!!");
+            }
             // check if valid fields are updated
             if (!dbUser.getFirst_name().equals(user.getFirst_name())
                     || !dbUser.getLast_name().equals(user.getLast_name())

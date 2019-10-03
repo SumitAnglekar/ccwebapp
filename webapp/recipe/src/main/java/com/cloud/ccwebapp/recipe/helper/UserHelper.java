@@ -32,16 +32,4 @@ public class UserHelper {
 
     }
 
-    public void isUserPutValid(User user) {
-        if (user.getFirst_name() == null
-                || user.getLast_name() == null
-                || user.getPassword() == null) {
-            throw new InvalidInputException("Incomplete Information");
-        }
-
-        if (!userService.isPasswordStrong(user.getPassword())) {
-            throw new InvalidInputException("Weak Password!");
-        }
-
-    }
 }
