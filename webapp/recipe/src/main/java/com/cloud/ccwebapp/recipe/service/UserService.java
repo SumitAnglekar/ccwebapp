@@ -26,7 +26,7 @@ public class UserService {
     public ResponseEntity<User> updateUser(User user, Authentication auth) throws Exception {
 
         // check if user is valid
-        userHelper.isUserValid(user);
+        userHelper.isUserPutValid(user);
 
         // check if user is present
         Optional dbRecord = userRepository.findUserByEmailaddress(auth.getName());
