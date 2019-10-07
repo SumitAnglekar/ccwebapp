@@ -60,7 +60,7 @@
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "vpcCloudFormation"
+                        "Value": { "Ref": "vpcName" }
                     }
                 ]
             }
@@ -71,7 +71,7 @@
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "myInternetGateway"
+                        "Value": { "Ref": "InternetGatewayName" }
                     }
                 ]
             },
@@ -110,7 +110,7 @@
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "Subnet1"
+                        "Value": { "Ref": "Subnet01Name" }
                     }
                 ]
             }
@@ -136,7 +136,7 @@
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "Subnet2"
+                        "Value": { "Ref": "Subnet02Name" }
                     }
                 ]
             }
@@ -162,7 +162,7 @@
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "Subnet3"
+                        "Value": { "Ref": "Subnet03Name" }
                     }
                 ]
             }
@@ -176,7 +176,7 @@
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "myRouteTable"
+                        "Value": { "Ref": "RouteTableName" }
                     }
                 ]
             }
