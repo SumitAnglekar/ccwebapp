@@ -47,6 +47,7 @@
                 "VpcId": {
                     "Ref": "vpcCloudFormation"
                 },
+                "MapPublicIpOnLaunch": "true",
                 "CidrBlock": "10.0.10.0/24",
                 "AvailabilityZone": {
                     "Fn::Select": [
@@ -70,6 +71,7 @@
                 "VpcId": {
                     "Ref": "vpcCloudFormation"
                 },
+                "MapPublicIpOnLaunch": "true",
                 "CidrBlock": "10.0.11.0/24",
                 "AvailabilityZone": {
                     "Fn::Select": [
@@ -93,6 +95,7 @@
                 "VpcId": {
                     "Ref": "vpcCloudFormation"
                 },
+                "MapPublicIpOnLaunch": "false",
                 "CidrBlock": "10.0.13.0/24",
                 "AvailabilityZone": {
                     "Fn::Select": [
@@ -110,12 +113,65 @@
                 ]
             }
         },
-        "myRouteTable" : {
-            "Type" : "AWS::EC2::RouteTable",
-            "Properties" : {
-               "VpcId" : { "Ref" : "vpcCloudFormation" },
-               "Tags" : [ { "Key" : "Name", "Value" : "myRouteTable" } ]
+        "myRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "vpcCloudFormation"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "myRouteTable"
+                    }
+                ]
             }
-         }
+        },
+        "myRoute": {
+            "Type": "AWS::EC2::Route",
+            "DependsOn": "AttachGateway",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "myRouteTable"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {
+                    "Ref": "myInternetGateway"
+                }
+            }
+        },
+        "mySubnetRouteTableAssociation1": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "Subnet1"
+                },
+                "RouteTableId": {
+                    "Ref": "myRouteTable"
+                }
+            }
+        },
+        "mySubnetRouteTableAssociation2": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "Subnet2"
+                },
+                "RouteTableId": {
+                    "Ref": "myRouteTable"
+                }
+            }
+        },
+        "mySubnetRouteTableAssociation3": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "Subnet3"
+                },
+                "RouteTableId": {
+                    "Ref": "myRouteTable"
+                }
+            }
+        }
     }
 }
