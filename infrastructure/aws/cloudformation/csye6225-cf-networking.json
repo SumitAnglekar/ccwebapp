@@ -1,11 +1,59 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "AWS VPC using CloudFormation",
+    "Parameters": {
+        "vpcName": {
+            "Type": "String",
+            "Default": "MyVPC"
+        },
+        "VPCCIDR": {
+            "Type": "String",
+            "Default": "10.0.0.0/16"
+        },
+        "Subnet01CIDR": {
+            "Type": "String",
+            "Default": "10.0.10.0/24"
+        },
+        "Subnet02CIDR": {
+            "Type": "String",
+            "Default": "10.0.11.0/24"
+        },
+        "Subnet03CIDR": {
+            "Type": "String",
+            "Default": "10.0.12.0/24"
+        },
+        "Region": {
+            "Type": "String",
+            "Default": "us-east-1"
+        },
+        "Subnet01Name": {
+            "Type": "String",
+            "Default": "MySubnet1"
+        },
+        "Subnet02Name": {
+            "Type": "String",
+            "Default": "MySubnet2"
+        },
+        "Subnet03Name": {
+            "Type": "String",
+            "Default": "MySubnet3"
+        },
+        "InternetGatewayName": {
+            "Type": "String",
+            "Default": "MyInternetGateway"
+        },
+        "RouteTableName": {
+            "Type": "String",
+            "Default": "MyRouteTable"
+        }
+    },
     "Resources": {
         "vpcCloudFormation": {
             "Type": "AWS::EC2::VPC",
             "Properties": {
-                "CidrBlock": "10.0.0.0/16",
+                "CidrBlock": {
+                    "Ref": "VPCCIDR"
+                },
                 "EnableDnsSupport": "true",
                 "EnableDnsHostnames": "true",
                 "InstanceTenancy": "dedicated",
@@ -48,12 +96,14 @@
                     "Ref": "vpcCloudFormation"
                 },
                 "MapPublicIpOnLaunch": "true",
-                "CidrBlock": "10.0.10.0/24",
+                "CidrBlock": {
+                    "Ref": "Subnet01CIDR"
+                },
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "0",
                         {
-                            "Fn::GetAZs": ""
+                            "Fn::GetAZs": {"Ref": "Region"}
                         }
                     ]
                 },
@@ -72,12 +122,14 @@
                     "Ref": "vpcCloudFormation"
                 },
                 "MapPublicIpOnLaunch": "true",
-                "CidrBlock": "10.0.11.0/24",
+                "CidrBlock": {
+                    "Ref": "Subnet02CIDR"
+                },
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "1",
                         {
-                            "Fn::GetAZs": ""
+                            "Fn::GetAZs": {"Ref": "Region"}
                         }
                     ]
                 },
@@ -95,13 +147,15 @@
                 "VpcId": {
                     "Ref": "vpcCloudFormation"
                 },
-                "MapPublicIpOnLaunch": "false",
-                "CidrBlock": "10.0.13.0/24",
+                "MapPublicIpOnLaunch": "true",
+                "CidrBlock": {
+                    "Ref": "Subnet03CIDR"
+                },
                 "AvailabilityZone": {
                     "Fn::Select": [
                         "2",
                         {
-                            "Fn::GetAZs": ""
+                            "Fn::GetAZs": {"Ref": "Region"}
                         }
                     ]
                 },
