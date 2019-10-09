@@ -1,3 +1,15 @@
+#!/bin/sh
+echo "Enter the profile name: "
+read profile
+
+if [[ -z "$profile" ]]
+then   
+    echo "Profile cannot be blank!! Please enter appropriate profile!!";
+    exit 1;
+fi
+
+export AWS_PROFILE=$profile
+
 stackName=$1
 
 if [ -z "$1" ]
@@ -6,9 +18,9 @@ then
     exit 1
 else
     echo -e "Delete Process started\n"
-    aws cloudformation --profile dev delete-stack --stack-name $stackName
+    aws cloudformation delete-stack --stack-name $stackName
 
-    aws cloudformation --profile dev wait stack-delete-complete --stack-name $stackName
+    aws cloudformation wait stack-delete-complete --stack-name $stackName
 
     if [ $? -eq 0 ]; then
         echo "$stackName Deleted Successfully"
