@@ -1,31 +1,30 @@
+data "aws_availability_zones" "available" {}
+
 resource "aws_vpc" "main" {
-    cidr_block = "${var.vpcCidrBlock}"
-    enable_dns_hostnames = false
-    tags = {
-        Name = "${var.vpcName}"  
-    }
+  cidr_block           = "${var.vpcCidrBlock}"
+  enable_dns_hostnames = false
+  tags = {
+    Name = "${var.vpcName}"
+  }
 }
 
 resource "aws_subnet" "main" {
   count = 3
 
-  availability_zone = "${var.subnetZone[count.index]}"
-  cidr_block        = "${var.subnetCdr[count.index]}"
+  availability_zone = "${data.aws_availability_zones.available.names[count.index]}"
+  cidr_block        = "10.0.${count.index}.0/24"
   vpc_id            = "${aws_vpc.main.id}"
 
-  tags = "${
-    map(
-     "Name", "${var.subnetName}-${count.index}"
-    )
-  }"
+  tags = {
+     Name ="${var.vpcName}.subnet"  
+     }
 }
-
 
 resource "aws_internet_gateway" "main" {
   vpc_id = "${aws_vpc.main.id}"
 
   tags = {
-    Name = "${var.gatewayName}"
+    Name = "${var.vpcName}.gateway"
   }
 }
 
