@@ -1,15 +1,15 @@
-##Initializating script:
+## Initializating script:
 
     1. `terraform init` 
     - The terraform init command is used to initialize a working directory containing Terraform configuration files. This is the first command that should be run after writing a new Terraform configuration or cloning an existing one from version control. It is safe to run this command multiple times.
 
 
-##There are 2 scripts:
+## There are 2 scripts:
 
     1. `terraform apply` -   This is the script to create a stack to setup AWS network infrastructure.
     2. `terraform destroy` - This is to terminate the entire network stack.
 
-##File significance:
+## File significance:
 
     1. "provider.tf" - This file has variable for defined or input  aws-profile and aws-regions. The entered profile                                   and region shall be defined in '.config' and '.credential' file while setting up the CLI environment.
     
@@ -23,7 +23,7 @@
     5. Miscellaneous - There are other files and folders like "terraform.tfstate", "terraform.tfstate.backup"                        which maintain the details of passed input parameters and map them in a particular structure.
 
 
-##Network Setup Script:
+## Network Setup Script:
     
     1. The main.tf has 1 VPC, 3 subnets, 1 route table and 1 internet gateway to setup the network.
     2. The commandline or .tfvars has following input parameters:
@@ -36,7 +36,7 @@
     4. If we enter inappropriate VPC or Subnet Cidr Block values the terraform will provide required error accordingly and it will rollback.
     5. After successful completion the appropriate message is displyed.
 
-##Instructions to run script:
+## Instructions to run script:
 
     1. Clone the repository
     2. Now navigate to script folder using command "cd infrastructure/aws/terraform/"
