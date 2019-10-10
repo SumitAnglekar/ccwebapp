@@ -37,6 +37,7 @@
     5. After successful completion the appropriate message is displyed.
 
 ##Instructions to run script:
+
     1. Clone the repository
     2. Now navigate to script folder using command "cd infrastructure/aws/terraform/"
     3. run `terraform init` to setup the environment.
