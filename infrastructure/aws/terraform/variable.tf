@@ -13,6 +13,12 @@ variable "vpcCidrBlock" {
   type        = "string"
 }
 
+variable "subnetCidrBlock" {
+  description = "Enter Appropriate Subnet Cidr Block"
+  type        = "list"
+}
+
+
 variable "vpcName" {
   description = "Enter VPC Name"
   type        = "string"
