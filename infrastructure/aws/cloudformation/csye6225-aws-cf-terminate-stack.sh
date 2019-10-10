@@ -20,7 +20,6 @@ if [[ -z "$1" || -z "$2" ]]; then
     exit 1
 else
     export AWS_DEFAULT_REGION=$aws_region
-    echo $AWS_DEFAULT_REGION
 
     #Checking if the stack that needs to deleted is present or not
     if aws cloudformation describe-stacks --stack-name $stackName >/dev/null 2>&1; then
