@@ -10,34 +10,26 @@ fi
 
 export AWS_PROFILE=$profile
 
-# echo "Enter the Stack name: "
-# read stack_name
 stack_name=$1
 
 echo "Initiating the script..."
 echo "Checking if the stack already exists..."
 
-if  aws cloudformation describe-stacks --stack-name $stack_name ; 
+if  aws cloudformation describe-stacks --stack-name $stack_name > /dev/null 2>&1; 
 then
-   echo "Stack already exists, terminating a stack...";
+   echo "Stack already exists!!!";
 else
-    # echo "Enter the vpc name: "
-    # read vpc_name
+    # defined variable for vpc name
     vpc_name=$2
-    # echo "Enter the AWS region: "
-    # read aws_region
+    # defined variable for  aws_region
     aws_region=$3
-    # echo "Enter the vpc CIDR block: "
-    # read vpc_cidr_block
+    # defined variable for vpc_cidr_block
     vpc_cidr_block=$4
-    # echo "Enter the subnet1 cidr block: "
-    # read subnet1_cidr_block
+    # defined variable for subnet1_cidr_block
     subnet1_cidr_block=$5
-    # echo "Enter the subnet2 cidr block: "
-    # read subnet2_cidr_block
+    # defined variable for subnet2_cidr_block
     subnet2_cidr_block=$6
-    # echo "Enter the subnet3 cidr block: "
-    # read subnet3_cidr_block
+    # defined variable for subnet3_cidr_block
     subnet3_cidr_block=$7
 
     aws_profile_region=$(aws configure get region)
@@ -56,13 +48,14 @@ else
     else
         echo -e "Stack does not exist, creating a stack..."
 
+        #subnet 1,2,3 route table and internetgateway name has been defined
         SUBNET01=$vpc_name-subnet1
         SUBNET02=$vpc_name-subnet2
         SUBNET03=$vpc_name-subnet3
         ROUTETABLE=$vpc_name-routetable
         INTERNETGATEWAY=$vpc_name-InternetGateway
 
-        aws cloudformation create-stack --stack-name $stack_name --template-body file://csye6225-cf-networking.json --parameters ParameterKey=vpcName,ParameterValue=$vpc_name ParameterKey=VPCCIDR,ParameterValue=$vpc_cidr_block ParameterKey=Subnet01CIDR,ParameterValue=$subnet1_cidr_block ParameterKey=Subnet02CIDR,ParameterValue=$subnet2_cidr_block ParameterKey=Subnet03CIDR,ParameterValue=$subnet3_cidr_block ParameterKey=Region,ParameterValue=$aws_region ParameterKey=Subnet01Name,ParameterValue=$SUBNET01 ParameterKey=Subnet02Name,ParameterValue=$SUBNET02 ParameterKey=Subnet03Name,ParameterValue=$SUBNET03 ParameterKey=InternetGatewayName,ParameterValue=$INTERNETGATEWAY ParameterKey=RouteTableName,ParameterValue=$ROUTETABLE --on-failure=DELETE
+        aws cloudformation create-stack --stack-name $stack_name --template-body file://csye6225-cf-networking.json --parameters ParameterKey=vpcName,ParameterValue=$vpc_name ParameterKey=VPCCIDR,ParameterValue=$vpc_cidr_block ParameterKey=Subnet01CIDR,ParameterValue=$subnet1_cidr_block ParameterKey=Subnet02CIDR,ParameterValue=$subnet2_cidr_block ParameterKey=Subnet03CIDR,ParameterValue=$subnet3_cidr_block ParameterKey=Region,ParameterValue=$aws_region ParameterKey=Subnet01Name,ParameterValue=$SUBNET01 ParameterKey=Subnet02Name,ParameterValue=$SUBNET02 ParameterKey=Subnet03Name,ParameterValue=$SUBNET03 ParameterKey=InternetGatewayName,ParameterValue=$INTERNETGATEWAY ParameterKey=RouteTableName,ParameterValue=$ROUTETABLE
         if [ $? -eq 0 ]; then
             aws cloudformation wait stack-create-complete --stack-name $stack_name
             if [ $? -eq 0 ]; then
