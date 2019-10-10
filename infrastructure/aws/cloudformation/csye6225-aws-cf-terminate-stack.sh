@@ -2,6 +2,7 @@
 echo "Enter the profile name: "
 read profile
 
+
 if [[ -z "$profile" ]]
 then   
     echo "Profile cannot be blank!! Please enter appropriate profile!!";
@@ -11,20 +12,29 @@ fi
 export AWS_PROFILE=$profile
 
 stackName=$1
+aws_region=$2
 
-if [ -z "$1" ]
+if [[ -z "$1" || -z "$2" ]]
 then
-    echo "Enter Stack name that needs to be deleted!!"
+    echo "Enter Stack name and in which AWS REGION that needs to be deleted!!"
     exit 1
 else
-    echo -e "Delete Process started\n"
-    aws cloudformation delete-stack --stack-name $stackName
+    export AWS_DEFAULT_REGION=$aws_region
+    echo $AWS_DEFAULT_REGION;
 
-    aws cloudformation wait stack-delete-complete --stack-name $stackName
+    if  aws cloudformation describe-stacks --stack-name $stackName > /dev/null 2>&1; 
+    then
+        echo -e "Delete Process started\n"
+        aws cloudformation delete-stack --stack-name $stackName
 
-    if [ $? -eq 0 ]; then
-        echo "$stackName Deleted Successfully"
+        aws cloudformation wait stack-delete-complete --stack-name $stackName
+
+        if [ $? -eq 0 ]; then
+            echo "$stackName Deleted Successfully"
+        else
+            echo "Deletion didn't go through!!"
+        fi
     else
-        echo "Deletion didn't go through!!"
+        echo -e "Stack not present to be deleted!!!\n";
     fi
 fi
