@@ -1,12 +1,48 @@
 #!/bin/sh
 
-# Get arguments and Set default values
-aws_region=${1:-"us-east-1"}
-vpc_cidr_block=${2:-"10.0.0.0/16"}
-subnet_cidr_block1=${3:-"10.0.1.0/24"}
-subnet_cidr_block2=${4:-"10.0.2.0/24"}
-subnet_cidr_block3=${5:-"10.0.3.0/24"}
-vpc_name=${6:-"NEW_VPC"}
+# Get arguments
+aws_region=$1
+vpc_cidr_block=$2
+subnet_cidr_block1=$3
+subnet_cidr_block2=$4
+subnet_cidr_block3=$5
+vpc_name=$6
+
+if [ -z $aws_region ]
+then
+    echo "Error: AWS Region not provided."
+    exit 1
+fi
+
+if [ -z $vpc_cidr_block ]
+then
+    echo "Error: VPC CIDR Block not provided."
+    exit 1
+fi
+
+if [ -z $subnet_cidr_block1 ]
+then
+    echo "Error: Subnet CIDR Block 1 not provided."
+    exit 1
+fi
+
+if [ -z $subnet_cidr_block2 ]
+then
+    echo "Error: Subnet CIDR Block 2 not provided."
+    exit 1
+fi
+
+if [ -z $subnet_cidr_block3 ]
+then
+    echo "Error: Subnet CIDR Block 3 not provided."
+    exit 1
+fi
+
+if [ -z $vpc_name ]
+then
+    echo "Error: VPC Name not provided."
+    exit 1
+fi
 
 export AWS_DEFAULT_REGION=$aws_region
 
@@ -95,14 +131,14 @@ fi
 
 # Create a public route table. Attach all subnets created above to the route table.
 {
-    echo "Creating a public route table..."
-    route_table_id=$(aws ec2 create-route-table --vpc-id "${vpc_id}" | /usr/bin/jq '.RouteTable.RouteTableId' | tr -d '"')
-    aws ec2 create-tags --resources "$route_table_id" --tags Key=Name,Value="${vpc_name}_route_table"
-    echo "Attaching subnet 1 to route table..."
-    aws ec2 associate-route-table --route-table-id "${route_table_id}" --subnet-id "${subnet_id1}" >/dev/null
-    echo "Attaching subnet 2 to route table..."
-    aws ec2 associate-route-table --route-table-id "${route_table_id}" --subnet-id "${subnet_id2}" >/dev/null
-    echo "Attaching subnet 3 to route table..."
+    echo "Creating a public route table..." &&
+    route_table_id=$(aws ec2 create-route-table --vpc-id "${vpc_id}" | /usr/bin/jq '.RouteTable.RouteTableId' | tr -d '"') &&
+    aws ec2 create-tags --resources "$route_table_id" --tags Key=Name,Value="${vpc_name}_route_table" &&
+    echo "Attaching subnet 1 to route table..." &&
+    aws ec2 associate-route-table --route-table-id "${route_table_id}" --subnet-id "${subnet_id1}" >/dev/null &&
+    echo "Attaching subnet 2 to route table..." &&
+    aws ec2 associate-route-table --route-table-id "${route_table_id}" --subnet-id "${subnet_id2}" >/dev/null &&
+    echo "Attaching subnet 3 to route table..." &&
     aws ec2 associate-route-table --route-table-id "${route_table_id}" --subnet-id "${subnet_id3}" >/dev/null
 } || {
     echo "Error while creating route table."
