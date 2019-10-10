@@ -1,3 +1,7 @@
+## Installing Terraform:
+    Kindly follow the steps given in the following link:
+    https://askubuntu.com/questions/983351/how-to-install-terraform-in-ubuntu
+
 ## Initializating script:
 
     1. `terraform init` 

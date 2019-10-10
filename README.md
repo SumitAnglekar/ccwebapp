@@ -34,4 +34,11 @@
 ## Running Tests
 1. Run the "run all tests" configuration for JUnit.
 
+## CLI Installation and Configuration
+1. Kindly follow the steps in the given link for CLI setup and installation:
+https://docs.aws.amazon.com/cli/latest/userguide/install-linux-al2017.html
+
+2. Kindly follow the steps in the given link for CLI configuration:
+https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
+
 ## CI/CD
