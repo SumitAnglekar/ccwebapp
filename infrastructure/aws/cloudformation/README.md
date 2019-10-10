@@ -1,7 +1,7 @@
 ### There are 2 scripts:
 
-"csye6225-aws-cf-create-stack.sh" - This is the script to create a stack to setup AWS network infrastructure.
-"csye6225-aws-cf-terminate-stack.sh" - This is to terminate the entire network stack.
+1. "csye6225-aws-cf-create-stack.sh" - This is the script to create a stack to setup AWS network infrastructure.
+2. "csye6225-aws-cf-terminate-stack.sh" - This is to terminate the entire network stack.
 
 ### Network Setup Script:
 
