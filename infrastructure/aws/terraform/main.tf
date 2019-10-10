@@ -1,5 +1,7 @@
+#Getting the appropriate aws_availability zone
 data "aws_availability_zones" "available" {}
 
+#Creating a VPC resource with a vpc name
 resource "aws_vpc" "main" {
   cidr_block           = "${var.vpcCidrBlock}"
   tags = {
@@ -7,6 +9,7 @@ resource "aws_vpc" "main" {
   }
 }
 
+#Creating 3 subnets with appropraite subnet names and subnet-cidr-block
 resource "aws_subnet" "main" {
   count = 3
 
@@ -19,6 +22,7 @@ resource "aws_subnet" "main" {
      }
 }
 
+#Creating an internet-gateway
 resource "aws_internet_gateway" "main" {
   vpc_id = "${aws_vpc.main.id}"
 
@@ -27,6 +31,7 @@ resource "aws_internet_gateway" "main" {
   }
 }
 
+#Creating a route-table resource
 resource "aws_route_table" "main" {
   vpc_id = "${aws_vpc.main.id}"
   
@@ -40,6 +45,7 @@ resource "aws_route_table" "main" {
   }
 }
 
+#Mapping the subnets to appropriate route table
 resource "aws_route_table_association" "main" {
   count = 3
 
