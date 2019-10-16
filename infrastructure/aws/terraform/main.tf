@@ -3,7 +3,7 @@ data "aws_availability_zones" "available" {}
 
 #Creating a VPC resource with a vpc name
 resource "aws_vpc" "main" {
-  cidr_block           = "${var.vpcCidrBlock}"
+  cidr_block = "${var.vpcCidrBlock}"
   tags = {
     Name = "${var.vpcName}"
   }
@@ -16,7 +16,7 @@ resource "aws_subnet" "main" {
   availability_zone = "${data.aws_availability_zones.available.names[count.index]}"
   cidr_block        = "${var.subnetCidrBlock[count.index]}"
   vpc_id            = "${aws_vpc.main.id}"
-
+  map_public_ip_on_launch="true"
   tags = {
      Name ="${var.vpcName}.subnet.${count.index}"  
      }
