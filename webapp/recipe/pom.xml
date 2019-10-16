@@ -12,6 +12,7 @@
 	<artifactId>recipe</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>recipe</name>
+	<packaging>war</packaging>
 	<description>Cloud Assignment - Recipe Management</description>
 
 	<properties>
