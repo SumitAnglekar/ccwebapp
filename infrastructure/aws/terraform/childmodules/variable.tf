@@ -12,10 +12,10 @@ variable "vpcCidrBlock" {
 }
 
 
-variable "SubnetZones" {
-  type= "list"
+# variable "SubnetZones" {
+#   type= "list"
 
-}
+# }
 
 
 variable "subnetCidrBlock" {
