@@ -11,6 +11,11 @@ variable "subnetCidrBlock" {
   type        = "list"
 }
 
+#Subnet zones
+variable "SubnetZones"{
+  type = "list"
+}
+
 #VPC_Variable name defination
 variable "vpcName" {
   type        = "string"
