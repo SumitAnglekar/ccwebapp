@@ -22,6 +22,15 @@
 3. Run the command to build the module: mvn clean install.
 
 ## Deploy Instructions
+1. Build a custom AMI instance using packer by building the template from https://github.com/csye6225-cloud-computing/fa19-team-002-ami.
+    (For detailed steps on this follow the steps in the README at https://github.com/csye6225-cloud-computing/fa19-team-002-ami)
+2. Launch an EC2 instance based on the AMI created in the above step.
+3. Build the WAR file for the recipe application by running the command `mvn clean install` from  `<REPO_DIR>/ccwebapp/webapp/recipe` directory.
+4. The WAR file from the above step would be created in `<REPO_DIR>/ccwebapp/webapp/recipe/target` directory.
+5. SCP the WAR file to the EC2 instance created above. Example:
+    `scp <path-to-source-file> centos@<ec2_instance_ip>:<destination_path>`
+6. In the EC2 instance copy the WAR file to tomcat's webapp directory.
+7. Restart tomcat to deploy the application.
 
 ## Application Endpoints
 1. Register a User (localhost:8080/v1/user)
