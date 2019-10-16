@@ -1,5 +1,17 @@
 #AWS_Environment variable defination
 
+
+variable "env" {
+  description = "Enter AWS Environment"
+  type        = "string"
+}
+
+#AWS_Region variable defination
+variable "region" {
+  description = "Enter AWS Region"
+  type        = "string"
+}
+
 #VPC_Cidr_Block variable defination
 variable "vpcCidrBlock" {
   description = "Enter VPC Cidr Block"
