@@ -14,21 +14,26 @@
     2. `terraform destroy` - This is to terminate the entire network stack.
 
 ## File significance:
+    1. Building modules for individual instances:
+        a. Each module will have a single instance related to an environment and aws region.
+        b. For our understanding we have created just modules, namely, module and childmodule. They will have two different individual instances.
 
-    1. "provider.tf" - This file has variable for defined or input  aws-profile and aws-regions. The entered profile                                   and region shall be defined in '.config' and '.credential' file while setting up the CLI environment.
+    2. "provider.tf" - This file has variable for defined or input  aws-profile and aws-regions for a given module. The entered profile        and region shall be defined in '.config' and '.credential' file while setting up the CLI environment.
     
-    2. "main.tf"     - This file has the entire network infrastructure setup with all given resourse components.
+    3. "main.tf"     - This file has the entire network infrastructure setup with all given resourse components.
     
-    3. "variable.tf" - All the initialized variables in main.tf or provider.tf must be defined with appropriate type                      and description in this particular file.
+    4. "variable.tf" - All the initialized variables in main.tf or provider.tf must be defined with appropriate type                      and description in this particular file.
     
-    4."terraform.tfvars" - We can pre-define the inputs in the .tfvars file if aren't passing them via command line. 
+    5."terraform.tfvars" - We can pre-define the inputs in the .tfvars file if aren't passing them via command line. 
     This file is optional.
     
-    5. Miscellaneous - There are other files and folders like "terraform.tfstate", "terraform.tfstate.backup"                        which maintain the details of passed input parameters and map them in a particular structure.
+    6. Miscellaneous - There are other files and folders like "terraform.tfstate", "terraform.tfstate.backup"                        which maintain the details of passed input parameters and map them in a particular structure. These file are unique to individual modules.
 
 
 ## Network Setup Script:
     
+    1. Create a individual module for each individual instance.
+    2. Add respective .tfvars in the each module and run terraform init
     1. The main.tf has 1 VPC, 3 subnets, 1 route table and 1 internet gateway to setup the network.
     2. The commandline or .tfvars has following input parameters:
             a. AWS environment (dev/prod) (type-String)
@@ -44,6 +49,6 @@
 
     1. Clone the repository
     2. Now navigate to script folder using command "cd infrastructure/aws/terraform/"
-    3. run `terraform init` to setup the environment.
+    3. create modules if need or run `terraform init` in each module
     4. run `terraform apply` to input the resource values via command line.
     5. run `terraform destroy` and input all the required paramters  specific to that particular vpc

@@ -56,7 +56,6 @@
                 },
                 "EnableDnsSupport": "true",
                 "EnableDnsHostnames": "true",
-                "InstanceTenancy": "dedicated",
                 "Tags": [
                     {
                         "Key": "Name",

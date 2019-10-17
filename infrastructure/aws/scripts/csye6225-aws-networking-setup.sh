@@ -73,7 +73,14 @@ fi
     exit 1
 }
 
-# TODO
+# Enable DNS hostnames and DNS support for the VPC
+{
+    aws ec2 modify-vpc-attribute --enable-dns-hostnames "{\"Value\":true}" --vpc-id "$vpc_id"
+} || {
+    echo "Error occured while enabling DNS for the VPC"
+    exit 1
+}
+
 # Create subnets in your VPC. You must create 3 subnets, each in different availability zone
 # in the same region in the same VPC.
 # Step 1: Get 3 different availability zones for subnets
@@ -114,6 +121,16 @@ fi
     aws ec2 create-tags --resources "$subnet_id3" --tags Key=Name,Value="${vpc_name}_subnet3"
 } || {
     echo "Unable to create subnets"
+    exit 1
+}
+
+# Ensure public IP addresses are assigned for the subnets
+{
+    aws ec2 modify-subnet-attribute --map-public-ip-on-launch "{\"Value\":true}" --subnet-id "${subnet_id1}"
+    aws ec2 modify-subnet-attribute --map-public-ip-on-launch "{\"Value\":true}" --subnet-id "${subnet_id2}"
+    aws ec2 modify-subnet-attribute --map-public-ip-on-launch "{\"Value\":true}" --subnet-id "${subnet_id3}"
+} || {
+    echo "Error while enabling public ip for subnet"
     exit 1
 }
 
