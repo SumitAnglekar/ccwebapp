@@ -70,6 +70,9 @@ public class Recipe {
     @NotNull(message = "recipe must have nutrition_information")
     private NutritionalInformation nutrition_information;
 
+    @ReadOnlyProperty
+    private Image image;
+
     public Recipe() {
         steps = new ArrayList<>();
         ingredients = new ArrayList<>();
@@ -180,10 +183,19 @@ public class Recipe {
         this.cuisine = cuisine;
     }
 
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
     @Override
     public String toString() {
         return "Recipe{" +
-                "id=" + id +
+                "image="+image+
+                ", id=" + id +
                 ", created_ts=" + created_ts +
                 ", updated_ts=" + updated_ts +
                 ", author_id=" + author_id +
