@@ -91,6 +91,9 @@ public class RecipeService {
             dbRecipe.get().setTotal_time_in_min(dbRecipe.get().getCook_time_in_min() + dbRecipe.get().getPrep_time_in_min());
             dbRecipe.get().setIngredients(recipe.getIngredients());
             dbRecipe.get().setSteps(recipe.getSteps());
+            dbRecipe.get().setTitle(recipe.getTitle());
+            dbRecipe.get().setCuisine(recipe.getCuisine());
+            dbRecipe.get().setServings(recipe.getServings());
             dbRecipe.get().setNutrition_information(recipe.getNutrition_information());
         }
         Recipe rc = dbRecipe.get();
