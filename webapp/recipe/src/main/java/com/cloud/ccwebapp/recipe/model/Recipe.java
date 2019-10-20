@@ -71,6 +71,7 @@ public class Recipe {
     private NutritionalInformation nutrition_information;
 
     @ReadOnlyProperty
+    @OneToOne
     private Image image;
 
     public Recipe() {

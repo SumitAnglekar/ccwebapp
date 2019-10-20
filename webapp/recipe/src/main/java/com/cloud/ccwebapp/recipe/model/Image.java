@@ -1,12 +1,12 @@
 package com.cloud.ccwebapp.recipe.model;
 
 import org.springframework.data.annotation.ReadOnlyProperty;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.UUID;
 
+@Entity
 public class Image {
 
   @ReadOnlyProperty
@@ -15,6 +15,9 @@ public class Image {
   private UUID id;
 
   private String url;
+
+  @Transient
+  private MultipartFile file;
 
   public Image() {}
 
