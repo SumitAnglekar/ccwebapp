@@ -1,6 +1,15 @@
 #Getting the appropriate aws_availability zone
 data "aws_availability_zones" "available" {}
 
+data "aws_vpc"
+
+data "aws_security_group" "asg"
+{
+
+}
+
+
+
 #Creating a VPC resource with a vpc name
 resource "aws_vpc" "main" {
   cidr_block = "${var.vpcCidrBlock}"
@@ -9,6 +18,22 @@ resource "aws_vpc" "main" {
     Name = "${var.vpcName}"
   }
 }
+
+resource "aws_security_group" "default" {
+  name   = "application_security_group"
+  vpc_id = "${aws_vpc.main.id}"
+}
+
+resource "aws_security_group_rule" "allow_all" {
+  type = "ingress"
+  from_port=80
+  to_port=80
+  protocol="tcp"
+
+  source_security_group_id="${data.aws_security_group.asg.id}"
+  security_group_id ="${aws_security_group.default.id}"
+}
+
 
 #Creating 3 subnets with appropraite subnet names and subnet-cidr-block
 resource "aws_subnet" "main" {
