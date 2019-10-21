@@ -19,6 +19,7 @@ resource "aws_vpc" "main" {
   }
 }
 
+/*
 resource "aws_security_group" "default" {
   name   = "application_security_group"
   vpc_id = "${aws_vpc.main.id}"
@@ -33,6 +34,7 @@ resource "aws_security_group_rule" "allow_all" {
   source_security_group_id="${data.aws_security_group.asg.id}"
   security_group_id ="${aws_security_group.default.id}"
 }
+*/
 
 
 #Creating 3 subnets with appropraite subnet names and subnet-cidr-block

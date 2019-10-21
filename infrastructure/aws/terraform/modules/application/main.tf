@@ -1,7 +1,7 @@
 # S3 Bucket
 resource "aws_s3_bucket" "bucket" {
     bucket = "webapp.${var.env}.${var.domainName}"
-    acl = "public-read"
+    acl = "private"
     force_destroy = "true"
 
     server_side_encryption_configuration {
@@ -21,6 +21,8 @@ resource "aws_s3_bucket" "bucket" {
         }
     }
 }
+
+/*
 
 resource "aws_db_subnet_group" "default" {
   name       = "main"
@@ -78,3 +80,5 @@ resource "aws_dynamodb_table" "basic-dynamodb-table" {
     Name        = "${var.dynamoName}"
   }
 }
+
+*/
