@@ -1,5 +1,14 @@
 #AWS_Environment variable defination
 
+variable "env" {
+  type        = "string"
+}
+
+#AWS_Region variable defination
+variable "region" {
+  type        = "string"
+}
+
 #VPC_Cidr_Block variable defination
 variable "vpcCidrBlock" {
   type        = "string"
@@ -14,6 +23,11 @@ variable "subnetCidrBlock" {
 #VPC_Variable name defination
 variable "vpcName" {
   type        = "string"
+}
+
+#Domain name to be used for S3 Bucket name
+variable "domainName" {
+    type    = "string"
 }
 
 #RDS owner
