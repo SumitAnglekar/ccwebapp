@@ -12,9 +12,10 @@ module "networking" {
 # Application module
 module "application" {
   source = "./modules/application"
-
+  source = "./modules/networking"
   # Input variables to the module
   env = "${var.env}"
+  region = "${var.region}"
   domainName = "${var.domainName}"
   rdsOwner = "${var.rdsOwner}"
   rdsInstanceIdentifier = "${var.rdsInstanceIdentifier}"
