@@ -64,3 +64,15 @@ variable "dynamoName"{
   type      = "string"
   default = "csye6225"
 }
+
+# ami id
+variable "ami" {
+  type = "string"
+  description = "The AMI to use for the instance"
+}
+
+# SSH key
+variable "aws_ssh_key" {
+  type = "string"
+  description = "The ssh key pair name configured in AWS"
+}
