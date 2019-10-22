@@ -3,6 +3,8 @@ module "networking" {
   source = "./modules/networking"
 
   # Input variables to the module
+  env = "${var.env}"
+  region  = "${var.region}"
   vpcCidrBlock = "${var.vpcCidrBlock}"
   subnetCidrBlock = "${var.subnetCidrBlock}"
   vpcName = "${var.vpcName}"
@@ -12,7 +14,7 @@ module "networking" {
 # Application module
 module "application" {
   source = "./modules/application"
-  source = "./modules/networking"
+
   # Input variables to the module
   env = "${var.env}"
   region = "${var.region}"
@@ -23,5 +25,8 @@ module "application" {
   rdsPassword = "${var.rdsPassword}"
   rdsDBName = "${var.rdsDBName}"
   dynamoName = "${var.dynamoName}"
+  subnetCidrBlock = "${var.subnetCidrBlock}"
+
+  vpc_id = module.networking.vpc_id
 
 }
