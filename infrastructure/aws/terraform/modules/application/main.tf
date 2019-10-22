@@ -125,6 +125,7 @@ resource "aws_instance" "ec2_instance" {
   subnet_id = "${var.subnet_id}"
   disable_api_termination = false
   key_name = "${var.aws_ssh_key}"
+  user_data = "${templatefile("${path.module}/prepare_aws_instance.sh", { s3_bucket_name = "${aws_s3_bucket.bucket.id}" })}"
 
   root_block_device {
     volume_type = "gp2"
@@ -133,6 +134,7 @@ resource "aws_instance" "ec2_instance" {
   }
   // TODO: depends_on, user_data
   // depends_on = [aws_db_instance.myRDS]
+  depends_on = [aws_s3_bucket.bucket]
 }
 
 /*
