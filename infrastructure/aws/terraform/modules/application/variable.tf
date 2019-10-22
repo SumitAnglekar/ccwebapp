@@ -50,7 +50,6 @@ variable "dynamoName"{
 }
 
 #VPC ID
-
 variable "vpc_id" {
   type = "string"
 }
@@ -58,4 +57,22 @@ variable "vpc_id" {
 #subnet cidr block
 variable "subnetCidrBlock" {
   type        = "list"
+}
+
+# ami id
+variable "ami" {
+  type = "string"
+  description = "The AMI to use for the instance"
+}
+
+# subnet id
+variable "subnet_id" {
+  type = "string"
+  description = "The Subnet to use for the instance"
+}
+
+# SSH key
+variable "aws_ssh_key" {
+  type = "string"
+  description = "The ssh key pair name configured in AWS"
 }

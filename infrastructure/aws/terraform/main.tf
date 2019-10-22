@@ -26,7 +26,9 @@ module "application" {
   rdsDBName = "${var.rdsDBName}"
   dynamoName = "${var.dynamoName}"
   subnetCidrBlock = "${var.subnetCidrBlock}"
+  ami = "${var.ami}"
+  aws_ssh_key = "${var.aws_ssh_key}"
 
   vpc_id = module.networking.vpc_id
-
+  subnet_id = module.networking.subnet_id
 }

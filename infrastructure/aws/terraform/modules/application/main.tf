@@ -9,25 +9,25 @@ resource "aws_security_group" "application" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks  = "${var.subnetCidrBlock}"
+    cidr_blocks  = ["0.0.0.0/0"]
   }
   ingress{
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks  = "${var.subnetCidrBlock}"
+    cidr_blocks  = ["0.0.0.0/0"]
   }
   ingress{
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks  = "${var.subnetCidrBlock}"
+    cidr_blocks  = ["0.0.0.0/0"]
   }
   ingress{
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
-    cidr_blocks  = "${var.subnetCidrBlock}"
+    cidr_blocks  = ["0.0.0.0/0"]
   }
 }
 
@@ -52,26 +52,26 @@ resource "aws_security_group_rule" "database"{
 
 # S3 Bucket
 resource "aws_s3_bucket" "bucket" {
-    bucket = "webapp.${var.env}.${var.domainName}"
-    acl = "private"
-    force_destroy = "true"
+  bucket = "webapp.${var.env}.${var.domainName}"
+  acl = "private"
+  force_destroy = "true"
 
-    server_side_encryption_configuration {
-      rule {
-        apply_server_side_encryption_by_default {
-          sse_algorithm     = "aws:kms"
-        }
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm     = "aws:kms"
       }
     }
+  }
 
-    lifecycle_rule {
-      enabled = true
+  lifecycle_rule {
+    enabled = true
 
-      transition {
-        days = 30
-        storage_class = "STANDARD_IA"
-      }
+    transition {
+      days = 30
+      storage_class = "STANDARD_IA"
     }
+  }
 }
 
 /*
@@ -115,6 +115,27 @@ resource "aws_db_instance" "myRDS" {
 
 }
 
+*/
+
+# EC2 Instance
+resource "aws_instance" "ec2_instance" {
+  ami = "${var.ami}"
+  instance_type = "t2.micro"
+  security_groups = [ "${aws_security_group.application.id}" ]
+  subnet_id = "${var.subnet_id}"
+  disable_api_termination = false
+  key_name = "${var.aws_ssh_key}"
+
+  root_block_device {
+    volume_type = "gp2"
+    volume_size = "20"
+    delete_on_termination = true
+  }
+  // TODO: depends_on, user_data
+  // depends_on = [aws_db_instance.myRDS]
+}
+
+/*
 
 #Dynamo db
 resource "aws_dynamodb_table" "basic-dynamodb-table" {
