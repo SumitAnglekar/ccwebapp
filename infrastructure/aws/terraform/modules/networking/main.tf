@@ -10,48 +10,6 @@ resource "aws_vpc" "main" {
   }
 }
 
-resource "aws_security_group" "appli" {
-  name          = "app_security_group"
-  vpc_id        = "${aws_vpc.main.id}"
-  ingress{
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    #cidr_blocks  = "${var.subnetCidrBlock}"
-  }
-  ingress{
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    #cidr_blocks  = "${var.subnetCidrBlock}"
-  }
-  ingress{
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    #cidr_blocks  = "${var.subnetCidrBlock}"
-  }
-}
-
-resource "aws_security_group" "db" {
-  name          = "database_security_group"
-  vpc_id        = "${aws_vpc.main.id}"
-}
-
-resource "aws_security_group_rule" "db" {
-
-  type        = "ingress"
-  from_port   = 5432
-  to_port     = 5432
-  protocol    = "tcp"
-  #cidr_blocks  = "${var.subnetCidrBlock}"
-  
-  source_security_group_id  = "${aws_security_group.appli.id}"
-  security_group_id         = "${aws_security_group.db.id}"
-}
-
-
-
 /*
 resource "aws_security_group_rule" "allow_all" {
   type = "ingress"

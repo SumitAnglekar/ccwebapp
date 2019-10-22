@@ -82,3 +82,49 @@ resource "aws_dynamodb_table" "basic-dynamodb-table" {
 }
 
 */
+
+
+#### SECURITY GROUP #####
+
+#Application security group
+resource "aws_security_group" "app" {
+  name          = "application_security_group"
+  vpc_id        = "${var.vpc_id}"
+  ingress{
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks  = "${var.subnetCidrBlock}"
+  }
+  ingress{
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks  = "${var.subnetCidrBlock}"
+  }
+  ingress{
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks  = "${var.subnetCidrBlock}"
+  }
+}
+
+#Application security group
+resource "aws_security_group" "db"{
+  name          = "database_security_group"
+  vpc_id        = "${var.vpc_id}"
+}
+
+#Application security group rule
+resource "aws_security_group_rule" "db"{
+
+  type        = "ingress"
+  from_port   = 5432
+  to_port     = 5432
+  protocol    = "tcp"
+  #cidr_blocks  = "${var.subnetCidrBlock}"
+  
+  source_security_group_id  = "${aws_security_group.app.id}"
+  security_group_id         = "${aws_security_group.db.id}"
+}
