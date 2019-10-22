@@ -6,22 +6,9 @@ resource "aws_vpc" "main" {
   cidr_block           = "${var.vpcCidrBlock}"
   enable_dns_hostnames =  true
   tags = {
-  Name                 = "${var.vpcName}"
+    Name = "${var.vpcName}"
   }
 }
-
-/*
-resource "aws_security_group_rule" "allow_all" {
-  type = "ingress"
-  from_port=80
-  to_port=80
-  protocol="tcp"
-
-  source_security_group_id="${data.aws_security_group.asg.id}"
-  security_group_id ="${aws_security_group.default.id}"
-}
-*/
-
 
 #Creating 3 subnets with appropraite subnet names and subnet-cidr-block
 resource "aws_subnet" "main" {
@@ -32,8 +19,8 @@ resource "aws_subnet" "main" {
   vpc_id            = "${aws_vpc.main.id}"
   map_public_ip_on_launch="true"
   tags = {
-            Name ="${var.vpcName}.subnet.${count.index}"  
-         }
+    Name ="${var.vpcName}.subnet.${count.index}"  
+  }
 }
 
 #Creating an internet-gateway
@@ -66,6 +53,3 @@ resource "aws_route_table_association" "main" {
   subnet_id      = "${aws_subnet.main.*.id[count.index]}"
   route_table_id = "${aws_route_table.main.id}"
 }
-
-
-

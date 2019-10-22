@@ -1,3 +1,55 @@
+
+#### SECURITY GROUP #####
+
+#Application security group
+resource "aws_security_group" "application" {
+  name          = "application_security_group"
+  vpc_id        = "${var.vpc_id}"
+  ingress{
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks  = "${var.subnetCidrBlock}"
+  }
+  ingress{
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks  = "${var.subnetCidrBlock}"
+  }
+  ingress{
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks  = "${var.subnetCidrBlock}"
+  }
+  ingress{
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks  = "${var.subnetCidrBlock}"
+  }
+}
+
+#Database security group
+resource "aws_security_group" "database"{
+  name          = "database_security_group"
+  vpc_id        = "${var.vpc_id}"
+}
+
+#Database security group rule
+resource "aws_security_group_rule" "database"{
+
+  type        = "ingress"
+  from_port   = 5432
+  to_port     = 5432
+  protocol    = "tcp"
+  #cidr_blocks  = "${var.subnetCidrBlock}"
+  
+  source_security_group_id  = "${aws_security_group.application.id}"
+  security_group_id         = "${aws_security_group.database.id}"
+}
+
 # S3 Bucket
 resource "aws_s3_bucket" "bucket" {
     bucket = "webapp.${var.env}.${var.domainName}"
@@ -5,20 +57,20 @@ resource "aws_s3_bucket" "bucket" {
     force_destroy = "true"
 
     server_side_encryption_configuration {
-        rule {
-            apply_server_side_encryption_by_default {
-                sse_algorithm     = "aws:kms"
-            }
+      rule {
+        apply_server_side_encryption_by_default {
+          sse_algorithm     = "aws:kms"
         }
+      }
     }
 
     lifecycle_rule {
-        enabled = true
+      enabled = true
 
-        transition {
-            days = 30
-            storage_class = "STANDARD_IA"
-        }
+      transition {
+        days = 30
+        storage_class = "STANDARD_IA"
+      }
     }
 }
 
@@ -83,48 +135,3 @@ resource "aws_dynamodb_table" "basic-dynamodb-table" {
 
 */
 
-
-#### SECURITY GROUP #####
-
-#Application security group
-resource "aws_security_group" "app" {
-  name          = "application_security_group"
-  vpc_id        = "${var.vpc_id}"
-  ingress{
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks  = "${var.subnetCidrBlock}"
-  }
-  ingress{
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks  = "${var.subnetCidrBlock}"
-  }
-  ingress{
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks  = "${var.subnetCidrBlock}"
-  }
-}
-
-#Application security group
-resource "aws_security_group" "db"{
-  name          = "database_security_group"
-  vpc_id        = "${var.vpc_id}"
-}
-
-#Application security group rule
-resource "aws_security_group_rule" "db"{
-
-  type        = "ingress"
-  from_port   = 5432
-  to_port     = 5432
-  protocol    = "tcp"
-  #cidr_blocks  = "${var.subnetCidrBlock}"
-  
-  source_security_group_id  = "${aws_security_group.app.id}"
-  security_group_id         = "${aws_security_group.db.id}"
-}
