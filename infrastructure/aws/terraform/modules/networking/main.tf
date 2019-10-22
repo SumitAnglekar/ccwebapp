@@ -51,6 +51,15 @@ resource "aws_security_group_rule" "db" {
 }
 
 
+resource "aws_db_subnet_group" "default" {
+  name       = "main"
+  subnet_ids = "${aws_subnet.main.*.id}"
+
+  tags = {
+    Name = "My DB subnet group"
+  }
+}
+
 
 /*
 resource "aws_security_group_rule" "allow_all" {

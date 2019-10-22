@@ -4,10 +4,13 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.cloud.ccwebapp.recipe.exception.CustomizedResponseEntityExceptionHandler;
 import com.cloud.ccwebapp.recipe.exception.InvalidImageFormatException;
 import com.cloud.ccwebapp.recipe.exception.RecipeNotFoundException;
+import com.cloud.ccwebapp.recipe.exception.UserNotAuthorizedException;
 import com.cloud.ccwebapp.recipe.helper.ImageHelper;
 import com.cloud.ccwebapp.recipe.model.Image;
 import com.cloud.ccwebapp.recipe.model.Recipe;
+import com.cloud.ccwebapp.recipe.model.User;
 import com.cloud.ccwebapp.recipe.repository.ImageRepository;
+import com.cloud.ccwebapp.recipe.repository.UserRepository;
 import com.cloud.ccwebapp.recipe.service.ImageService;
 import com.cloud.ccwebapp.recipe.service.RecipeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -40,6 +44,9 @@ public class ImageController {
         @Autowired
         ImageHelper imageHelper;
 
+    @Autowired
+    UserRepository userRepository;
+
         //Get Recipe
         @GetMapping(value = "/{imageId}")
         public void getImage(@PathVariable UUID imageId , @PathVariable UUID recipeId) throws Exception {
@@ -48,21 +55,26 @@ public class ImageController {
         }
 
         @PostMapping
-        public ResponseEntity<Recipe> saveImage
+        public ResponseEntity<Image> saveImage
                 (@PathVariable UUID recipeId, @RequestBody Image image,
                  @RequestPart(value = "file") MultipartFile file,
                  Authentication authentication) throws Exception {
                 // check if recipe is present and if user is authenticated
                 Recipe recipe = recipeService.getRecipe(recipeId).getBody();
                 if(recipe!=null){
-                        ResponseEntity<Image> imageResponseEntity ;
-                }
-                File convertedFile = imageHelper.convertMultiPartToFile(file);
-                String fileExtension = convertedFile.getName().substring(convertedFile.getName().lastIndexOf("."));
-                if (fileExtension.equalsIgnoreCase("jpeg") || fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("png")) {
-                        imageService.saveImage(recipe,authentication,convertedFile);
-                }else{
-                        throw new InvalidImageFormatException("Invalid Image Format");
+                    Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
+                    if (dbRecord.get().getId() == recipe.getAuthor_id()) {
+                        File convertedFile = imageHelper.convertMultiPartToFile(file);
+                        String fileExtension = convertedFile.getName().substring(convertedFile.getName().lastIndexOf("."));
+                        if (fileExtension.equalsIgnoreCase("jpeg") || fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("png")) {
+                            return imageService.saveImage(recipe, convertedFile);
+
+                        } else {
+                            throw new InvalidImageFormatException("Invalid Image Format");
+                        }
+                    } else {
+                        throw new UserNotAuthorizedException("User is not authorized to post an image");
+                    }
                 }
                throw  new RecipeNotFoundException("The Recipe is not present!!!");
         }

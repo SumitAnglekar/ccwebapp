@@ -22,16 +22,6 @@ resource "aws_s3_bucket" "bucket" {
     }
 }
 
-/*
-
-resource "aws_db_subnet_group" "default" {
-  name       = "main"
-  subnet_ids = "${aws_subnet.main.*.id}"
-
-  tags = {
-    Name = "My DB subnet group"
-  }
-}
 
 #RDS DB instance
 resource "aws_db_instance" "myRDS" {
@@ -59,7 +49,7 @@ resource "aws_db_instance" "myRDS" {
   }
 
   # DB subnet group
-  db_subnet_group_name = "${aws_db_subnet_group.default.name}"
+  db_subnet_group_name = "${module.networking.aws_db_subnet_group_name}"
 
 }
 
@@ -80,5 +70,3 @@ resource "aws_dynamodb_table" "basic-dynamodb-table" {
     Name        = "${var.dynamoName}"
   }
 }
-
-*/

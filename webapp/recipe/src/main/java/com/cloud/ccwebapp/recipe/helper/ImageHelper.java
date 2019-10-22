@@ -19,8 +19,8 @@ public class ImageHelper {
         return convFile;
     }
 
-    private String generateFileName(MultipartFile multiPart) {
-        return new Date().getTime() + "-" + multiPart.getOriginalFilename().replace(" ", "_");
+    public String generateFileName(File file) {
+        return new Date().getTime() + "-" + file.getName().replace(" ", "_");
     }
 
 
