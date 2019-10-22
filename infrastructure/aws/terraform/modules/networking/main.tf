@@ -6,73 +6,9 @@ resource "aws_vpc" "main" {
   cidr_block           = "${var.vpcCidrBlock}"
   enable_dns_hostnames =  true
   tags = {
-  Name                 = "${var.vpcName}"
+    Name = "${var.vpcName}"
   }
 }
-
-resource "aws_security_group" "appli" {
-  name          = "app_security_group"
-  vpc_id        = "${aws_vpc.main.id}"
-  ingress{
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    #cidr_blocks  = "${var.subnetCidrBlock}"
-  }
-  ingress{
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    #cidr_blocks  = "${var.subnetCidrBlock}"
-  }
-  ingress{
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    #cidr_blocks  = "${var.subnetCidrBlock}"
-  }
-}
-
-resource "aws_security_group" "db" {
-  name          = "database_security_group"
-  vpc_id        = "${aws_vpc.main.id}"
-}
-
-resource "aws_security_group_rule" "db" {
-
-  type        = "ingress"
-  from_port   = 5432
-  to_port     = 5432
-  protocol    = "tcp"
-  #cidr_blocks  = "${var.subnetCidrBlock}"
-  
-  source_security_group_id  = "${aws_security_group.appli.id}"
-  security_group_id         = "${aws_security_group.db.id}"
-}
-
-
-resource "aws_db_subnet_group" "default" {
-  name       = "main"
-  subnet_ids = "${aws_subnet.main.*.id}"
-
-  tags = {
-    Name = "My DB subnet group"
-  }
-}
-
-
-/*
-resource "aws_security_group_rule" "allow_all" {
-  type = "ingress"
-  from_port=80
-  to_port=80
-  protocol="tcp"
-
-  source_security_group_id="${data.aws_security_group.asg.id}"
-  security_group_id ="${aws_security_group.default.id}"
-}
-*/
-
 
 #Creating 3 subnets with appropraite subnet names and subnet-cidr-block
 resource "aws_subnet" "main" {
@@ -83,8 +19,8 @@ resource "aws_subnet" "main" {
   vpc_id            = "${aws_vpc.main.id}"
   map_public_ip_on_launch="true"
   tags = {
-            Name ="${var.vpcName}.subnet.${count.index}"  
-         }
+    Name ="${var.vpcName}.subnet.${count.index}"  
+  }
 }
 
 #Creating an internet-gateway
@@ -117,6 +53,3 @@ resource "aws_route_table_association" "main" {
   subnet_id      = "${aws_subnet.main.*.id[count.index]}"
   route_table_id = "${aws_route_table.main.id}"
 }
-
-
-
