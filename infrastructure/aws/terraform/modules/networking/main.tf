@@ -53,3 +53,13 @@ resource "aws_route_table_association" "main" {
   subnet_id      = "${aws_subnet.main.*.id[count.index]}"
   route_table_id = "${aws_route_table.main.id}"
 }
+
+#subnet group
+resource "aws_db_subnet_group" "default" {
+  name       = "main-${var.vpcName}"
+  subnet_ids = "${aws_subnet.main.*.id}"
+
+  tags = {
+    Name = "My DB subnet group"
+  }
+}

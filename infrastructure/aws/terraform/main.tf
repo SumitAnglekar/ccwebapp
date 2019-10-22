@@ -26,7 +26,7 @@ module "application" {
   rdsDBName = "${var.rdsDBName}"
   dynamoName = "${var.dynamoName}"
   subnetCidrBlock = "${var.subnetCidrBlock}"
-
+  aws_db_subnet_group_name = module.networking.aws_db_subnet_group_name
   vpc_id = module.networking.vpc_id
 
 }

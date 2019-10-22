@@ -101,7 +101,7 @@ resource "aws_db_instance" "myRDS" {
   }
 
   # DB subnet group
-  db_subnet_group_name = "${module.networking.aws_db_subnet_group_name}"
+  db_subnet_group_name = "${var.aws_db_subnet_group_name}"
 
 }
 

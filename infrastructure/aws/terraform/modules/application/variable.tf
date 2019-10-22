@@ -59,3 +59,8 @@ variable "vpc_id" {
 variable "subnetCidrBlock" {
   type        = "list"
 }
+
+#aws_db_subnet_group_name
+variable "aws_db_subnet_group_name" {
+  type        = "string"
+}
