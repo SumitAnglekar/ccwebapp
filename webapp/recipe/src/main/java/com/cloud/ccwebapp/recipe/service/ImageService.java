@@ -7,45 +7,57 @@ import com.cloud.ccwebapp.recipe.helper.RecipeHelper;
 import com.cloud.ccwebapp.recipe.model.Image;
 import com.cloud.ccwebapp.recipe.model.Recipe;
 import com.cloud.ccwebapp.recipe.repository.ImageRepository;
+import com.cloud.ccwebapp.recipe.repository.RecipeRepository;
 import com.cloud.ccwebapp.recipe.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.UUID;
 
 @Service
 public class ImageService {
 
-        String bucketName;
-        String endpointUrl;
+    @Value("${aws.s3.bucketname}")
+    String bucketName;
 
-        @Autowired
-        AmazonS3 amazonS3;
+    @Value("${aws.s3.endpointURL}")
+    String endpointUrl;
 
-        @Autowired
-        private ImageRepository imageRepository;
-        @Autowired
-        ImageHelper imageHelper;
+    @Autowired
+    AmazonS3 amazonS3;
+    @Autowired
+    ImageHelper imageHelper;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    RecipeHelper recipeHelper;
+    @Autowired
+    private ImageRepository imageRepository;
+    @Autowired
+    private RecipeRepository recipeRepository;
 
-        @Autowired
-        UserRepository userRepository;
-
-        @Autowired
-        RecipeHelper  recipeHelper;
-
-        public ResponseEntity<Image> saveImage(Recipe recipe, File imageFile) throws Exception {
-            String fileName= imageHelper.generateFileName(imageFile);
-            amazonS3.putObject(bucketName,fileName,imageFile);
-            String fileUrl = endpointUrl+"/"+bucketName+"/"+fileName;
+    public ResponseEntity<Image> saveImage(Recipe recipe, File imageFile) throws Exception {
+        if (recipe.getImage() == null) {
+            String fileName = imageHelper.generateFileName(imageFile);
+            amazonS3.putObject(bucketName, fileName, imageFile);
+            String fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
             Image image = new Image();
             image.setUrl(fileUrl);
-            if(recipe.getImage()==null){
             recipe.setImage(image);
+            imageRepository.save(image);
+            recipeRepository.save(recipe);
             return new ResponseEntity<Image>(image, HttpStatus.CREATED);
-            }else{
-                throw new ImageAlreadyExistsException("The Image is already present!!!");
-            }
+        } else {
+            throw new ImageAlreadyExistsException("The Image is already present!!!");
         }
+    }
+
+    public ResponseEntity<Image> getImage(UUID imageId) {
+        //        Optional<Image> image = recipeRepository.findRecipesById(id);
+        return new ResponseEntity<Image>((Image) null, HttpStatus.OK);
+    }
 }

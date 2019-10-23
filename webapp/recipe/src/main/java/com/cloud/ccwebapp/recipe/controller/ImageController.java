@@ -49,26 +49,38 @@ public class ImageController {
 
         //Get Recipe
         @GetMapping(value = "/{imageId}")
-        public void getImage(@PathVariable UUID imageId , @PathVariable UUID recipeId) throws Exception {
+        public ResponseEntity<Image> getImage(@PathVariable UUID imageId, @PathVariable UUID recipeId, Authentication authentication) throws Exception {
                 System.out.println(recipeId);
                 System.out.println(imageId);
+            // check if recipe is present and if user is authenticated
+            Recipe recipe = recipeService.getRecipe(recipeId).getBody();
+            if (recipe != null) {
+                Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
+                if (dbRecord.get().getId().equals(recipe.getAuthor_id())) {
+                    return imageService.getImage(imageId);
+                } else {
+                    throw new UserNotAuthorizedException("User is not authorized to post an image");
+                }
+
+            }
+            throw new RecipeNotFoundException("The Recipe is not present!!!");
         }
 
-        @PostMapping
+            @PostMapping
         public ResponseEntity<Image> saveImage
-                (@PathVariable UUID recipeId, @RequestBody Image image,
+            (@PathVariable UUID recipeId,
                  @RequestPart(value = "file") MultipartFile file,
                  Authentication authentication) throws Exception {
                 // check if recipe is present and if user is authenticated
                 Recipe recipe = recipeService.getRecipe(recipeId).getBody();
                 if(recipe!=null){
                     Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
-                    if (dbRecord.get().getId() == recipe.getAuthor_id()) {
+                    if (dbRecord.get().getId().equals(recipe.getAuthor_id())) {
                         File convertedFile = imageHelper.convertMultiPartToFile(file);
-                        String fileExtension = convertedFile.getName().substring(convertedFile.getName().lastIndexOf("."));
+                        String fileExtension = convertedFile.getName().substring(convertedFile.getName().lastIndexOf(".") + 1);
+                        System.out.println(fileExtension);
                         if (fileExtension.equalsIgnoreCase("jpeg") || fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("png")) {
                             return imageService.saveImage(recipe, convertedFile);
-
                         } else {
                             throw new InvalidImageFormatException("Invalid Image Format");
                         }
@@ -78,7 +90,6 @@ public class ImageController {
                 }
                throw  new RecipeNotFoundException("The Recipe is not present!!!");
         }
-
 
 
 }
