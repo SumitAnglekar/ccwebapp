@@ -41,7 +41,7 @@ public class BasicConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/v1/recipe/{id}")
+                .antMatchers(HttpMethod.GET, "/v1/recipe/{id}/*")
                 .permitAll()
                 .antMatchers(HttpMethod.POST, "/v1/user")
                 .permitAll()
