@@ -42,7 +42,21 @@ public class ImageController {
 
   @Autowired UserRepository userRepository;
 
-  @Autowired RecipeRepository recipeRepository;
+    @Autowired
+    RecipeRepository recipeRepository;
+
+    //Get Recipe
+    @GetMapping(value = "/{imageId}")
+    public ResponseEntity<Image> getImage(@PathVariable UUID imageId, @PathVariable UUID recipeId, Authentication authentication) throws Exception {
+        // check if recipe is present and if user is authenticated
+        Recipe recipe = recipeService.getRecipe(recipeId).getBody();
+        if (recipe != null) {
+            Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
+            if (dbRecord.get().getId().equals(recipe.getAuthor_id())) {
+                return imageService.getImage(imageId,recipe);
+            } else {
+                throw new UserNotAuthorizedException("User is not authorized to post an image");
+            }
 
   // Get Recipe
   @GetMapping(value = "/{imageId}")
@@ -85,6 +99,7 @@ public class ImageController {
       }
     }
 
+<<<<<<< HEAD
     throw new RecipeNotFoundException("The Recipe is not present!!!");
   }
 
@@ -107,4 +122,23 @@ public class ImageController {
     }
     throw new RecipeNotFoundException("The Recipe is not present!!!");
   }
+=======
+    @DeleteMapping(value = "/{imageId}")
+    public ResponseEntity<Image> deleteImage(@PathVariable UUID imageId, @PathVariable UUID recipeId, Authentication authentication) throws Exception {
+        // check if recipe is present and if user is authenticated
+        Recipe recipe = recipeService.getRecipe(recipeId).getBody();
+        if (recipe != null) {
+            Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
+            if (dbRecord.get().getId().equals(recipe.getAuthor_id())) {
+                recipe.setImage(null);
+                imageRepository.delete(recipe.getImage());
+                recipeRepository.save(recipe);
+                return imageService.getDelete(imageId,recipe);
+            }else {
+                throw new UserNotAuthorizedException("User is not authorized to post an image");
+            }
+        }
+        throw  new RecipeNotFoundException("The Recipe is not present!!!");
+    }
+>>>>>>> Added DELETE image endpoint
 }
