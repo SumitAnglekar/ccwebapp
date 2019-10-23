@@ -90,11 +90,7 @@ public class ImageService {
                 String fileName = recipe.getImage().getUrl().split("/")[2];
                 S3Object s3object = amazonS3.getObject(new GetObjectRequest(bucketName, fileName));
                 if (s3object != null) {
-                    Image image = recipe.getImage();
                     amazonS3.deleteObject(new DeleteObjectRequest(bucketName, fileName));
-                    recipe.setImage(null);
-                    recipeRepository.save(recipe);
-                    imageRepository.delete(image);
                     return new ResponseEntity<Image>(HttpStatus.NO_CONTENT);
                 } else {
                     recipe.setImage(null);
