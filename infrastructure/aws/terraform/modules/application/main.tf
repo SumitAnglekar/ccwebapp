@@ -1,4 +1,3 @@
-
 #### SECURITY GROUP #####
 
 #Application security group
@@ -29,6 +28,7 @@ resource "aws_security_group" "application" {
     protocol    = "tcp"
     cidr_blocks  = ["0.0.0.0/0"]
   }
+  
 }
 
 #Database security group
@@ -44,6 +44,7 @@ resource "aws_security_group_rule" "database"{
   from_port   = 5432
   to_port     = 5432
   protocol    = "tcp"
+  
   #cidr_blocks  = "${var.subnetCidrBlock}"
   
   source_security_group_id  = "${aws_security_group.application.id}"
@@ -74,16 +75,6 @@ resource "aws_s3_bucket" "bucket" {
   }
 }
 
-/*
-
-resource "aws_db_subnet_group" "default" {
-  name       = "main"
-  subnet_ids = "${aws_subnet.main.*.id}"
-
-  tags = {
-    Name = "My DB subnet group"
-  }
-}
 
 #RDS DB instance
 resource "aws_db_instance" "myRDS" {
@@ -98,10 +89,10 @@ resource "aws_db_instance" "myRDS" {
   instance_class    = "db.t2.medium"
   # storage_encrypted = false
   port     = "5432"
-  # vpc_security_group_ids = [data.aws_security_group.default.id]
-
+  vpc_security_group_ids = [ "${aws_security_group.database.id}" ]
   final_snapshot_identifier = "${var.rdsInstanceIdentifier}-SNAPSHOT"
-
+  skip_final_snapshot = true
+  
   publicly_accessible = true
   multi_az = false
 
@@ -111,11 +102,9 @@ resource "aws_db_instance" "myRDS" {
   }
 
   # DB subnet group
-  db_subnet_group_name = "${aws_db_subnet_group.default.name}"
+  db_subnet_group_name = "${var.aws_db_subnet_group_name}"
 
 }
-
-*/
 
 # EC2 Instance
 resource "aws_instance" "ec2_instance" {
@@ -135,7 +124,6 @@ resource "aws_instance" "ec2_instance" {
   // depends_on = [aws_db_instance.myRDS]
 }
 
-/*
 
 #Dynamo db
 resource "aws_dynamodb_table" "basic-dynamodb-table" {
@@ -153,6 +141,3 @@ resource "aws_dynamodb_table" "basic-dynamodb-table" {
     Name        = "${var.dynamoName}"
   }
 }
-
-*/
-

@@ -59,6 +59,11 @@ variable "subnetCidrBlock" {
   type        = "list"
 }
 
+#aws_db_subnet_group_name
+variable "aws_db_subnet_group_name" {
+  type        = "string"
+}
+
 # ami id
 variable "ami" {
   type = "string"
