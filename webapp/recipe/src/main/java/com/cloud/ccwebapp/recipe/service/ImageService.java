@@ -1,6 +1,7 @@
 package com.cloud.ccwebapp.recipe.service;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.cloud.ccwebapp.recipe.exception.ImageAlreadyExistsException;
@@ -82,4 +83,25 @@ public class ImageService {
     }
 
 
+    public ResponseEntity<Image> getDelete(UUID imageId, Recipe recipe) {
+        if (recipe.getImage() != null) {
+            if (recipe.getImage().getId().equals(imageId)) {
+                String fileName = recipe.getImage().getUrl().split("/")[2];
+                S3Object s3object = amazonS3.getObject(new GetObjectRequest(bucketName, fileName));
+                if (s3object != null) {
+                    amazonS3.deleteObject(new DeleteObjectRequest(bucketName, fileName));
+                    return new ResponseEntity<Image>(HttpStatus.NO_CONTENT);
+                } else {
+                    recipe.setImage(null);
+                    throw new ImageNotFoundException("Image not found!!!");
+                }
+
+            } else {
+                throw new ImageNotFoundException("Wrong image ID for the recipe!!!");
+            }
+
+        } else {
+            throw new ImageNotFoundException("There is no image found!!!");
+        }
+    }
 }
