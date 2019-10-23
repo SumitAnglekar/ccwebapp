@@ -28,13 +28,24 @@ resource "aws_security_group" "application" {
     protocol    = "tcp"
     cidr_blocks  = ["0.0.0.0/0"]
   }
+<<<<<<< Updated upstream
   
+=======
+  tags          = {
+    Name        = "Application Security Group"
+    Environment = "${var.env}"
+  }
+>>>>>>> Stashed changes
 }
 
 #Database security group
 resource "aws_security_group" "database"{
   name          = "database_security_group"
   vpc_id        = "${var.vpc_id}"
+  tags          = {
+    Name        = "Database Security Group"
+    Environment = "${var.env}"
+  }
 }
 
 #Database security group rule
