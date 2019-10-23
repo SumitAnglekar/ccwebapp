@@ -50,7 +50,7 @@ public class ImageService {
                 String fileName = recipe.getImage().getUrl().split("/")[2];
                 S3Object s3object = amazonS3.getObject(new GetObjectRequest(bucketName, fileName));
                 if (s3object != null) {
-                    return new ResponseEntity<Image>(recipe.getImage(), HttpStatus.OK);
+                    return new ResponseEntity<Image>(recipe.getImage(), HttpStatus.CREATED);
                 } else {
                     recipe.setImage(null);
                     throw new ImageNotFoundException("Image not found!!!");
