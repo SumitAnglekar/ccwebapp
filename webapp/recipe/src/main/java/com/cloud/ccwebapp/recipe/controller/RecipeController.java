@@ -53,6 +53,6 @@ public class RecipeController {
 
   @GetMapping("s")
   public ResponseEntity<Recipe> getLatestRecipie(){
-    return recipeService.
+    return recipeService.getLatestRecipe();
   }
 }
