@@ -77,7 +77,6 @@ public class ImageController {
         Recipe recipe = recipeService.getRecipe(recipeId).getBody();
         if(recipe!=null){
             Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
-            if (dbRecord.get().getId().equals(recipe.getAuthor_id())) {
                 File convertedFile = imageHelper.convertMultiPartToFile(file);
                 String fileExtension = convertedFile.getName().substring(convertedFile.getName().lastIndexOf(".") + 1);
                 System.out.println(fileExtension);
@@ -86,8 +85,6 @@ public class ImageController {
                 } else {
                     throw new InvalidImageFormatException("Invalid Image Format");
                 }
-            } else {
-                throw new UserNotAuthorizedException("User is not authorized to post an image");
             }
         }
         throw  new RecipeNotFoundException("The Recipe is not present!!!");
