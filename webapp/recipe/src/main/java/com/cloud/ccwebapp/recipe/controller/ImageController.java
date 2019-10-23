@@ -68,9 +68,7 @@ public class ImageController {
     if (recipe != null) {
       Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
       File convertedFile = imageHelper.convertMultiPartToFile(file);
-      String fileExtension =
-          convertedFile.getName().substring(convertedFile.getName().lastIndexOf(".") + 1);
-//      System.out.println(fileExtension);
+      String fileExtension = convertedFile.getName().substring(convertedFile.getName().lastIndexOf(".") + 1);
       if (fileExtension.equalsIgnoreCase("jpeg")
           || fileExtension.equalsIgnoreCase("jpg")
           || fileExtension.equalsIgnoreCase("png")) {

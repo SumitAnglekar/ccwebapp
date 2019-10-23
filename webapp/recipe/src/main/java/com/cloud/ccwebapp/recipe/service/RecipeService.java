@@ -57,11 +57,8 @@ public class RecipeService {
             throw new InvalidInputException("Invalid user id");
         if (!dbUser.get().getEmailaddress().equals(authentication.getName()))
             throw new UserNotAuthorizedException("You are not authorized to make changes!!");
-        System.out.println("Reached start!!");
         imageService.getDelete(recipeDb.getImage().getId(),recipeDb);
-        System.out.println("After image Service!!");
         recipeRepository.delete(recipeDb);
-        System.out.println("Reached end!!");
         return new ResponseEntity<Recipe>(HttpStatus.NO_CONTENT);
     }
 
