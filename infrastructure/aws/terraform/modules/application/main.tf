@@ -129,8 +129,7 @@ resource "aws_instance" "ec2_instance" {
     delete_on_termination = true
   }
   // TODO: depends_on, user_data
-  // depends_on = [aws_db_instance.myRDS]
-  depends_on = [aws_s3_bucket.bucket]
+  depends_on = [aws_s3_bucket.bucket,aws_db_instance.myRDS]
 }
 
 
