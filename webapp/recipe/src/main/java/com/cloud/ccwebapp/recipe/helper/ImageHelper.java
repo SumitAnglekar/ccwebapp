@@ -12,7 +12,7 @@ import java.util.Date;
 public class ImageHelper {
 
     public File  convertMultiPartToFile(MultipartFile file) throws IOException {
-        File convFile = new File(file.getOriginalFilename());
+        File convFile = new File("./images/"+file.getOriginalFilename());
         FileOutputStream fos = new FileOutputStream(convFile);
         fos.write(file.getBytes());
         fos.close();
@@ -20,7 +20,7 @@ public class ImageHelper {
     }
 
     public String generateFileName(File file) {
-        return new Date().getTime() + "-" + file.getName().replace(" ", "_");
+        return new Date().getTime() + "-" +file.getName().replace(" ", "_");
     }
 
 
