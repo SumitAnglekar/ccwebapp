@@ -71,7 +71,7 @@ public class Recipe {
     private NutritionalInformation nutrition_information;
 
     @ReadOnlyProperty
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private Image image;
 
     public Recipe() {
