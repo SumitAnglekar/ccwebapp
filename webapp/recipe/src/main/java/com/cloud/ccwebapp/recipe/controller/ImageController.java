@@ -50,14 +50,12 @@ public class ImageController {
         //Get Recipe
         @GetMapping(value = "/{imageId}")
         public ResponseEntity<Image> getImage(@PathVariable UUID imageId, @PathVariable UUID recipeId, Authentication authentication) throws Exception {
-                System.out.println(recipeId);
-                System.out.println(imageId);
             // check if recipe is present and if user is authenticated
             Recipe recipe = recipeService.getRecipe(recipeId).getBody();
             if (recipe != null) {
                 Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
                 if (dbRecord.get().getId().equals(recipe.getAuthor_id())) {
-                    return imageService.getImage(imageId);
+                    return imageService.getImage(imageId,recipe);
                 } else {
                     throw new UserNotAuthorizedException("User is not authorized to post an image");
                 }
