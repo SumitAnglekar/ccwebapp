@@ -34,3 +34,7 @@ build/
 ### Maven ###
 .mvn/**
 
+./images/**
+*.png
+*.jpeg
+*.jpg
