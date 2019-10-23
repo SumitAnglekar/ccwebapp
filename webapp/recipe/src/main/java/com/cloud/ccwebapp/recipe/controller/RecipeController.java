@@ -27,7 +27,6 @@ public class RecipeController {
   // Get Recipe
   @RequestMapping(method = RequestMethod.GET, value = "/{id}")
   public ResponseEntity<Recipe> getRecipe(@PathVariable UUID id) throws Exception {
-
     return recipeService.getRecipe(id);
   }
 
@@ -51,5 +50,10 @@ public class RecipeController {
       @RequestBody Recipe recipe, Authentication authentication, @PathVariable String id)
       throws Exception {
     return recipeService.updateRecipe(recipe, authentication, id);
+  }
+
+  @GetMapping("s")
+  public ResponseEntity<Recipe> getLatestRecipie(){
+    return recipeService.
   }
 }

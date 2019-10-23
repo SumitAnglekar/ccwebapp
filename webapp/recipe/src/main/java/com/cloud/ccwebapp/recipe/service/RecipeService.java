@@ -110,4 +110,12 @@ public class RecipeService {
         return new ResponseEntity<Recipe>(rc, HttpStatus.OK);
     }
 
+    public ResponseEntity<Recipe> getLatestRecipe(){
+        Optional<Recipe> dbRecord = recipeRepository.findTopByCreated_tsOrderByCreated_tsDesc();
+        if(dbRecord.isPresent()) {
+            return new ResponseEntity<Recipe>(dbRecord.get(),HttpStatus.OK);
+        }
+        throw new RecipeNotFoundException("No Recipes available!!");
+    }
+
 }
