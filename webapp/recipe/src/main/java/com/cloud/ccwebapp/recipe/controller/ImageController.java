@@ -75,7 +75,7 @@ public class ImageController {
       File convertedFile = imageHelper.convertMultiPartToFile(file);
       String fileExtension =
           convertedFile.getName().substring(convertedFile.getName().lastIndexOf(".") + 1);
-      System.out.println(fileExtension);
+//      System.out.println(fileExtension);
       if (fileExtension.equalsIgnoreCase("jpeg")
           || fileExtension.equalsIgnoreCase("jpg")
           || fileExtension.equalsIgnoreCase("png")) {
