@@ -10,6 +10,7 @@ import com.cloud.ccwebapp.recipe.model.Image;
 import com.cloud.ccwebapp.recipe.model.Recipe;
 import com.cloud.ccwebapp.recipe.model.User;
 import com.cloud.ccwebapp.recipe.repository.ImageRepository;
+import com.cloud.ccwebapp.recipe.repository.RecipeRepository;
 import com.cloud.ccwebapp.recipe.repository.UserRepository;
 import com.cloud.ccwebapp.recipe.service.ImageService;
 import com.cloud.ccwebapp.recipe.service.RecipeService;
@@ -29,67 +30,81 @@ import java.util.UUID;
 @Validated(CustomizedResponseEntityExceptionHandler.class)
 public class ImageController {
 
-        @Autowired
-        AmazonS3 amazonS3;
+  @Autowired AmazonS3 amazonS3;
 
-        @Autowired
-        ImageService imageService;
+  @Autowired ImageService imageService;
 
-        @Autowired
-        ImageRepository imageRepository;
+  @Autowired ImageRepository imageRepository;
 
-        @Autowired
-        RecipeService recipeService;
+  @Autowired RecipeService recipeService;
 
-        @Autowired
-        ImageHelper imageHelper;
+  @Autowired ImageHelper imageHelper;
 
-    @Autowired
-    UserRepository userRepository;
+  @Autowired UserRepository userRepository;
 
-        //Get Recipe
-        @GetMapping(value = "/{imageId}")
-        public ResponseEntity<Image> getImage(@PathVariable UUID imageId, @PathVariable UUID recipeId, Authentication authentication) throws Exception {
-                System.out.println(recipeId);
-                System.out.println(imageId);
-            // check if recipe is present and if user is authenticated
-            Recipe recipe = recipeService.getRecipe(recipeId).getBody();
-            if (recipe != null) {
-                Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
-                if (dbRecord.get().getId().equals(recipe.getAuthor_id())) {
-                    return imageService.getImage(imageId);
-                } else {
-                    throw new UserNotAuthorizedException("User is not authorized to post an image");
-                }
+  @Autowired RecipeRepository recipeRepository;
 
-            }
-            throw new RecipeNotFoundException("The Recipe is not present!!!");
-        }
+  // Get Recipe
+  @GetMapping(value = "/{imageId}")
+  public ResponseEntity<Image> getImage(
+      @PathVariable UUID imageId, @PathVariable UUID recipeId, Authentication authentication)
+      throws Exception {
+    // check if recipe is present and if user is authenticated
+    Recipe recipe = recipeService.getRecipe(recipeId).getBody();
+    if (recipe != null) {
+      Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
+      if (dbRecord.get().getId().equals(recipe.getAuthor_id())) {
+        return imageService.getImage(imageId, recipe);
+      } else {
+        throw new UserNotAuthorizedException("User is not authorized to post an image");
+      }
+    }
+    throw new RecipeNotFoundException("The Recipe is not present!!!");
+  }
 
-            @PostMapping
-        public ResponseEntity<Image> saveImage
-            (@PathVariable UUID recipeId,
-                 @RequestPart(value = "file") MultipartFile file,
-                 Authentication authentication) throws Exception {
-                // check if recipe is present and if user is authenticated
-                Recipe recipe = recipeService.getRecipe(recipeId).getBody();
-                if(recipe!=null){
-                    Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
-                    if (dbRecord.get().getId().equals(recipe.getAuthor_id())) {
-                        File convertedFile = imageHelper.convertMultiPartToFile(file);
-                        String fileExtension = convertedFile.getName().substring(convertedFile.getName().lastIndexOf(".") + 1);
-                        System.out.println(fileExtension);
-                        if (fileExtension.equalsIgnoreCase("jpeg") || fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("png")) {
-                            return imageService.saveImage(recipe, convertedFile);
-                        } else {
-                            throw new InvalidImageFormatException("Invalid Image Format");
-                        }
-                    } else {
-                        throw new UserNotAuthorizedException("User is not authorized to post an image");
-                    }
-                }
-               throw  new RecipeNotFoundException("The Recipe is not present!!!");
-        }
+  @PostMapping
+  public ResponseEntity<Image> saveImage(
+      @PathVariable UUID recipeId,
+      @RequestPart(value = "file") MultipartFile file,
+      Authentication authentication)
+      throws Exception {
+    // check if recipe is present and if user is authenticated
+    Recipe recipe = recipeService.getRecipe(recipeId).getBody();
+    if (recipe != null) {
+      Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
+      File convertedFile = imageHelper.convertMultiPartToFile(file);
+      String fileExtension =
+          convertedFile.getName().substring(convertedFile.getName().lastIndexOf(".") + 1);
+//      System.out.println(fileExtension);
+      if (fileExtension.equalsIgnoreCase("jpeg")
+          || fileExtension.equalsIgnoreCase("jpg")
+          || fileExtension.equalsIgnoreCase("png")) {
+        return imageService.saveImage(recipe, convertedFile);
+      } else {
+        throw new InvalidImageFormatException("Invalid Image Format");
+      }
+    }
 
+    throw new RecipeNotFoundException("The Recipe is not present!!!");
+  }
 
+  @DeleteMapping(value = "/{imageId}")
+  public ResponseEntity<Image> deleteImage(
+      @PathVariable UUID imageId, @PathVariable UUID recipeId, Authentication authentication)
+      throws Exception {
+    // check if recipe is present and if user is authenticated
+    Recipe recipe = recipeService.getRecipe(recipeId).getBody();
+    if (recipe != null) {
+      Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
+      if (dbRecord.get().getId().equals(recipe.getAuthor_id())) {
+        recipe.setImage(null);
+        imageRepository.delete(recipe.getImage());
+        recipeRepository.save(recipe);
+        return imageService.getDelete(imageId, recipe);
+      } else {
+        throw new UserNotAuthorizedException("User is not authorized to post an image");
+      }
+    }
+    throw new RecipeNotFoundException("The Recipe is not present!!!");
+  }
 }
