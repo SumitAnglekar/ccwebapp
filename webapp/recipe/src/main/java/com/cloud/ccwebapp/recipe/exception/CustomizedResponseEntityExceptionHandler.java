@@ -57,6 +57,13 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
         return new ResponseEntity(exceptionResponse.toString(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ImageNotFoundException.class)
+    @ResponseBody
+    public final ResponseEntity<Object> ImageNotFoundException(ImageNotFoundException ex, WebRequest request) {
+        Response exceptionResponse = new Response(HttpStatus.BAD_REQUEST.toString(), ex.getMessage());
+        return new ResponseEntity(exceptionResponse.toString(), HttpStatus.BAD_REQUEST);
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers, HttpStatus status, WebRequest request) {
