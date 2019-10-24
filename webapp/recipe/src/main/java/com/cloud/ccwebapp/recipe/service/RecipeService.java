@@ -17,6 +17,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -108,9 +110,9 @@ public class RecipeService {
     }
 
     public ResponseEntity<Recipe> getLatestRecipe(){
-        Optional<Recipe> dbRecord = recipeRepository.findTopByCreated_tsOrderByCreated_tsDesc();
-        if(dbRecord.isPresent()) {
-            return new ResponseEntity<Recipe>(dbRecord.get(),HttpStatus.OK);
+        List<Recipe> dbRecord = recipeRepository.findTop1ByOrderByCreatedtsDesc();
+        if(dbRecord.size()==1) {
+            return new ResponseEntity<Recipe>(dbRecord.get(0),HttpStatus.OK);
         }
         throw new RecipeNotFoundException("No Recipes available!!");
     }

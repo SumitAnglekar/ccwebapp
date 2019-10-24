@@ -1,5 +1,6 @@
 package com.cloud.ccwebapp.recipe.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Range;
@@ -28,7 +29,8 @@ public class Recipe {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_ts")
     @ReadOnlyProperty
-    private Date created_ts;
+    @JsonProperty("created_ts")
+    private Date createdts;
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -87,12 +89,12 @@ public class Recipe {
         this.id = id;
     }
 
-    public Date getCreated_ts() {
-        return created_ts;
+    public Date getCreatedts() {
+        return createdts;
     }
 
-    public void setCreated_ts(Date created_ts) {
-        this.created_ts = created_ts;
+    public void setCreatedts(Date createdts) {
+        this.createdts = createdts;
     }
 
     public Date getUpdated_ts() {
@@ -197,7 +199,7 @@ public class Recipe {
         return "Recipe{" +
                 "image="+image+
                 ", id=" + id +
-                ", created_ts=" + created_ts +
+                ", created_ts=" + createdts +
                 ", updated_ts=" + updated_ts +
                 ", author_id=" + author_id +
                 ", cook_time_in_min=" + cook_time_in_min +
