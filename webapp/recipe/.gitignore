@@ -35,7 +35,8 @@ build/
 .mvn/**
 
 ./images
-./images/*
+./images/**/*
 *.png
 *.jpeg
 *.jpg
+*.pdf
