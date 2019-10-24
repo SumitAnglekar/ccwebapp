@@ -2,7 +2,6 @@ package com.cloud.ccwebapp.recipe.service;
 
 import com.cloud.ccwebapp.recipe.exception.InvalidInputException;
 import com.cloud.ccwebapp.recipe.exception.RecipeNotFoundException;
-import com.cloud.ccwebapp.recipe.exception.Response;
 import com.cloud.ccwebapp.recipe.exception.UserNotAuthorizedException;
 import com.cloud.ccwebapp.recipe.helper.RecipeHelper;
 import com.cloud.ccwebapp.recipe.model.Recipe;
@@ -17,7 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,7 +57,7 @@ public class RecipeService {
             throw new InvalidInputException("Invalid user id");
         if (!dbUser.get().getEmailaddress().equals(authentication.getName()))
             throw new UserNotAuthorizedException("You are not authorized to make changes!!");
-        imageService.getDelete(recipeDb.getImage().getId(),recipeDb);
+        imageService.deleteImage(recipeDb.getImage().getId(),recipeDb);
         recipeRepository.delete(recipeDb);
         return new ResponseEntity<Recipe>(HttpStatus.NO_CONTENT);
     }

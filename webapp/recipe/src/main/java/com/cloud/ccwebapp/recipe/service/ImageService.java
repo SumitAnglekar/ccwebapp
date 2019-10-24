@@ -84,7 +84,7 @@ public class ImageService {
     }
 
 
-    public ResponseEntity<Image> getDelete(UUID imageId, Recipe recipe) {
+    public ResponseEntity<Image> deleteImage(UUID imageId, Recipe recipe) {
         if (recipe.getImage() != null) {
             if (recipe.getImage().getId().equals(imageId)) {
                 String fileName = recipe.getImage().getUrl().split("/")[2];
