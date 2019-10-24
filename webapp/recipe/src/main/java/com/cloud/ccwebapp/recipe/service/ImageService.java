@@ -32,7 +32,7 @@ public class ImageService {
     @Value("${aws.s3.endpointURL}")
     String endpointUrl;
 
-    @Autowired
+        @Autowired
     AmazonS3 amazonS3;
     @Autowired
     ImageHelper imageHelper;
@@ -72,9 +72,12 @@ public class ImageService {
             String fileName = imageHelper.generateFileName(imageFile);
             amazonS3.putObject(new PutObjectRequest(bucketName, fileName, imageFile));
             String fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
+            System.out.println("******************************file URL *****************************" +fileUrl);
             Image image = new Image();
             image.setUrl(fileUrl);
             recipe.setImage(image);
+
+            System.out.println("########################After recipe setimage##################################");
             imageRepository.save(image);
             recipeRepository.save(recipe);
             return new ResponseEntity<Image>(image, HttpStatus.CREATED);
