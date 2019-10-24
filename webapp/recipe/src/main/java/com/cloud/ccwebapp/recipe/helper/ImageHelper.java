@@ -12,7 +12,7 @@ import java.util.Date;
 public class ImageHelper {
 
     public File  convertMultiPartToFile(MultipartFile file) throws IOException {
-        File convFile = new File("./images/"+file.getOriginalFilename());
+        File convFile = new File("/tmp/"+file.getOriginalFilename());
         FileOutputStream fos = new FileOutputStream(convFile);
         fos.write(file.getBytes());
         fos.close();
