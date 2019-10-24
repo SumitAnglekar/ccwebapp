@@ -76,6 +76,10 @@ variable "subnet_id" {
   description = "The Subnet to use for the instance"
 }
 
+variable "subnet_id_list" {
+  type = "list"
+}
+
 # SSH key
 variable "aws_ssh_key" {
   type = "string"

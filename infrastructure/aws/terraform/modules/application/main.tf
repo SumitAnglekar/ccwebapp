@@ -28,6 +28,12 @@ resource "aws_security_group" "application" {
     protocol    = "tcp"
     cidr_blocks  = ["0.0.0.0/0"]
   }
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   tags          = {
     Name        = "Application Security Group"
     Environment = "${var.env}"
@@ -51,8 +57,7 @@ resource "aws_security_group_rule" "database"{
   from_port   = 5432
   to_port     = 5432
   protocol    = "tcp"
-  
-  #cidr_blocks  = "${var.subnetCidrBlock}"
+  // cidr_blocks  = "${var.subnet_id_list}"
   
   source_security_group_id  = "${aws_security_group.application.id}"
   security_group_id         = "${aws_security_group.database.id}"
@@ -121,7 +126,16 @@ resource "aws_instance" "ec2_instance" {
   subnet_id = "${var.subnet_id}"
   disable_api_termination = false
   key_name = "${var.aws_ssh_key}"
-  user_data = "${templatefile("${path.module}/prepare_aws_instance.sh", { s3_bucket_name = "${aws_s3_bucket.bucket.id}" })}"
+  user_data = "${templatefile("${path.module}/prepare_aws_instance.sh",
+                                    {
+                                      s3_bucket_name = "${aws_s3_bucket.bucket.id}",
+                                      aws_db_endpoint = "${aws_db_instance.myRDS.endpoint}",
+                                      aws_db_name = "${aws_db_instance.myRDS.name}",
+                                      aws_db_username = "${aws_db_instance.myRDS.username}",
+                                      aws_db_password = "${aws_db_instance.myRDS.password}",
+                                      aws_region = "${var.region}",
+                                      aws_profile = "${var.env}"
+                                    })}"
 
   root_block_device {
     volume_type = "gp2"

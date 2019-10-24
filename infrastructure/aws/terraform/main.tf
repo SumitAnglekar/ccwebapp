@@ -32,4 +32,5 @@ module "application" {
 
   vpc_id = module.networking.vpc_id
   subnet_id = module.networking.subnet_id
+  subnet_id_list = module.networking.subnet_id_list
 }
