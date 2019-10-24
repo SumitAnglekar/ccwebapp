@@ -3,7 +3,9 @@ package com.cloud.ccwebapp.recipe.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.cloud.ccwebapp.recipe.exception.ImageAlreadyExistsException;
 import com.cloud.ccwebapp.recipe.exception.ImageNotFoundException;
@@ -14,14 +16,13 @@ import com.cloud.ccwebapp.recipe.model.Recipe;
 import com.cloud.ccwebapp.recipe.repository.ImageRepository;
 import com.cloud.ccwebapp.recipe.repository.RecipeRepository;
 import com.cloud.ccwebapp.recipe.repository.UserRepository;
+import java.io.File;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.util.UUID;
 
 @Service
 public class ImageService {
@@ -70,11 +71,16 @@ public class ImageService {
     public ResponseEntity<Image> saveImage(Recipe recipe, File imageFile) throws Exception {
         if (recipe.getImage() == null) {
             String fileName = imageHelper.generateFileName(imageFile);
-            amazonS3.putObject(new PutObjectRequest(bucketName, fileName, imageFile));
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, fileName, imageFile);
+            ObjectMetadata meta = new ObjectMetadata();
+            meta.setContentLength(imageFile.length());
+            putObjectRequest.setMetadata(meta);
+            amazonS3.putObject(putObjectRequest);
             String fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
             System.out.println("******************************file URL *****************************" +fileUrl);
             Image image = new Image();
             image.setUrl(fileUrl);
+            image.setContentLength(meta.getContentLength());
             recipe.setImage(image);
 
             System.out.println("########################After recipe setimage##################################");
