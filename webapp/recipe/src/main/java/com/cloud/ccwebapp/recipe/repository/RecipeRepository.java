@@ -11,4 +11,6 @@ import java.util.UUID;
 public interface RecipeRepository extends CrudRepository<Recipe, UUID> {
     Optional<Recipe> findRecipesById(UUID uuid);
 
+    Optional<Recipe> findTopByCreated_tsOrderByCreated_tsDesc();
+
 }

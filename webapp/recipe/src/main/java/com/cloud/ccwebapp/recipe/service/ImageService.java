@@ -3,6 +3,7 @@ package com.cloud.ccwebapp.recipe.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.cloud.ccwebapp.recipe.exception.ImageAlreadyExistsException;
 import com.cloud.ccwebapp.recipe.exception.ImageNotFoundException;
@@ -69,7 +70,7 @@ public class ImageService {
     public ResponseEntity<Image> saveImage(Recipe recipe, File imageFile) throws Exception {
         if (recipe.getImage() == null) {
             String fileName = imageHelper.generateFileName(imageFile);
-            amazonS3.putObject(bucketName, fileName, imageFile);
+            amazonS3.putObject(new PutObjectRequest(bucketName, fileName, imageFile));
             String fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
             Image image = new Image();
             image.setUrl(fileUrl);
@@ -89,7 +90,11 @@ public class ImageService {
                 String fileName = recipe.getImage().getUrl().split("/")[2];
                 S3Object s3object = amazonS3.getObject(new GetObjectRequest(bucketName, fileName));
                 if (s3object != null) {
+                    Image image = recipe.getImage();
                     amazonS3.deleteObject(new DeleteObjectRequest(bucketName, fileName));
+                    recipe.setImage(null);
+                    recipeRepository.save(recipe);
+                    imageRepository.delete(image);
                     return new ResponseEntity<Image>(HttpStatus.NO_CONTENT);
                 } else {
                     recipe.setImage(null);
