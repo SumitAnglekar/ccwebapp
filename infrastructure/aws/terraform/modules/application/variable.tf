@@ -1,74 +1,83 @@
-#AWS_Environment variable defination
+# AWS S3 Bucket Variables
 
 variable "env" {
   type        = "string"
 }
 
-#AWS_Region variable defination
 variable "region" {
-  type        = "string"
+  type         = "string"
 }
 
-#VPC_Cidr_Block variable defination
-variable "vpcCidrBlock" {
-  type        = "string"
-}
 
-#Subnet_Cidr_Block variable defination
-#Type List
-variable "subnetCidrBlock" {
-  type        = "list"
-}
-
-#VPC_Variable name defination
-variable "vpcName" {
-  type        = "string"
-}
-
-#Domain name to be used for S3 Bucket name
+# #Domain name to be used for S3 Bucket name
 variable "domainName" {
     type    = "string"
 }
 
-#RDS owner
+# #RDS owner
 variable "rdsOwner"{
   type      = "string"
   default = "csye6225"
 }
 
-#RDS Instance Identifier
+# #RDS Instance Identifier
 variable "rdsInstanceIdentifier"{
   type      = "string"
   default = "csye6225-fall2019"
 }
 
-#RDS username
+# #RDS username
 variable "rdsUsername"{
   type      = "string"
   default = "dbuser"
 }
 
-#RDS Password
+# #RDS Password
 variable "rdsPassword"{
   type      = "string"  
 }
 
-#RDS DB Variable
+# #RDS DB Variable
 variable "rdsDBName"{
   type      = "string"
   default = "csye6225"
 }
 
-#Dynamo Table Variable
+# #Dynamo Table Variable
 variable "dynamoName"{
   type      = "string"
   default = "csye6225"
+}
+
+#VPC ID
+variable "vpc_id" {
+  type = "string"
+}
+
+#subnet cidr block
+variable "subnetCidrBlock" {
+  type        = "list"
+}
+
+#aws_db_subnet_group_name
+variable "aws_db_subnet_group_name" {
+  type        = "string"
 }
 
 # ami id
 variable "ami" {
   type = "string"
   description = "The AMI to use for the instance"
+}
+
+# subnet id
+variable "subnet_id" {
+  type = "string"
+  description = "The Subnet to use for the instance"
+}
+
+variable "subnet_id_list" {
+  type = "list"
 }
 
 # SSH key

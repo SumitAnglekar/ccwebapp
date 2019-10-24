@@ -2,7 +2,6 @@ package com.cloud.ccwebapp.recipe.service;
 
 import com.cloud.ccwebapp.recipe.exception.InvalidInputException;
 import com.cloud.ccwebapp.recipe.exception.RecipeNotFoundException;
-import com.cloud.ccwebapp.recipe.exception.Response;
 import com.cloud.ccwebapp.recipe.exception.UserNotAuthorizedException;
 import com.cloud.ccwebapp.recipe.helper.RecipeHelper;
 import com.cloud.ccwebapp.recipe.model.Recipe;
@@ -17,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,6 +33,10 @@ public class RecipeService {
     @Autowired
     private RecipeHelper recipeHelper;
 
+    @Autowired
+    ImageService imageService;
+
+
     public ResponseEntity<Recipe> getRecipe(UUID id){
         Optional<Recipe> dbRecord = recipeRepository.findRecipesById(id);
         if (dbRecord.isPresent()) {
@@ -43,6 +47,7 @@ public class RecipeService {
     }
 
     public ResponseEntity<Recipe> deleteRecipe(UUID id, Authentication authentication) throws Exception {
+
         Optional<Recipe> dbRecordRecipe = recipeRepository.findById(id);
         if (!dbRecordRecipe.isPresent())
             throw new RecipeNotFoundException("Recipe is not present!!");
@@ -52,8 +57,9 @@ public class RecipeService {
             throw new InvalidInputException("Invalid user id");
         if (!dbUser.get().getEmailaddress().equals(authentication.getName()))
             throw new UserNotAuthorizedException("You are not authorized to make changes!!");
+        imageService.deleteImage(recipeDb.getImage().getId(),recipeDb);
         recipeRepository.delete(recipeDb);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<Recipe>(HttpStatus.NO_CONTENT);
     }
 
     public ResponseEntity<Recipe> saveRecipe(Recipe recipe, Authentication authentication) {
@@ -91,11 +97,22 @@ public class RecipeService {
             dbRecipe.get().setTotal_time_in_min(dbRecipe.get().getCook_time_in_min() + dbRecipe.get().getPrep_time_in_min());
             dbRecipe.get().setIngredients(recipe.getIngredients());
             dbRecipe.get().setSteps(recipe.getSteps());
+            dbRecipe.get().setTitle(recipe.getTitle());
+            dbRecipe.get().setCuisine(recipe.getCuisine());
+            dbRecipe.get().setServings(recipe.getServings());
             dbRecipe.get().setNutrition_information(recipe.getNutrition_information());
         }
         Recipe rc = dbRecipe.get();
         recipeRepository.save(rc);
         return new ResponseEntity<Recipe>(rc, HttpStatus.OK);
+    }
+
+    public ResponseEntity<Recipe> getLatestRecipe(){
+        List<Recipe> dbRecord = recipeRepository.findTop1ByOrderByCreatedtsDesc();
+        if(dbRecord.size()==1) {
+            return new ResponseEntity<Recipe>(dbRecord.get(0),HttpStatus.OK);
+        }
+        throw new RecipeNotFoundException("No Recipes available!!");
     }
 
 }

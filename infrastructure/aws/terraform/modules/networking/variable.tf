@@ -1,14 +1,4 @@
-#AWS_Environment variable defination
-
-
-variable "env" {
-  type        = "string"
-}
-
-#AWS_Region variable defination
-variable "region" {
-  type        = "string"
-}
+#AWS Networking variables
 
 #VPC_Cidr_Block variable defination
 variable "vpcCidrBlock" {
@@ -19,14 +9,19 @@ variable "vpcCidrBlock" {
 #Type List
 variable "subnetCidrBlock" {
   type        = "list"
-  default = [
-    "10.0.1.0/24",
-    "10.0.2.0/24",
-    "10.0.3.0/24"
-  ]
+}
+
+variable "env" {
+  type        = "string"
+}
+
+#AWS_Region variable defination
+variable "region" {
+  type        = "string"
 }
 
 #VPC_Variable name defination
 variable "vpcName" {
   type        = "string"
 }
+

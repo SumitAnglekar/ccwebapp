@@ -1,3 +1,11 @@
+## Team Information
+
+| Name | NEU ID | Email Address |
+| --- | --- | --- |
+| Ishita Sequeira| 001403357 | sequeira.i@husky.neu.edu |
+| Tejas Shah | 001449694 | shah.te@husky.neu.edu |
+| Sumit Anglekar | 001475969 | anglekar.s@husky.neu.edu |
+
 ## Installing Terraform:
     Kindly follow the steps given in the following link:
     https://askubuntu.com/questions/983351/how-to-install-terraform-in-ubuntu
@@ -6,7 +14,6 @@
 
     1. `terraform init` 
     - The terraform init command is used to initialize a working directory containing Terraform configuration files. This is the first command that should be run after writing a new Terraform configuration or cloning an existing one from version control. It is safe to run this command multiple times.
-
 
 ## There are 2 scripts:
 
@@ -52,3 +59,24 @@
     3. create modules if need or run `terraform init` in each module
     4. run `terraform apply` to input the resource values via command line.
     5. run `terraform destroy` and input all the required paramters  specific to that particular vpc
+
+## S3 Bucket
+### SET the following properties in application.properties with regards to S3 bucket
+1. spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect    
+2. spring.jpa.hibernate.ddl-auto=update
+3. spring.jpa.show-sql=true
+4. spring.datasource.url=${SPRING_DATASOURCE_URL}
+5. spring.datasource.username=${SPRING_DATASOURCE_USERNAME}
+6. spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}
+7. spring.datasource.initialization-mode=always
+8. spring.datasource.continue-on-error=true
+9.  Here we set the s3 endpoint for our bucket:
+`aws.s3.endpointURL=s3.amazonaws.com`
+10. Setting the bucket name: 
+`aws.s3.bucketname=${AWS_S3_BUCKET_NAME}`
+11. aws.region=${AWS_REGION}
+12. aws.profile=${AWS_PROFILE}
+13. cloud.aws.credentials.instanceProfile=true
+
+## Security Group (Application and Database)
+1. We have created 3 ingrees rule to allow TCP traffic to the ports 22,80,443 from anywhere in the world ()
