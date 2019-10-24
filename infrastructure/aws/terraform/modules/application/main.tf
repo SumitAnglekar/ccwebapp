@@ -1,3 +1,56 @@
+# Role for EC2 Instance
+resource "aws_iam_role" "EC2_Role" {
+  name = "EC2_Role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+
+  tags = {
+      Name = "EC2 Role"
+  }
+}
+
+#Profile for the EC2 Role
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "ec2_profile"
+  role = "${aws_iam_role.EC2_Role.name}"
+}
+
+
+resource "aws_iam_role_policy" "ec2_role_policy" {
+  name = "ec2_policy"
+  role = "${aws_iam_role.EC2_Role.id}"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:*"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+
 #### SECURITY GROUP #####
 
 #Application security group
@@ -40,7 +93,7 @@ resource "aws_security_group" "application" {
   }
 }
 
-#Database security group
+# Database security group
 resource "aws_security_group" "database"{
   name          = "database_security_group"
   vpc_id        = "${var.vpc_id}"
@@ -50,7 +103,7 @@ resource "aws_security_group" "database"{
   }
 }
 
-#Database security group rule
+# Database security group rule
 resource "aws_security_group_rule" "database"{
 
   type        = "ingress"
@@ -126,6 +179,7 @@ resource "aws_instance" "ec2_instance" {
   subnet_id = "${var.subnet_id}"
   disable_api_termination = false
   key_name = "${var.aws_ssh_key}"
+  iam_instance_profile = "${aws_iam_instance_profile.ec2_profile.name}"
   user_data = "${templatefile("${path.module}/prepare_aws_instance.sh",
                                     {
                                       s3_bucket_name = "${aws_s3_bucket.bucket.id}",
@@ -142,6 +196,11 @@ resource "aws_instance" "ec2_instance" {
     volume_size = "20"
     delete_on_termination = true
   }
+
+  tags = {
+    Name        = "myEC2Instance"
+  }
+
   // TODO: depends_on, user_data
   depends_on = [aws_s3_bucket.bucket,aws_db_instance.myRDS]
 }
