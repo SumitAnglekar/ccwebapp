@@ -81,6 +81,7 @@ resource "aws_security_group" "application" {
     protocol    = "tcp"
     cidr_blocks  = ["0.0.0.0/0"]
   }
+  // Egress is used here to communicate anywhere with any given protocol
   egress {
     from_port = 0
     to_port = 0
@@ -111,8 +112,9 @@ resource "aws_security_group_rule" "database"{
   to_port     = 5432
   protocol    = "tcp"
   // cidr_blocks  = "${var.subnet_id_list}"
-  
+  // Source of the traffic should be the application security group, hence we pass on the application id instance
   source_security_group_id  = "${aws_security_group.application.id}"
+  //Reference the above created database security group
   security_group_id         = "${aws_security_group.database.id}"
 }
 
