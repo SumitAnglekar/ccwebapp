@@ -17,6 +17,11 @@ import com.cloud.ccwebapp.recipe.repository.ImageRepository;
 import com.cloud.ccwebapp.recipe.repository.RecipeRepository;
 import com.cloud.ccwebapp.recipe.repository.UserRepository;
 import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,12 +79,14 @@ public class ImageService {
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, fileName, imageFile);
             ObjectMetadata meta = new ObjectMetadata();
             meta.setContentLength(imageFile.length());
+
             putObjectRequest.setMetadata(meta);
             amazonS3.putObject(putObjectRequest);
             String fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
             System.out.println("******************************file URL *****************************" +fileUrl);
             Image image = new Image();
             image.setUrl(fileUrl);
+            image.setMd5(meta.getContentMD5());
             image.setContentLength(meta.getContentLength());
             recipe.setImage(image);
 

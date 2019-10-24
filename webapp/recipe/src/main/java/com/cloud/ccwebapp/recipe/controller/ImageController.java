@@ -63,6 +63,9 @@ public class ImageController {
       @RequestPart(value = "file") MultipartFile file,
       Authentication authentication)
       throws Exception {
+    if (file == null) {
+      throw new InvalidImageFormatException("Image cannot be null!!");
+    }
     // check if recipe is present and if user is authenticated
     Recipe recipe = recipeService.getRecipe(recipeId).getBody();
     if (recipe != null) {
