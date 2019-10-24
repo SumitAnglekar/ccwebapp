@@ -78,14 +78,6 @@ public class ImageController {
       }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 42c557551c98212b6e7f89de42d6c41e69e67eef
-    throw new RecipeNotFoundException("The Recipe is not present!!!");
-  }
-
   @DeleteMapping(value = "/{imageId}")
   public ResponseEntity<Image> deleteImage(
       @PathVariable UUID imageId, @PathVariable UUID recipeId, Authentication authentication)
