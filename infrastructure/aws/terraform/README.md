@@ -61,7 +61,7 @@
     5. run `terraform destroy` and input all the required paramters  specific to that particular vpc
 
 ## S3 Bucket
-### SET the following properties in application.properties for inregards to S3 bucket
+### SET the following properties in application.properties with regards to S3 bucket
 1. spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect    
 2. spring.jpa.hibernate.ddl-auto=update
 3. spring.jpa.show-sql=true
@@ -77,3 +77,6 @@
 11. aws.region=${AWS_REGION}
 12. aws.profile=${AWS_PROFILE}
 13. cloud.aws.credentials.instanceProfile=true
+
+## Security Group (Application and Database)
+1. We have created 3 ingrees rule to allow TCP traffic to the ports 22,80,443 from anywhere in the world ()
