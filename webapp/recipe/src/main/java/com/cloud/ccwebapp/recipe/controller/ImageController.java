@@ -77,6 +77,7 @@ public class ImageController {
         throw new InvalidImageFormatException("Invalid Image Format");
       }
     }
+    throw new RecipeNotFoundException("The Recipe is not present!!!");
   }
 
   @DeleteMapping(value = "/{imageId}")
