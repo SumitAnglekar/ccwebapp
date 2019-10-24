@@ -89,7 +89,7 @@ public class ImageController {
     if (recipe != null) {
       Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
       if (dbRecord.get().getId().equals(recipe.getAuthor_id())) {
-        return imageService.getDelete(imageId, recipe);
+        return imageService.deleteImage(imageId, recipe);
       } else {
         throw new UserNotAuthorizedException("User is not authorized to post an image");
       }

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/v1/recipe")
+@RequestMapping("/v1")
 @Validated(CustomizedResponseEntityExceptionHandler.class)
 public class RecipeController {
 
@@ -25,33 +25,33 @@ public class RecipeController {
   @Autowired UserRepository userRepository;
 
   // Get Recipe
-  @RequestMapping(method = RequestMethod.GET, value = "/{id}")
+  @RequestMapping(method = RequestMethod.GET, value = "/recipe/{id}")
   public ResponseEntity<Recipe> getRecipe(@PathVariable UUID id) throws Exception {
     return recipeService.getRecipe(id);
   }
 
   // Delete Recipe
-  @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+  @RequestMapping(method = RequestMethod.DELETE, value = "/recipe/{id}")
   public ResponseEntity<Recipe> deleteRecipe(@PathVariable UUID id, Authentication authentication)
       throws Exception {
     return recipeService.deleteRecipe(id, authentication);
   }
 
   /** Posts new recipe */
-  @RequestMapping(method = RequestMethod.POST, value = "/")
+  @RequestMapping(method = RequestMethod.POST, value = "/recipe/")
   public ResponseEntity<Recipe> saveRecipe(
       @RequestBody Recipe recipe, Authentication authentication) throws Exception {
     return recipeService.saveRecipe(recipe, authentication);
   }
 
-  @RequestMapping(method = RequestMethod.PUT, value = "/{id}")
+  @RequestMapping(method = RequestMethod.PUT, value = "/recipe/{id}")
   public ResponseEntity<Recipe> updateUser(
       @RequestBody Recipe recipe, Authentication authentication, @PathVariable String id)
       throws Exception {
     return recipeService.updateRecipe(recipe, authentication, id);
   }
 
-  @GetMapping("s")
+  @GetMapping("/recipes")
   public ResponseEntity<Recipe> getLatestRecipie(){
     return recipeService.getLatestRecipe();
   }
