@@ -1,13 +1,13 @@
 resource "aws_codedeploy_app" "example" {
-  compute_platform = "ECS"
-  name             = "csye6225-webapp"
+  compute_platform = "${var.compute_platform}"
+  name             = "${var.app_name}"
 }
 
 resource "aws_codedeploy_deployment_group" "example" {
   app_name              = "${aws_codedeploy_app.example.name}"
-  deployment_group_name = "csye6225-webapp-deployment"
-  deployment_config_name = "CodeDeployDefault.AllAtOnce"
-  service_role_arn      = "CodeDeployServiceRole"
+  deployment_group_name = "${var.deployment_group_name}"
+  deployment_config_name = "${var.deployment_config_name}"
+  service_role_arn      = "${var.service_role}"
 
   ec2_tag_filter {
     key   = "filterkey"
@@ -29,6 +29,12 @@ resource "aws_codedeploy_deployment_group" "example" {
   auto_rollback_configuration {
     enabled = true
     events  = ["DEPLOYMENT_FAILURE"]
+  }
+
+  load_balancer_info {
+    # elb_info {
+    #   name = "${aws_elb.example.name}"
+    # }
   }
 
   alarm_configuration {

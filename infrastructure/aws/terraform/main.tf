@@ -11,6 +11,18 @@ module "networking" {
   
 }
 
+#AWS CI-CD Module
+module "CI-CD" {
+  source = "./modules/CI-CD"
+
+  #Input Variables to the module
+  compute_platform = "${var.compute_platform}"
+  app_name = "${var.app_name}"
+  deployment_group_name = "${var.deployment_group_name}"
+  deployment_config_name = "${var.deployment_config_name}"
+  service_role = "${var.service_role}"
+}
+
 # Application module
 module "application" {
   source = "./modules/application"
