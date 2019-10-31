@@ -1,12 +1,34 @@
-# version: 0.0
-# os: linux
+# code deploy workflow
+version: 0.0
+os: linux
 
-# files:             
-#   - source: ./webapp/build/libs/ROOT.war
-#     destination: /opt/tomcat/webapps
+# giving permission to files and folders to centos user in home directory
+files:
+  - source: ./
+    destination: /home/centos
+permissions:
+  - object: /home/centos
+    owner: centos
+    group: centos
+    mode: 700
+    type:
+      - file
+  - object: /home/centos
+    owner: centos
+    group: centos
+    mode: 700
+    type:
+      - directory
 
-# hooks:
-#   AfterInstall:
-#    - location: ./afterInstall.sh
-#      timeout: 180
-#      runas: centos
+hooks:
+  ApplcationStop:
+    - location: ./applicationStop.sh
+      timeout: 300
+
+  AfterInstall:
+    - location: ./afterInstall.sh
+      timeout: 300
+
+  ApplicationStart:
+    - location: ./applicationStart.sh
+      timeout: 300
