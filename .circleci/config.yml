@@ -1,8 +1,51 @@
 version: 2
 jobs:
   build:
+    branches:
+      only:
+        - assignment7
     docker:
       - image: circleci/openjdk:8-jdk
     steps:
       - checkout
-      
+      - run:
+          name: Install Packages
+          command: |
+            sudo apt-get update && sudo apt-get install wget zip unzip -y
+            sudo apt-get install -y python3-pip
+            sudo pip install awscli
+      - run:
+          name: Build war
+          command: |
+            cd webapp/recipe
+            ./mvnw clean install
+            pwd
+            ls -al
+            ls -al target
+      - run:
+          name: Build Deployment Artifact
+          command: |
+            pwd
+            mkdir codedeploy_artifact
+            zip -r csye6225-webapp-${CIRCLE_BUILD_NUM}.zip webapp/recipe/target/recipe.war infrastructure/aws/codedeploy/*.sh appspec.yml
+            pwd
+            ls -al
+            mv csye6225-webapp-${CIRCLE_BUILD_NUM}.zip codedeploy_artifact/
+            cd codedeploy_artifact
+            ls -al
+      - run:
+          name: Copy Artifact to S3
+          command: aws s3 sync ./codedeploy_artifact s3://${S3_CODEDEPLOY_BUCKET}
+      - run:
+          name: CodeDelopy API Call
+          command: |
+            aws deploy create-deployment \
+              --application-name ${CODEDEPLOY_APLLICATION_NAME} \
+              --deployment-config-name CodeDeployDefault.AllAtOnce \
+              --deployment-group-name ${CODEDEPLOY_APPLICATION_DEVELOPMENT_GROUP_NAME} \
+              --description "CSYE6225 - Codedeploy" \
+              --s3-location bucket=${S3_CODEDEPLOY_BUCKET},key=csye6225-webapp-${CIRCLE_BUILD_NUM}.zip,bundleType=zip \
+              --region us-east-1 \
+              --output json
+
+
