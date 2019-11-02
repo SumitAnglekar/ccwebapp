@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
+import com.cloud.ccwebapp.recipe.controller.RecipeController;
 import com.cloud.ccwebapp.recipe.exception.ImageAlreadyExistsException;
 import com.cloud.ccwebapp.recipe.exception.ImageNotFoundException;
 import com.cloud.ccwebapp.recipe.helper.ImageHelper;
@@ -23,6 +24,9 @@ import java.nio.file.Paths;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.UUID;
+import org.apache.logging.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -32,6 +36,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ImageService {
 
+    private static final Logger LOGGER = (Logger) LogManager.getLogger(ImageService.class.getName());
     @Value("${aws.s3.bucketname}")
     String bucketName;
 
@@ -57,17 +62,21 @@ public class ImageService {
                 String fileName = recipe.getImage().getUrl().split("/")[2];
                 S3Object s3object = amazonS3.getObject(new GetObjectRequest(bucketName, fileName));
                 if (s3object != null) {
+                    LOGGER.info("Image created...");
                     return new ResponseEntity<Image>(recipe.getImage(), HttpStatus.CREATED);
                 } else {
                     recipe.setImage(null);
+                    LOGGER.error("Image with imageId "+imageId+" not found!!!");
                     throw new ImageNotFoundException("Image not found!!!");
                 }
 
             } else {
+                LOGGER.error("Wrong image ID for the recipe!!!");
                 throw new ImageNotFoundException("Wrong image ID for the recipe!!!");
             }
 
         } else {
+            LOGGER.error("No image found!!!");
             throw new ImageNotFoundException("There is no image found!!!");
         }
     }
@@ -93,8 +102,10 @@ public class ImageService {
             System.out.println("########################After recipe setimage##################################");
             imageRepository.save(image);
             recipeRepository.save(recipe);
+            LOGGER.info("Image created!!!");
             return new ResponseEntity<Image>(image, HttpStatus.CREATED);
         } else {
+            LOGGER.error("The image is already present....");
             throw new ImageAlreadyExistsException("The Image is already present!!!");
         }
     }
@@ -111,17 +122,21 @@ public class ImageService {
                     recipe.setImage(null);
                     recipeRepository.save(recipe);
                     imageRepository.delete(image);
+                    LOGGER.info("Deleting image with imageId "+imageId);
                     return new ResponseEntity<Image>(HttpStatus.NO_CONTENT);
                 } else {
+                    LOGGER.error("Image not found with imageId "+imageId);
                     recipe.setImage(null);
                     throw new ImageNotFoundException("Image not found!!!");
                 }
 
             } else {
+                LOGGER.error("Wrong image ID for the recipe!!!");
                 throw new ImageNotFoundException("Wrong image ID for the recipe!!!");
             }
 
         } else {
+            LOGGER.error("There is no image found with imageId "+imageId);
             throw new ImageNotFoundException("There is no image found!!!");
         }
     }
