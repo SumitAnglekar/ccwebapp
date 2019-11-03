@@ -214,11 +214,6 @@ resource "aws_iam_user_policy_attachment" "circleci_codedeploy_policy_attach" {
   policy_arn = "${aws_iam_policy.CircleCI-Code-Deploy.arn}"
 }
 
-resource "aws_iam_user_policy_attachment" "circleci_ec2_cloudwatch_policy_attach" {
-  user = "circleci"
-  policy_arn = "${aws_iam_policy.circleci_user_policy.arn}"
-}
-
 #### SECURITY GROUP #####
 
 #Application security group
