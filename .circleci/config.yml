@@ -15,7 +15,7 @@ jobs:
             sudo apt-get install -y python3-pip
             sudo pip3 install awscli
       - run:
-          name: Build war
+          name: Build warfile
           command: |
             cd webapp/recipe
             pwd
