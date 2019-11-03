@@ -5,20 +5,7 @@ os: linux
 # giving permission to files and folders to centos user in home directory
 files:
   - source: ./
-    destination: /home/centos
-permissions:
-  - object: /home/centos
-    owner: centos
-    group: centos
-    mode: 700
-    type:
-      - file
-  - object: /home/centos
-    owner: centos
-    group: centos
-    mode: 700
-    type:
-      - directory
+    destination: /opt/tomcat/webapps/
 
 hooks:
   ApplcationStop:
