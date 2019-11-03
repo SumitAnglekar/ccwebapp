@@ -77,6 +77,11 @@ EOF
 }
 
 
+resource "aws_iam_role_policy_attachment" "cloud_watch_EC2" {
+  role = "${aws_iam_role.EC2_Role.name}"
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
 # Attach policies for circleci user
 
 # TODO: Change to specific Resource ARN
@@ -207,6 +212,11 @@ resource "aws_iam_user_policy_attachment" "circleci_s3_policy_attach" {
 resource "aws_iam_user_policy_attachment" "circleci_codedeploy_policy_attach" {
   user = "circleci"
   policy_arn = "${aws_iam_policy.CircleCI-Code-Deploy.arn}"
+}
+
+resource "aws_iam_user_policy_attachment" "circleci_ec2_cloudwatch_policy_attach" {
+  user = "circleci"
+  policy_arn = "${aws_iam_policy.circleci_user_policy.arn}"
 }
 
 #### SECURITY GROUP #####
