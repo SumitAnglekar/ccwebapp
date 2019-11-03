@@ -4,18 +4,18 @@ os: linux
 
 # giving permission to files and folders to centos user in home directory
 files:
-  - source: ./
+  - source: ./webapp/recipe/target/recipe.war
     destination: /opt/tomcat/webapps/
 
 hooks:
   ApplcationStop:
-    - location: ./applicationStop.sh
+    - location: ./infrastructure/aws/codedeploy/applicationStop.sh
       timeout: 300
 
   AfterInstall:
-    - location: ./afterInstall.sh
+    - location: ./infrastructure/aws/codedeploy/afterInstall.sh
       timeout: 300
 
   ApplicationStart:
-    - location: ./applicationStart.sh
+    - location: ./infrastructure/aws/codedeploy/applicationStart.sh
       timeout: 300
