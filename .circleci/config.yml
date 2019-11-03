@@ -36,11 +36,10 @@ jobs:
             cd codedeploy_artifact
             ls -al
       - run:
-          name: Configure AWS region
+          name: Configure AWS key
           command: |
-            # export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-            # export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-            aws configure set default.region us-east-1
+            export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+            export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - run:
           name: Copy Artifact to S3
           command: aws s3 cp codedeploy_artifact/csye6225-webapp-${CIRCLE_BUILD_NUM}.zip s3://${S3_CODEDEPLOY_BUCKET}/csye6225-webapp-${CIRCLE_BUILD_NUM}.zip
