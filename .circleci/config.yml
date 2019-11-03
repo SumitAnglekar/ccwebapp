@@ -18,10 +18,12 @@ jobs:
           name: Build war
           command: |
             cd webapp/recipe
-            ./mvnw clean install
             pwd
             ls -al
-            ls -al target
+            mvn clean install
+            pwd
+            ls -al
+            ls -al target/
       - run:
           name: Build Deployment Artifact
           command: |
