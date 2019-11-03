@@ -8,14 +8,14 @@ files:
     destination: /opt/tomcat/webapps/
 
 hooks:
-  ApplcationStop:
-    - location: ./infrastructure/aws/codedeploy/applicationStop.sh
-      timeout: 300
+  BeforeInstall:
+    - location: ./infrastructure/aws/codedeploy/beforeInstall.sh
+      timeout: 700
 
   AfterInstall:
     - location: ./infrastructure/aws/codedeploy/afterInstall.sh
-      timeout: 300
+      timeout: 700
 
   ApplicationStart:
     - location: ./infrastructure/aws/codedeploy/applicationStart.sh
-      timeout: 300
+      timeout: 700
