@@ -1,3 +1,27 @@
+# S3 Bucket for recipe images
+resource "aws_s3_bucket" "bucket" {
+  bucket = "webapp.${var.env}.${var.domainName}"
+  acl = "private"
+  force_destroy = "true"
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm     = "aws:kms"
+      }
+    }
+  }
+
+  lifecycle_rule {
+    enabled = true
+
+    transition {
+      days = 30
+      storage_class = "STANDARD_IA"
+    }
+  }
+}
+
 # Role for EC2 Instance
 resource "aws_iam_role" "EC2_Role" {
   name = "EC2_Role"
@@ -30,7 +54,7 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 }
 
 # Policy allows to read data from S3 bucket and also add upload data to S3 bucket
-resource "aws_iam_role_policy" "ec2_role_policy" {
+resource "aws_iam_role_policy" "CodeDeploy-EC2-S3" {
   name = "ec2_policy"
   role = "${aws_iam_role.EC2_Role.id}"
 
@@ -50,6 +74,12 @@ resource "aws_iam_role_policy" "ec2_role_policy" {
   ]
 }
 EOF
+}
+
+
+resource "aws_iam_role_policy_attachment" "cloud_watch_EC2" {
+  role = "${aws_iam_role.EC2_Role.name}"
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
 # Attach policies for circleci user
@@ -251,29 +281,6 @@ resource "aws_security_group_rule" "database"{
   security_group_id         = "${aws_security_group.database.id}"
 }
 
-# S3 Bucket
-resource "aws_s3_bucket" "bucket" {
-  bucket = "webapp.${var.env}.${var.domainName}"
-  acl = "private"
-  force_destroy = "true"
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm     = "aws:kms"
-      }
-    }
-  }
-
-  lifecycle_rule {
-    enabled = true
-
-    transition {
-      days = 30
-      storage_class = "STANDARD_IA"
-    }
-  }
-}
 
 
 #RDS DB instance

@@ -1,22 +1,48 @@
-resource "aws_codedeploy_app" "example" {
+resource "aws_codedeploy_app" "code_deploy_app" {
   compute_platform = "${var.compute_platform}"
   name             = "${var.app_name}"
 }
 
-resource "aws_codedeploy_deployment_group" "example" {
-  app_name              = "${aws_codedeploy_app.example.name}"
+resource "aws_iam_role" "code_deploy_role" {
+  name = "${var.service_role}"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codedeploy.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "AWSCodeDeployRole" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
+  role       = "${aws_iam_role.code_deploy_role.name}"
+}
+
+
+resource "aws_codedeploy_deployment_group" "code_deploy_deployment_group" {
+  app_name              = "${aws_codedeploy_app.code_deploy_app.name}"
   deployment_group_name = "${var.deployment_group_name}"
-  deployment_config_name = "${var.deployment_config_name}"
-  service_role_arn      = "${var.service_role}"
+  deployment_config_name = "CodeDeployDefault.AllAtOnce"
+  service_role_arn      = "${aws_iam_role.code_deploy_role.arn}"
 
   ec2_tag_filter {
-    key   = "filterkey"
+    key   = "Name"
     type  = "KEY_AND_VALUE"
-    value = "filtervalue"
+    value = "myEC2Instance"
   }
     
   deployment_style {
-    deployment_option = "WITH_TRAFFIC_CONTROL"
+    deployment_option = "WITHOUT_TRAFFIC_CONTROL"
     deployment_type   = "IN_PLACE"
   }  
 
@@ -29,12 +55,6 @@ resource "aws_codedeploy_deployment_group" "example" {
   auto_rollback_configuration {
     enabled = true
     events  = ["DEPLOYMENT_FAILURE"]
-  }
-
-  load_balancer_info {
-    # elb_info {
-    #   name = "${aws_elb.example.name}"
-    # }
   }
 
   alarm_configuration {
