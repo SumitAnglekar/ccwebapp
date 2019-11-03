@@ -37,7 +37,7 @@ jobs:
             ls -al
       - run:
           name: Copy Artifact to S3
-          command: aws s3 sync ./codedeploy_artifact s3://${S3_CODEDEPLOY_BUCKET}
+          command: aws s3 cp codedeploy_artifact/csye6225-webapp-${CIRCLE_BUILD_NUM}.zip s3://${S3_CODEDEPLOY_BUCKET}/deployments/csye6225-webapp-${CIRCLE_BUILD_NUM}.zip
       - run:
           name: CodeDelopy API Call
           command: |
