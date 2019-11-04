@@ -121,9 +121,19 @@ resource "aws_db_instance" "myRDS" {
 
 }
 
+data "aws_ami" "packer_ami" {
+  owners = ["self"]
+  most_recent = true
+
+  filter {
+    name = "tag:OS_Version"
+    values = ["centos"]
+  }
+}
+
 # EC2 Instance
 resource "aws_instance" "ec2_instance" {
-  ami = "${var.ami}"
+  ami = "${data.aws_ami.packer_ami.id}"
   instance_type = "t2.micro"
   security_groups = [ "${aws_security_group.application.id}" ]
   subnet_id = "${var.subnet_id}"

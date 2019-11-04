@@ -27,7 +27,6 @@ module "application" {
   dynamoName = "${var.dynamoName}"
   subnetCidrBlock = "${var.subnetCidrBlock}"
   aws_db_subnet_group_name = module.networking.aws_db_subnet_group_name
-  ami = "${var.ami}"
   aws_ssh_key = "${var.aws_ssh_key}"
 
   vpc_id = module.networking.vpc_id
