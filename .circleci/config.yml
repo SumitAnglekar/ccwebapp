@@ -25,6 +25,11 @@ jobs:
             ls -al
             ls -al target/
       - run:
+          name: Run Unit Tests
+          command: |
+            cd webapp/recipe
+            mvn -Dtest=RecipeTest,UserRepositoryIntegrationTest,UserServiceTest test
+      - run:
           name: Build Deployment Artifact
           command: |
             pwd
@@ -47,7 +52,7 @@ jobs:
           name: CodeDelopy API Call
           command: |
             aws deploy create-deployment \
-              --application-name ${CODEDEPLOY_APLLICATION_NAME} \
+              --application-name ${CODEDEPLOY_APPLICATION_NAME} \
               --deployment-config-name CodeDeployDefault.AllAtOnce \
               --deployment-group-name ${CODEDEPLOY_APPLICATION_DEVELOPMENT_GROUP_NAME} \
               --description "CSYE6225 - Codedeploy" \
