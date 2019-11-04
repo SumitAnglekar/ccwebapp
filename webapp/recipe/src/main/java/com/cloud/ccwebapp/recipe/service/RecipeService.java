@@ -69,7 +69,9 @@ public class RecipeService {
             throw new UserNotAuthorizedException("You are not authorized to make changes!!");
                 }
         LOGGER.info("Recipe with recipeID:"+id+" has been deleted!!!");
-        imageService.deleteImage(recipeDb.getImage().getId(),recipeDb);
+        if (recipeDb.getImage() != null) {
+            imageService.deleteImage(recipeDb.getImage().getId(),recipeDb);
+        }
         recipeRepository.delete(recipeDb);
         return new ResponseEntity<Recipe>(HttpStatus.NO_CONTENT);
     }

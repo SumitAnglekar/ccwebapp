@@ -263,7 +263,9 @@ resource "aws_iam_role_policy" "CodeDeploy-EC2-S3" {
       "Action": [
         "s3:Get*",
         "s3:List*",
-        "s3:PutObject"
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:DeleteObjectVersion"
       ],
       "Effect": "Allow",
       "Resource": "*"
