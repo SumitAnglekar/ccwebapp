@@ -89,8 +89,6 @@ resource "aws_security_group_rule" "database"{
   security_group_id         = "${aws_security_group.database.id}"
 }
 
-
-
 #RDS DB instance
 resource "aws_db_instance" "myRDS" {
   allocated_storage    = 20
@@ -286,7 +284,6 @@ resource "aws_iam_role_policy_attachment" "cloud_watch_EC2" {
 
 # Add policies for circleci user
 
-# TODO: Change to specific Resource ARN
 resource "aws_iam_policy" "circleci_user_policy" {
   name = "circleci_ec2_policy"
 
@@ -347,7 +344,7 @@ resource "aws_iam_policy" "CircleCI-Upload-To-S3" {
       "Action": [
         "s3:PutObject"
         ],
-      "Resource": "*"
+      "Resource": "arn:aws:s3:::codedeploy.${var.env}.${var.domainName}/*"
     }
   ]
 }
@@ -373,7 +370,7 @@ resource "aws_iam_policy" "CircleCI-Code-Deploy" {
         "codedeploy:RegisterApplicationRevision",
         "codedeploy:GetApplicationRevision"
       ],
-      "Resource": "*"
+      "Resource": "arn:aws:codedeploy:${var.region}:${local.user_account_id}:application:${aws_codedeploy_app.code_deploy_app.name}"
     },
     {
       "Effect": "Allow",
@@ -382,7 +379,7 @@ resource "aws_iam_policy" "CircleCI-Code-Deploy" {
         "codedeploy:GetDeployment"
       ],
       "Resource": [
-        "*"
+        "arn:aws:codedeploy:${var.region}:${local.user_account_id}:deploymentgroup:${aws_codedeploy_app.code_deploy_app.name}/${aws_codedeploy_deployment_group.code_deploy_deployment_group.deployment_group_name}"
       ]
     },
     {
