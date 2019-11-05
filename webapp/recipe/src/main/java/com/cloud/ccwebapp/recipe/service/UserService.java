@@ -28,8 +28,7 @@ public class UserService {
     @Autowired
     private UserHelper userHelper;
 
-    public ResponseEntity<User> updateUser(User user, Authentication auth, StatsDClient statsDClient) throws Exception {
-        long start = System.currentTimeMillis();
+    public ResponseEntity<User> updateUser(User user, Authentication auth) throws Exception {
         // check if user is valid
         userHelper.isUserValid(user);
 
@@ -56,9 +55,6 @@ public class UserService {
                 // save
                 LOGGER.info("Updated user information successfully");
                 userRepository.save(dbUser);
-                long end = System.currentTimeMillis();
-                long result = end-start;
-                statsDClient.recordExecutionTime("GET User Timer",result);
                 return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
             }
         }
