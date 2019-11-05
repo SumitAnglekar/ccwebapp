@@ -9,6 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface UserRepository extends CrudRepository<User, UUID> {
-    long start = System.currentTimeMillis();
     Optional<User> findUserByEmailaddress(String email);
 }

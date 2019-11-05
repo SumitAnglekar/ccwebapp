@@ -63,15 +63,15 @@ public class ImageService {
 
     public ResponseEntity<Image> getImage(UUID imageId, Recipe recipe) {
         if (recipe.getImage() != null) {
-            long start = System.currentTimeMillis();
             if (recipe.getImage().getId().equals(imageId)) {
                 long start = System.currentTimeMillis();
                 String fileName = recipe.getImage().getUrl().split("/")[2];
                 statsDClient.time("dbquery.get.image", (System.currentTimeMillis() - start));
+                long start = System.currentTimeMillis();
                 S3Object s3object = amazonS3.getObject(new GetObjectRequest(bucketName, fileName));
                 long end = System.currentTimeMillis();
                 long result = end-start;
-                statsDClient.recordExecutionTime("GET Image Timer while storing in s3",result);
+                statsDClient.recordExecutionTime("dbquery.get.image",result);
                 if (s3object != null) {
                     LOGGER.info("Image created...");
                     return new ResponseEntity<Image>(recipe.getImage(), HttpStatus.CREATED);
@@ -105,7 +105,7 @@ public class ImageService {
             amazonS3.putObject(putObjectRequest);
             long end = System.currentTimeMillis();
             long result = end-start;
-            statsDClient.recordExecutionTime("Add Image S3 Timer",result);
+            statsDClient.recordExecutionTime("dbquery.save.image",result);
             String fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
             System.out.println("******************************file URL *****************************" +fileUrl);
             Image image = new Image();
@@ -139,7 +139,7 @@ public class ImageService {
                     amazonS3.deleteObject(new DeleteObjectRequest(bucketName, fileName));
                     long end = System.currentTimeMillis();
                     long result = end-start;
-                    statsDClient.recordExecutionTime("DELETE Image s3 Timer",result);
+                    statsDClient.recordExecutionTime("dbquery.delete.image",result);
                     recipe.setImage(null);
                     long start = System.currentTimeMillis();
                     recipeRepository.save(recipe);

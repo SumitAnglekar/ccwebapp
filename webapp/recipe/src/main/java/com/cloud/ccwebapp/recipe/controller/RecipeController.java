@@ -39,7 +39,7 @@ public class RecipeController {
     Object object = recipeService.getRecipe(id);
     long end = System.currentTimeMillis();
     long result = end-start;
-    statsDClient.recordExecutionTime("GET Recipe Timer",result);
+    statsDClient.recordExecutionTime("endpoint.recipe.http.get",result);
     return (ResponseEntity<Recipe>) object;
   }
 
@@ -53,7 +53,7 @@ public class RecipeController {
     Object object = recipeService.deleteRecipe(id, authentication);
     long end = System.currentTimeMillis();
     long result = end-start;
-    statsDClient.recordExecutionTime("DELETE User Timer",result);
+    statsDClient.recordExecutionTime("endpoint.recipe.http.delete",result);
     return (ResponseEntity<Recipe>) object;
   }
 
@@ -67,10 +67,11 @@ public class RecipeController {
     Object object = recipeService.saveRecipe(recipe, authentication);
     long end = System.currentTimeMillis();
     long result = end-start;
-    statsDClient.recordExecutionTime("Add Recipe Timer",result);
+    statsDClient.recordExecutionTime("endpoint.recipe.http.post",result);
     return (ResponseEntity<Recipe>) object;
   }
 
+  // Update a recipe
   @RequestMapping(method = RequestMethod.PUT, value = "/recipe/{id}")
   public ResponseEntity<Recipe> updateUser(
       @RequestBody Recipe recipe, Authentication authentication, @PathVariable String id)
@@ -81,14 +82,20 @@ public class RecipeController {
     Object object = recipeService.updateRecipe(recipe, authentication, id);
     long end = System.currentTimeMillis();
     long result = end-start;
-    statsDClient.recordExecutionTime("PUT recipe Timer",result);
+    statsDClient.recordExecutionTime("endpoint.recipe.http.put",result);
     return (ResponseEntity<Recipe>) object;
   }
 
+  //Get all recipes
   @GetMapping("/recipes")
   public ResponseEntity<Recipe> getLatestRecipie(){
+    long start = System.currentTimeMillis();
     statsDClient.incrementCounter("endpoint.recipe.http.get");
     LOGGER.info("Checking the information of latest recipe ");
-    return recipeService.getLatestRecipe();
+    Object object = recipeService.getLatestRecipe();
+    long end = System.currentTimeMillis();
+    long result = end-start;
+    statsDClient.recordExecutionTime("endpoint.recipe.http.getall",result);
+    return (ResponseEntity<Recipe>)object;
   }
 }

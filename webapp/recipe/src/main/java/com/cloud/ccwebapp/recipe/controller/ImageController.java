@@ -68,7 +68,7 @@ public class ImageController {
       Object object = imageService.getImage(imageId, recipe);
       long end = System.currentTimeMillis();
       long result = end-start;
-      statsDClient.recordExecutionTime("GET Image Timer",result);
+      statsDClient.recordExecutionTime("endpoint.image.http.get",result);
       return (ResponseEntity<Image>) object;
     }
     LOGGER.error("Recipe not found for recipeId:"+recipeId);
@@ -101,7 +101,7 @@ public class ImageController {
         Object object = imageService.saveImage(recipe, convertedFile);
         long end = System.currentTimeMillis();
         long result = end-start;
-        statsDClient.recordExecutionTime("Add Image Timer",result);
+        statsDClient.recordExecutionTime("endpoint.image.http.post",result);
         return (ResponseEntity<Image>)object;
       } else {
         LOGGER.error("Invalid Image Format");
@@ -127,7 +127,7 @@ public class ImageController {
         Object object = imageService.deleteImage(imageId, recipe);
         long end = System.currentTimeMillis();
         long result = end-start;
-        statsDClient.recordExecutionTime("Delete image Timer",result);
+        statsDClient.recordExecutionTime("endpoint.image.http.delete",result);
         return (ResponseEntity)object;
       } else {
         LOGGER.error("User is not authorized to post an image!!!");
