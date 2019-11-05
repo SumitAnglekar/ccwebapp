@@ -81,9 +81,9 @@ public class UserService {
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
                 LOGGER.info("Saving user with username " + user.getEmailaddress());
                 long start = System.currentTimeMillis();
-                User user = userRepository.save(user);
+                User savedUser = userRepository.save(user);
                 statsDClient.time("dbquery.save.user", (System.currentTimeMillis() - start));
-                return user;
+                return savedUser;
             } else {
                 LOGGER.error("Password provided is not a strong password");
                 throw new Exception("Password not valid!!");

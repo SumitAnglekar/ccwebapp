@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import org.apache.logging.log4j.Logger;
+import com.timgroup.statsd.StatsDClient;
 
 
 @RestController
@@ -55,7 +56,10 @@ public class UserController {
     public User getUser(Authentication authentication) {
         statsDClient.incrementCounter("endpoint.user.http.get");
         LOGGER.info("Fetching user in");
-        return userRepository.findUserByEmailaddress(authentication.getName()).get();
+        long start = System.currentTimeMillis();
+        User dbUser = userRepository.findUserByEmailaddress(authentication.getName()).get();
+        statsDClient.time("dbquery.get.user", (System.currentTimeMillis() - start));
+        return dbUser;
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/self")

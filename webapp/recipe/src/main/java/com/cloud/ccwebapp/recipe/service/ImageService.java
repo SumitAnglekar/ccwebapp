@@ -25,6 +25,7 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.UUID;
 import org.apache.logging.log4j.Logger;
+import com.timgroup.statsd.StatsDClient;
 
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,11 +56,15 @@ public class ImageService {
     private ImageRepository imageRepository;
     @Autowired
     private RecipeRepository recipeRepository;
+    @Autowired
+    StatsDClient statsDClient;
 
     public ResponseEntity<Image> getImage(UUID imageId, Recipe recipe) {
         if (recipe.getImage() != null) {
             if (recipe.getImage().getId().equals(imageId)) {
+                long start = System.currentTimeMillis();
                 String fileName = recipe.getImage().getUrl().split("/")[2];
+                statsDClient.time("dbquery.get.image", (System.currentTimeMillis() - start));
                 S3Object s3object = amazonS3.getObject(new GetObjectRequest(bucketName, fileName));
                 if (s3object != null) {
                     LOGGER.info("Image created...");
@@ -100,8 +105,10 @@ public class ImageService {
             recipe.setImage(image);
 
             System.out.println("########################After recipe setimage##################################");
+            long start = System.currentTimeMillis();
             imageRepository.save(image);
             recipeRepository.save(recipe);
+            statsDClient.time("dbquery.save.image", (System.currentTimeMillis() - start));
             LOGGER.info("Image created!!!");
             return new ResponseEntity<Image>(image, HttpStatus.CREATED);
         } else {
@@ -120,8 +127,10 @@ public class ImageService {
                     Image image = recipe.getImage();
                     amazonS3.deleteObject(new DeleteObjectRequest(bucketName, fileName));
                     recipe.setImage(null);
+                    long start = System.currentTimeMillis();
                     recipeRepository.save(recipe);
                     imageRepository.delete(image);
+                    statsDClient.time("dbquery.delete.image", (System.currentTimeMillis() - start));
                     LOGGER.info("Deleting image with imageId "+imageId);
                     return new ResponseEntity<Image>(HttpStatus.NO_CONTENT);
                 } else {

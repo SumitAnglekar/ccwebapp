@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import com.timgroup.statsd.StatsDClient;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -35,6 +36,8 @@ public class RecipeService {
     private NutritionalInformationRepository nutritionalInformationRepository;
     @Autowired
     private RecipeHelper recipeHelper;
+    @Autowired
+    StatsDClient statsDClient;
 
     @Autowired
     ImageService imageService;
@@ -44,7 +47,10 @@ public class RecipeService {
         Optional<Recipe> dbRecord = recipeRepository.findRecipesById(id);
         if (dbRecord.isPresent()) {
             LOGGER.info("Recipe with recipeId "+ id + " found...");
-            return new ResponseEntity<>(dbRecord.get(), HttpStatus.OK);
+            long start = System.currentTimeMillis();
+            Recipe dbRecipe = dbRecord.get();
+            statsDClient.time("dbquery.get.recipe", (System.currentTimeMillis() - start));
+            return new ResponseEntity<>(dbRecipe, HttpStatus.OK);
         } else {
             LOGGER.error("RecipeId "+id+ " is invalid");
             throw new RecipeNotFoundException("Recipe Id is invalid");
@@ -72,7 +78,9 @@ public class RecipeService {
         if (recipeDb.getImage() != null) {
             imageService.deleteImage(recipeDb.getImage().getId(),recipeDb);
         }
+        long start = System.currentTimeMillis();
         recipeRepository.delete(recipeDb);
+        statsDClient.time("dbquery.delete.recipe", (System.currentTimeMillis() - start));
         return new ResponseEntity<Recipe>(HttpStatus.NO_CONTENT);
     }
 
@@ -86,7 +94,9 @@ public class RecipeService {
             User user = dbRecord.get();
             recipe.setAuthor_id(user.getId());
             recipe.setTotal_time_in_min(recipe.getCook_time_in_min() + recipe.getPrep_time_in_min());
+            long start = System.currentTimeMillis();
             recipeRepository.save(recipe);
+            statsDClient.time("dbquery.save.recipe", (System.currentTimeMillis() - start));
             LOGGER.info("Recipe has been created...");
             return new ResponseEntity<Recipe>(recipe, HttpStatus.CREATED);
         }
@@ -123,7 +133,9 @@ public class RecipeService {
             dbRecipe.get().setNutrition_information(recipe.getNutrition_information());
         }
         Recipe rc = dbRecipe.get();
+        long start = System.currentTimeMillis();
         recipeRepository.save(rc);
+        statsDClient.time("dbquery.update.recipe", (System.currentTimeMillis() - start));
         LOGGER.info("Recipe with recipeID " +recipe.getId() + " has been updated....");
         return new ResponseEntity<Recipe>(rc, HttpStatus.OK);
     }
@@ -132,7 +144,10 @@ public class RecipeService {
         List<Recipe> dbRecord = recipeRepository.findTop1ByOrderByCreatedtsDesc();
         if(dbRecord.size()==1) {
             LOGGER.info("Finding latest recipe ...");
-            return new ResponseEntity<Recipe>(dbRecord.get(0),HttpStatus.OK);
+            long start = System.currentTimeMillis();
+            Recipe dbRecipe = dbRecord.get(0);
+            statsDClient.time("dbquery.get.latestRecipe", (System.currentTimeMillis() - start));
+            return new ResponseEntity<Recipe>(dbRecipe, HttpStatus.OK);
         }
         LOGGER.info("No Recipes available!!");
         throw new RecipeNotFoundException("No Recipes available!!");
