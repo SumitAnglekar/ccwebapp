@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import com.timgroup.statsd.StatsDClient;
 import org.apache.logging.log4j.Logger;
+import com.timgroup.statsd.StatsDClient;
 
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,9 @@ public class ImageService {
         if (recipe.getImage() != null) {
             long start = System.currentTimeMillis();
             if (recipe.getImage().getId().equals(imageId)) {
+                long start = System.currentTimeMillis();
                 String fileName = recipe.getImage().getUrl().split("/")[2];
+                statsDClient.time("dbquery.get.image", (System.currentTimeMillis() - start));
                 S3Object s3object = amazonS3.getObject(new GetObjectRequest(bucketName, fileName));
                 long end = System.currentTimeMillis();
                 long result = end-start;
@@ -112,8 +115,10 @@ public class ImageService {
             recipe.setImage(image);
 
             System.out.println("########################After recipe setimage##################################");
+            long start = System.currentTimeMillis();
             imageRepository.save(image);
             recipeRepository.save(recipe);
+            statsDClient.time("dbquery.save.image", (System.currentTimeMillis() - start));
             LOGGER.info("Image created!!!");
             return new ResponseEntity<Image>(image, HttpStatus.CREATED);
         } else {
@@ -136,8 +141,10 @@ public class ImageService {
                     long result = end-start;
                     statsDClient.recordExecutionTime("DELETE Image s3 Timer",result);
                     recipe.setImage(null);
+                    long start = System.currentTimeMillis();
                     recipeRepository.save(recipe);
                     imageRepository.delete(image);
+                    statsDClient.time("dbquery.delete.image", (System.currentTimeMillis() - start));
                     LOGGER.info("Deleting image with imageId "+imageId);
                     return new ResponseEntity<Image>(HttpStatus.NO_CONTENT);
                 } else {

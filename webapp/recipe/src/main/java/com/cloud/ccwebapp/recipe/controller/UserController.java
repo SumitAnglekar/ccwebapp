@@ -19,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import org.apache.logging.log4j.Logger;
+import com.timgroup.statsd.StatsDClient;
 
 import java.util.concurrent.TimeUnit;
 
