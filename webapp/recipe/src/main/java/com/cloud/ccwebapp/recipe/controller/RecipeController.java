@@ -33,15 +33,21 @@ public class RecipeController {
   // Get Recipe
   @RequestMapping(method = RequestMethod.GET, value = "/recipe/{id}")
   public ResponseEntity<Recipe> getRecipe(@PathVariable UUID id) throws Exception {
+    long start = System.currentTimeMillis();
     statsDClient.incrementCounter("endpoint.recipe.http.get");
     LOGGER.info("Checking if the recipe is present for recipeId "+ id);
-    return recipeService.getRecipe(id);
+    Object object = recipeService.getRecipe(id);
+    long end = System.currentTimeMillis();
+    long result = end-start;
+    statsDClient.recordExecutionTime("GET Recipe Timer",result);
+    return (ResponseEntity<Recipe>) object;
   }
 
   // Delete Recipe
   @RequestMapping(method = RequestMethod.DELETE, value = "/recipe/{id}")
   public ResponseEntity<Recipe> deleteRecipe(@PathVariable UUID id, Authentication authentication)
       throws Exception {
+    long start
     statsDClient.incrementCounter("endpoint.recipe.http.delete");
     LOGGER.info("Checking if the recipe is present for recipeId "+ id);
     return recipeService.deleteRecipe(id, authentication);

@@ -5,6 +5,7 @@ import com.cloud.ccwebapp.recipe.exception.UserAlreadyPresentException;
 import com.cloud.ccwebapp.recipe.helper.UserHelper;
 import com.cloud.ccwebapp.recipe.model.User;
 import com.cloud.ccwebapp.recipe.repository.UserRepository;
+import com.timgroup.statsd.StatsDClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,8 @@ public class UserService {
     @Autowired
     private UserHelper userHelper;
 
-    public ResponseEntity<User> updateUser(User user, Authentication auth) throws Exception {
-
+    public ResponseEntity<User> updateUser(User user, Authentication auth, StatsDClient statsDClient) throws Exception {
+        long start = System.currentTimeMillis();
         // check if user is valid
         userHelper.isUserValid(user);
 
@@ -55,6 +56,9 @@ public class UserService {
                 // save
                 LOGGER.info("Updated user information successfully");
                 userRepository.save(dbUser);
+                long end = System.currentTimeMillis();
+                long result = end-start;
+                statsDClient.recordExecutionTime("GET User Timer",result);
                 return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
             }
         }

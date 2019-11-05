@@ -91,6 +91,7 @@ public class ImageService {
 
             putObjectRequest.setMetadata(meta);
             amazonS3.putObject(putObjectRequest);
+
             String fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
             System.out.println("******************************file URL *****************************" +fileUrl);
             Image image = new Image();
