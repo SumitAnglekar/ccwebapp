@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.timgroup.statsd.StatsDClient;
 
 import java.util.Optional;
 
@@ -26,6 +27,8 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private UserHelper userHelper;
+    @Autowired
+    StatsDClient statsDClient;
 
     public ResponseEntity<User> updateUser(User user, Authentication auth) throws Exception {
 
@@ -54,7 +57,10 @@ public class UserService {
                 dbUser.setPassword(passwordEncoder.encode(user.getPassword()));
                 // save
                 LOGGER.info("Updated user information successfully");
+                long start = System.currentTimeMillis();
                 userRepository.save(dbUser);
+                statsDClient.time("dbquery.update.user", (System.currentTimeMillis() - start));
+
                 return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
             }
         }
@@ -74,7 +80,10 @@ public class UserService {
             if (isPasswordStrong(user.getPassword())) {
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
                 LOGGER.info("Saving user with username " + user.getEmailaddress());
-                return userRepository.save(user);
+                long start = System.currentTimeMillis();
+                User user = userRepository.save(user);
+                statsDClient.time("dbquery.save.user", (System.currentTimeMillis() - start));
+                return user;
             } else {
                 LOGGER.error("Password provided is not a strong password");
                 throw new Exception("Password not valid!!");
