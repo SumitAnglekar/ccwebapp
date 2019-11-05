@@ -268,7 +268,10 @@ resource "aws_iam_role_policy" "CodeDeploy-EC2-S3" {
         "s3:DeleteObjectVersion"
       ],
       "Effect": "Allow",
-      "Resource": "*"
+      "Resource": [
+        "arn:aws:s3:::codedeploy.${var.env}.${var.domainName}/*",
+        "arn:aws:s3:::webapp.${var.env}.${var.domainName}/*"
+      ]
     }
   ]
 }
