@@ -6,7 +6,6 @@ import com.cloud.ccwebapp.recipe.exception.UserAlreadyPresentException;
 import com.cloud.ccwebapp.recipe.model.User;
 import com.cloud.ccwebapp.recipe.repository.UserRepository;
 import com.cloud.ccwebapp.recipe.service.UserService;
-import com.codahale.metrics.MetricRegistry;
 import com.timgroup.statsd.StatsDClient;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
