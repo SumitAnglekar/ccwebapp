@@ -1,4 +1,4 @@
-version: 2.0
+version: 2
 jobs:
   setup:
     docker:
@@ -56,12 +56,11 @@ jobs:
               --s3-location bucket=${S3_CODEDEPLOY_BUCKET},key=csye6225-webapp-${CIRCLE_BUILD_NUM}.zip,bundleType=zip \
               --region us-east-1 \
               --output json
-
 workflows:
   version: 2
-    setup_and_build:
-      jobs:
-        - setup
-        - build:
-            requires:
-              - setup
+  setup_and_build:
+    jobs:
+      - setup
+      - build:
+          requires:
+            - setup
