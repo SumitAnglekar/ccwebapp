@@ -1,11 +1,11 @@
-version: 2
+version: 2.1
 jobs:
   build:
+    docker:
+      - image: circleci/openjdk:8-jdk
     branches:
       only:
         - ${BRANCH}
-    docker:
-      - image: circleci/openjdk:8-jdk
     steps:
       - checkout
       - run:
@@ -24,11 +24,6 @@ jobs:
             pwd
             ls -al
             ls -al target/
-      # - run:
-      #     name: Run Unit Tests
-      #     command: |
-      #       cd webapp/recipe
-      #       mvn -Dtest=RecipeTest,UserRepositoryIntegrationTest,UserServiceTest test
       - run:
           name: Build Deployment Artifact
           command: |
