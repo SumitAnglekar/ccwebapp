@@ -57,7 +57,7 @@ public class UserController {
         LOGGER.info("user has been created!!!");
         long end = System.currentTimeMillis();
         long result = end-start;
-        statsDClient.recordExecutionTime("Add User Timer",result);
+        statsDClient.recordExecutionTime("timer.user.post",result);
         return responseEntity;
     }
 
@@ -69,7 +69,7 @@ public class UserController {
         Object object = userRepository.findUserByEmailaddress(authentication.getName()).get();
         long end = System.currentTimeMillis();
         long result = end-start;
-        statsDClient.recordExecutionTime("GET User Timer",result);
+        statsDClient.recordExecutionTime("timer.user.get",result);
         return (User) object;
     }
 
@@ -81,7 +81,7 @@ public class UserController {
         Object object = userService.updateUser(user, authentication, statsDClient);
         long end = System.currentTimeMillis();
         long result = end-start;
-        statsDClient.recordExecutionTime("PUT User Timer",result);
+        statsDClient.recordExecutionTime("timer.user.put",result);
         return (ResponseEntity<User>) object;
     }
 

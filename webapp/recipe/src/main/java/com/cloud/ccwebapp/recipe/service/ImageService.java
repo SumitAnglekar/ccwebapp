@@ -71,7 +71,7 @@ public class ImageService {
                 S3Object s3object = amazonS3.getObject(new GetObjectRequest(bucketName, fileName));
                 long end = System.currentTimeMillis();
                 long result = end-start;
-                statsDClient.recordExecutionTime("dbquery.get.image",result);
+                statsDClient.recordExecutionTime("s3.get.image",result);
                 if (s3object != null) {
                     LOGGER.info("Image created...");
                     return new ResponseEntity<Image>(recipe.getImage(), HttpStatus.CREATED);
@@ -105,7 +105,7 @@ public class ImageService {
             amazonS3.putObject(putObjectRequest);
             long end = System.currentTimeMillis();
             long result = end-start;
-            statsDClient.recordExecutionTime("dbquery.save.image",result);
+            statsDClient.recordExecutionTime("s3.save.image",result);
             String fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
             System.out.println("******************************file URL *****************************" +fileUrl);
             Image image = new Image();
@@ -139,7 +139,7 @@ public class ImageService {
                     amazonS3.deleteObject(new DeleteObjectRequest(bucketName, fileName));
                     long end = System.currentTimeMillis();
                     long result = end-start;
-                    statsDClient.recordExecutionTime("dbquery.delete.image",result);
+                    statsDClient.recordExecutionTime("s3.delete.image",result);
                     recipe.setImage(null);
                     long start = System.currentTimeMillis();
                     recipeRepository.save(recipe);

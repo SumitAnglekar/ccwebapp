@@ -39,7 +39,7 @@ public class RecipeController {
     Object object = recipeService.getRecipe(id);
     long end = System.currentTimeMillis();
     long result = end-start;
-    statsDClient.recordExecutionTime("endpoint.recipe.http.get",result);
+    statsDClient.recordExecutionTime("timer.recipe.get",result);
     return (ResponseEntity<Recipe>) object;
   }
 
@@ -53,7 +53,7 @@ public class RecipeController {
     Object object = recipeService.deleteRecipe(id, authentication);
     long end = System.currentTimeMillis();
     long result = end-start;
-    statsDClient.recordExecutionTime("endpoint.recipe.http.delete",result);
+    statsDClient.recordExecutionTime("timer.recipe.delete",result);
     return (ResponseEntity<Recipe>) object;
   }
 
@@ -67,7 +67,7 @@ public class RecipeController {
     Object object = recipeService.saveRecipe(recipe, authentication);
     long end = System.currentTimeMillis();
     long result = end-start;
-    statsDClient.recordExecutionTime("endpoint.recipe.http.post",result);
+    statsDClient.recordExecutionTime("timer.recipe.post",result);
     return (ResponseEntity<Recipe>) object;
   }
 
@@ -82,7 +82,7 @@ public class RecipeController {
     Object object = recipeService.updateRecipe(recipe, authentication, id);
     long end = System.currentTimeMillis();
     long result = end-start;
-    statsDClient.recordExecutionTime("endpoint.recipe.http.put",result);
+    statsDClient.recordExecutionTime("timer.recipe.put",result);
     return (ResponseEntity<Recipe>) object;
   }
 
@@ -95,7 +95,7 @@ public class RecipeController {
     Object object = recipeService.getLatestRecipe();
     long end = System.currentTimeMillis();
     long result = end-start;
-    statsDClient.recordExecutionTime("endpoint.recipe.http.getall",result);
+    statsDClient.recordExecutionTime("timer.recipe.getall",result);
     return (ResponseEntity<Recipe>)object;
   }
 }
