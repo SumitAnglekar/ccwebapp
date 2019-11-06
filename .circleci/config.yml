@@ -8,7 +8,6 @@ jobs:
       - run:
           name: Install Packages
           command: |
-            echo "$CIRCLE_BRANCH"
             sudo apt-get update && sudo apt-get install wget zip unzip -y
             sudo apt-get install -y python3-pip
             sudo pip3 install awscli
