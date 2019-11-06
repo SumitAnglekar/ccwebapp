@@ -6,6 +6,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Testing Branch Name
+          command: echo "${CIRCLE_BRANCH}-abcd"
+      - run:
           name: Install Packages
           command: |
             sudo apt-get update && sudo apt-get install wget zip unzip -y
