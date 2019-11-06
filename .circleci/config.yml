@@ -24,6 +24,11 @@ jobs:
             pwd
             ls -al
             ls -al target/
+      # - run:
+      #     name: Run Unit Tests
+      #     command: |
+      #       cd webapp/recipe
+      #       mvn -Dtest=RecipeTest,UserRepositoryIntegrationTest,UserServiceTest test
       - run:
           name: Build Deployment Artifact
           command: |

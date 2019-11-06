@@ -33,42 +33,69 @@ public class RecipeController {
   // Get Recipe
   @RequestMapping(method = RequestMethod.GET, value = "/recipe/{id}")
   public ResponseEntity<Recipe> getRecipe(@PathVariable UUID id) throws Exception {
+    long start = System.currentTimeMillis();
     statsDClient.incrementCounter("endpoint.recipe.http.get");
     LOGGER.info("Checking if the recipe is present for recipeId "+ id);
-    return recipeService.getRecipe(id);
+    Object object = recipeService.getRecipe(id);
+    long end = System.currentTimeMillis();
+    long result = end-start;
+    statsDClient.recordExecutionTime("timer.recipe.get",result);
+    return (ResponseEntity<Recipe>) object;
   }
 
   // Delete Recipe
   @RequestMapping(method = RequestMethod.DELETE, value = "/recipe/{id}")
   public ResponseEntity<Recipe> deleteRecipe(@PathVariable UUID id, Authentication authentication)
       throws Exception {
+    long start = System.currentTimeMillis();
     statsDClient.incrementCounter("endpoint.recipe.http.delete");
     LOGGER.info("Checking if the recipe is present for recipeId "+ id);
-    return recipeService.deleteRecipe(id, authentication);
+    Object object = recipeService.deleteRecipe(id, authentication);
+    long end = System.currentTimeMillis();
+    long result = end-start;
+    statsDClient.recordExecutionTime("timer.recipe.delete",result);
+    return (ResponseEntity<Recipe>) object;
   }
 
   /** Posts new recipe */
   @RequestMapping(method = RequestMethod.POST, value = "/recipe/")
   public ResponseEntity<Recipe> saveRecipe(
       @RequestBody Recipe recipe, Authentication authentication) throws Exception {
+    long start = System.currentTimeMillis();
     statsDClient.incrementCounter("endpoint.recipe.http.post");
     LOGGER.info("Saving recipe");
-    return recipeService.saveRecipe(recipe, authentication);
+    Object object = recipeService.saveRecipe(recipe, authentication);
+    long end = System.currentTimeMillis();
+    long result = end-start;
+    statsDClient.recordExecutionTime("timer.recipe.post",result);
+    return (ResponseEntity<Recipe>) object;
   }
 
+  // Update a recipe
   @RequestMapping(method = RequestMethod.PUT, value = "/recipe/{id}")
   public ResponseEntity<Recipe> updateUser(
       @RequestBody Recipe recipe, Authentication authentication, @PathVariable String id)
       throws Exception {
+    long start = System.currentTimeMillis();
     statsDClient.incrementCounter("endpoint.recipe.http.put");
     LOGGER.info("Checking if the recipe is present for recipeId "+ id);
-    return recipeService.updateRecipe(recipe, authentication, id);
+    Object object = recipeService.updateRecipe(recipe, authentication, id);
+    long end = System.currentTimeMillis();
+    long result = end-start;
+    statsDClient.recordExecutionTime("timer.recipe.put",result);
+    return (ResponseEntity<Recipe>) object;
   }
 
+  //Get all recipes
   @GetMapping("/recipes")
   public ResponseEntity<Recipe> getLatestRecipie(){
+    long start = System.currentTimeMillis();
     statsDClient.incrementCounter("endpoint.recipe.http.get");
     LOGGER.info("Checking the information of latest recipe ");
-    return recipeService.getLatestRecipe();
+    Object object = recipeService.getLatestRecipe();
+    long end = System.currentTimeMillis();
+    long result = end-start;
+    statsDClient.recordExecutionTime("timer.recipe.getall",result);
+    return (ResponseEntity<Recipe>)object;
   }
 }

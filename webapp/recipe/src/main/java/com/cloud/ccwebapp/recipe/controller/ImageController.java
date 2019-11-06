@@ -59,13 +59,17 @@ public class ImageController {
   public ResponseEntity<Image> getImage(
       @PathVariable UUID imageId, @PathVariable UUID recipeId)
       throws Exception {
-
+    long start = System.currentTimeMillis();
     statsDClient.incrementCounter("endpoint.image.http.get");
     // check if recipe is present and if user is authenticated
     Recipe recipe = recipeService.getRecipe(recipeId).getBody();
     if (recipe != null) {
       LOGGER.info("Recipe found for id = "+ recipeId+". Searching image for imageID" + imageId);
-      return imageService.getImage(imageId, recipe);
+      Object object = imageService.getImage(imageId, recipe);
+      long end = System.currentTimeMillis();
+      long result = end-start;
+      statsDClient.recordExecutionTime("timer.image.get",result);
+      return (ResponseEntity<Image>) object;
     }
     LOGGER.error("Recipe not found for recipeId:"+recipeId);
     throw new RecipeNotFoundException("The Recipe is not present!!!");
@@ -77,6 +81,7 @@ public class ImageController {
       @RequestPart(value = "file") MultipartFile file,
       Authentication authentication)
       throws Exception {
+    long start = System.currentTimeMillis();
     statsDClient.incrementCounter("endpoint.image.http.post");
     if (file == null) {
       LOGGER.error("Image cannot be null!!!");
@@ -93,7 +98,11 @@ public class ImageController {
           || fileExtension.equalsIgnoreCase("jpg")
           || fileExtension.equalsIgnoreCase("png")) {
         LOGGER.info("Image has been created for recipeId "+ recipeId);
-        return imageService.saveImage(recipe, convertedFile);
+        Object object = imageService.saveImage(recipe, convertedFile);
+        long end = System.currentTimeMillis();
+        long result = end-start;
+        statsDClient.recordExecutionTime("timer.image.post",result);
+        return (ResponseEntity<Image>)object;
       } else {
         LOGGER.error("Invalid Image Format");
         throw new InvalidImageFormatException("Invalid Image Format");
@@ -107,6 +116,7 @@ public class ImageController {
   public ResponseEntity<Image> deleteImage(
       @PathVariable UUID imageId, @PathVariable UUID recipeId, Authentication authentication)
       throws Exception {
+    long start = System.currentTimeMillis();
     statsDClient.incrementCounter("endpoint.image.http.delete");
     // check if recipe is present and if user is authenticated
     Recipe recipe = recipeService.getRecipe(recipeId).getBody();
@@ -114,7 +124,11 @@ public class ImageController {
       Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
       if (dbRecord.get().getId().equals(recipe.getAuthor_id())) {
         LOGGER.info("Deleting image id "+imageId+" for recipeId "+recipeId);
-        return imageService.deleteImage(imageId, recipe);
+        Object object = imageService.deleteImage(imageId, recipe);
+        long end = System.currentTimeMillis();
+        long result = end-start;
+        statsDClient.recordExecutionTime("timer.image.delete",result);
+        return (ResponseEntity)object;
       } else {
         LOGGER.error("User is not authorized to post an image!!!");
         throw new UserNotAuthorizedException("User is not authorized to post an image");

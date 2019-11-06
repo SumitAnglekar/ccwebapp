@@ -34,12 +34,17 @@
 8. Restart tomcat to deploy the application.
 
 ## Application Endpoints
-1. Register a User (localhost:8080/v1/user)
-2. Get User records (localhost:8080/v1/user/self)
-3. Update User recordds (localhost:8080/v1/user/self)
-4. Register a Recipe (localhost:8080/v1/recipe/)
-5. Get recipe Information (localhost:8080/v1/recipe/{id})
-6. Delete a particular recipe (localhost:8080/v1/recipe/{id})
+1. Register a User ({instance_ip}:8080/recipe/v1/user)
+2. Get User records ({instance_ip}:8080/recipe/v1/user/self)
+3. Update User records ({instance_ip}:8080/recipe/v1/user/self)
+4. Register a Recipe ({instance_ip}:8080/recipe/v1/recipe/)
+5. Get recipe Information ({instance_ip}:8080/recipe/v1/recipe/{id})
+6. Delete a particular recipe ({instance_ip}:8080/recipe/v1/recipe/{id})
+7. Update recipe Information ({instance_ip}:8080/recipe/v1/recipe/{id})
+8. Get newest recipe information ({instance_ip}:8080/recipe/v1/recipes)
+9. Register an image ({instance_ip}:8080/recipe/v1/recipe/{id}/image)
+10. Get recipe image ({instance_ip}:8080/recipe/v1/recipe/{recipeId}/image/{imageId})
+11. Delete recipe image ({instance_ip}:8080/recipe/v1/recipe/{recipeId}/image/{imageId})
 
 ## Running Tests
 1. Run the "run all tests" configuration for JUnit.
@@ -52,3 +57,8 @@ https://docs.aws.amazon.com/cli/latest/userguide/install-linux-al2017.html
 https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
 
 ## CI/CD
+1. Run Terraform apply
+2. Build AMI repository in CircleCI
+3. Run Terraform apply again (this will get latest created AMI)
+4. Build ccwebapp in CircleCI
+5. Hit the API endpoints via Postman

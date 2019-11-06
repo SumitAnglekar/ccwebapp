@@ -1,5 +1,6 @@
 package com.cloud.ccwebapp.recipe.controller;
 
+import com.amazonaws.services.cloudwatch.model.Metric;
 import com.cloud.ccwebapp.recipe.exception.CustomizedResponseEntityExceptionHandler;
 import com.cloud.ccwebapp.recipe.exception.UserAlreadyPresentException;
 import com.cloud.ccwebapp.recipe.model.User;
@@ -12,11 +13,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StopWatch;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import org.apache.logging.log4j.Logger;
 import com.timgroup.statsd.StatsDClient;
+
+import java.util.concurrent.TimeUnit;
 
 
 @RestController
@@ -36,6 +40,7 @@ public class UserController {
 
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<User> addUser(@RequestBody User user) throws Exception {
+        long start = System.currentTimeMillis();
         statsDClient.incrementCounter("endpoint.user.http.post");
         LOGGER.info("Adding user in user_table....");
         // check if user is present
@@ -49,24 +54,34 @@ public class UserController {
             throw new UserAlreadyPresentException("Given user already present in the db");
         }
         LOGGER.info("user has been created!!!");
+        long end = System.currentTimeMillis();
+        long result = end-start;
+        statsDClient.recordExecutionTime("timer.user.post",result);
         return responseEntity;
     }
 
     @GetMapping("/self")
     public User getUser(Authentication authentication) {
+        long start = System.currentTimeMillis();
         statsDClient.incrementCounter("endpoint.user.http.get");
         LOGGER.info("Fetching user in");
-        long start = System.currentTimeMillis();
-        User dbUser = userRepository.findUserByEmailaddress(authentication.getName()).get();
-        statsDClient.time("dbquery.get.user", (System.currentTimeMillis() - start));
-        return dbUser;
+        Object object = userRepository.findUserByEmailaddress(authentication.getName()).get();
+        long end = System.currentTimeMillis();
+        long result = end-start;
+        statsDClient.recordExecutionTime("timer.user.get",result);
+        return (User) object;
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/self")
     public ResponseEntity<User> updateUser(@RequestBody User user, Authentication authentication) throws Exception {
+        long start = System.currentTimeMillis();
         statsDClient.incrementCounter("endpoint.user.http.put");
         LOGGER.info("Updating the user....");
-        return userService.updateUser(user, authentication);
+        Object object = userService.updateUser(user, authentication);
+        long end = System.currentTimeMillis();
+        long result = end-start;
+        statsDClient.recordExecutionTime("timer.user.put",result);
+        return (ResponseEntity<User>) object;
     }
 
 }

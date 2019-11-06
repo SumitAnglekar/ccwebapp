@@ -24,6 +24,8 @@ import java.nio.file.Paths;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.UUID;
+
+import com.timgroup.statsd.StatsDClient;
 import org.apache.logging.log4j.Logger;
 import com.timgroup.statsd.StatsDClient;
 
@@ -44,7 +46,7 @@ public class ImageService {
     @Value("${aws.s3.endpointURL}")
     String endpointUrl;
 
-        @Autowired
+    @Autowired
     AmazonS3 amazonS3;
     @Autowired
     ImageHelper imageHelper;
@@ -62,10 +64,13 @@ public class ImageService {
     public ResponseEntity<Image> getImage(UUID imageId, Recipe recipe) {
         if (recipe.getImage() != null) {
             if (recipe.getImage().getId().equals(imageId)) {
-                long start = System.currentTimeMillis();
                 String fileName = recipe.getImage().getUrl().split("/")[2];
+                long start = System.currentTimeMillis();
                 statsDClient.time("dbquery.get.image", (System.currentTimeMillis() - start));
                 S3Object s3object = amazonS3.getObject(new GetObjectRequest(bucketName, fileName));
+                long end = System.currentTimeMillis();
+                long result = end-start;
+                statsDClient.recordExecutionTime("s3.get.image",result);
                 if (s3object != null) {
                     LOGGER.info("Image created...");
                     return new ResponseEntity<Image>(recipe.getImage(), HttpStatus.CREATED);
@@ -88,6 +93,7 @@ public class ImageService {
 
 
     public ResponseEntity<Image> saveImage(Recipe recipe, File imageFile) throws Exception {
+        
         if (recipe.getImage() == null) {
             String fileName = imageHelper.generateFileName(imageFile);
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, fileName, imageFile);
@@ -95,7 +101,11 @@ public class ImageService {
             meta.setContentLength(imageFile.length());
 
             putObjectRequest.setMetadata(meta);
+            long start1 = System.currentTimeMillis();
             amazonS3.putObject(putObjectRequest);
+            long end1 = System.currentTimeMillis();
+            long result1 = end1-start1;
+            statsDClient.recordExecutionTime("s3.save.image",result1);
             String fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
             System.out.println("******************************file URL *****************************" +fileUrl);
             Image image = new Image();
@@ -119,6 +129,7 @@ public class ImageService {
 
 
     public ResponseEntity<Image> deleteImage(UUID imageId, Recipe recipe) {
+        long start1 = System.currentTimeMillis();
         if (recipe.getImage() != null) {
             if (recipe.getImage().getId().equals(imageId)) {
                 String fileName = recipe.getImage().getUrl().split("/")[2];
@@ -126,6 +137,9 @@ public class ImageService {
                 if (s3object != null) {
                     Image image = recipe.getImage();
                     amazonS3.deleteObject(new DeleteObjectRequest(bucketName, fileName));
+                    long end1 = System.currentTimeMillis();
+                    long result1 = end1-start1;
+                    statsDClient.recordExecutionTime("s3.delete.image",result1);
                     recipe.setImage(null);
                     long start = System.currentTimeMillis();
                     recipeRepository.save(recipe);
