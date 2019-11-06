@@ -46,3 +46,8 @@ jobs:
               --s3-location bucket=${S3_CODEDEPLOY_BUCKET},key=csye6225-webapp-${CIRCLE_BUILD_NUM}.zip,bundleType=zip \
               --region us-east-1 \
               --output json
+workflows:
+  version: 2
+  setup_and_build:
+    jobs:
+      - build
