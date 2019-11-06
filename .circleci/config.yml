@@ -12,16 +12,17 @@ jobs:
             sudo apt-get install -y python3-pip
             sudo pip3 install awscli
       - run:
+          name: Run unit tests
+          command: |
+            export LOGGING_FILE_NAME=recipe.log
+            cd webapp/recipe
+            mvn clean test
+      - run:
           name: Build war
           command: |
             export LOGGING_FILE_NAME=recipe.log
             cd webapp/recipe
-            pwd
-            ls -al
             mvn clean install
-            pwd
-            ls -al
-            ls -al target/
       - run:
           name: Build Deployment Artifact
           command: |
