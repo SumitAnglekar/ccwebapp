@@ -7,6 +7,9 @@ jobs:
       - checkout
       - run:
           name: Install Packages
+          command: echo "$CIRCLE_BRANCH"
+      - run:
+          name: Install Packages
           command: |
             sudo apt-get update && sudo apt-get install wget zip unzip -y
             sudo apt-get install -y python3-pip
@@ -54,4 +57,4 @@ workflows:
           filters:
             branches:
               only:
-                - assignment7
+                - /assignment.*/
