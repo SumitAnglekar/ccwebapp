@@ -50,8 +50,4 @@ workflows:
   version: 2
   setup_and_build:
     jobs:
-      - build:
-          filters:
-            branches:
-              only:
-                - assignment7
+      - build
