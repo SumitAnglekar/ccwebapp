@@ -65,11 +65,11 @@ public class UserController {
         long start = System.currentTimeMillis();
         statsDClient.incrementCounter("endpoint.user.http.get");
         LOGGER.info("Fetching user in");
-        Object object = userRepository.findUserByEmailaddress(authentication.getName()).get();
-        long end = System.currentTimeMillis();
-        long result = end-start;
-        statsDClient.recordExecutionTime("timer.user.get",result);
-        return (User) object;
+        long startdb = System.currentTimeMillis();
+        User userObject = userRepository.findUserByEmailaddress(authentication.getName()).get();
+        statsDClient.recordExecutionTime("dbquery.get.user", (System.currentTimeMillis() - startdb));
+        statsDClient.recordExecutionTime("timer.user.get", (System.currentTimeMillis() - start));
+        return userObject;
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/self")
