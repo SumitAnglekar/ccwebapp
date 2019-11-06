@@ -22,7 +22,7 @@ jobs:
           command: |
             export LOGGING_FILE_NAME=recipe.log
             cd webapp/recipe
-            mvn install
+            mvn install -DskipTests
       - run:
           name: Build Deployment Artifact
           command: |
