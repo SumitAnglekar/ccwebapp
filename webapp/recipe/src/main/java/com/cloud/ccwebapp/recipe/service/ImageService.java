@@ -65,8 +65,9 @@ public class ImageService {
         if (recipe.getImage() != null) {
             if (recipe.getImage().getId().equals(imageId)) {
                 String fileName = recipe.getImage().getUrl().split("/")[2];
+                long start;
                 statsDClient.time("dbquery.get.image", (System.currentTimeMillis() - start));
-                long start = System.currentTimeMillis();
+                start = System.currentTimeMillis();
                 S3Object s3object = amazonS3.getObject(new GetObjectRequest(bucketName, fileName));
                 long end = System.currentTimeMillis();
                 long result = end-start;
