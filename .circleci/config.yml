@@ -1,18 +1,8 @@
 version: 2
 jobs:
-  setup:
-    docker:
-      - image: circleci/openjdk:8-jdk
-    steps:
-      - run:
-          name: Setup Environment Variable
-          command: echo "export BRANCH=$BRANCH" >> $BASH_ENV
   build:
     docker:
       - image: circleci/openjdk:8-jdk
-    branches:
-      only:
-        - ${BRANCH}
     steps:
       - checkout
       - run:
@@ -60,7 +50,8 @@ workflows:
   version: 2
   setup_and_build:
     jobs:
-      - setup
       - build:
-          requires:
-            - setup
+          filters:
+            branches:
+              only:
+                - assignment7
