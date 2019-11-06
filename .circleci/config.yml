@@ -1,4 +1,4 @@
-version: 2
+version: 2.0
 jobs:
   setup:
     docker:
@@ -59,7 +59,7 @@ jobs:
 
 workflows:
   version: 2
-    run:
+    setup_and_build:
       jobs:
         - setup
         - build:
