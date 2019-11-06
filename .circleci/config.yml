@@ -55,4 +55,4 @@ workflows:
           filters:
             branches:
               only:
-                - $CIRCLE_BRANCH
+                - assignment7
