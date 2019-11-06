@@ -7,7 +7,7 @@ jobs:
       - checkout
       - run:
           name: Install Packages
-          command: echo "$CIRCLE_BRANCH"
+          command: echo "${CIRCLE_BRANCH}-abcd"
       - run:
           name: Install Packages
           command: |
