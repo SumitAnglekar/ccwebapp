@@ -1,5 +1,12 @@
-version: 2.1
+version: 2
 jobs:
+  setup:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    steps:
+      - run:
+          name: Setup Environment Variable
+          command: echo "export BRANCH=$BRANCH" >> $BASH_ENV
   build:
     docker:
       - image: circleci/openjdk:8-jdk
@@ -49,3 +56,12 @@ jobs:
               --s3-location bucket=${S3_CODEDEPLOY_BUCKET},key=csye6225-webapp-${CIRCLE_BUILD_NUM}.zip,bundleType=zip \
               --region us-east-1 \
               --output json
+
+workflows:
+  version: 2
+    run:
+      jobs:
+        - setup
+        - build:
+            requires:
+              - setup
