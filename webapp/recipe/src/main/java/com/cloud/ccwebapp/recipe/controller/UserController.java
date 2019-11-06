@@ -77,7 +77,7 @@ public class UserController {
         long start = System.currentTimeMillis();
         statsDClient.incrementCounter("endpoint.user.http.put");
         LOGGER.info("Updating the user....");
-        Object object = userService.updateUser(user, authentication, statsDClient);
+        Object object = userService.updateUser(user, authentication);
         long end = System.currentTimeMillis();
         long result = end-start;
         statsDClient.recordExecutionTime("timer.user.put",result);

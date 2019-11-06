@@ -64,7 +64,6 @@ public class ImageService {
     public ResponseEntity<Image> getImage(UUID imageId, Recipe recipe) {
         if (recipe.getImage() != null) {
             if (recipe.getImage().getId().equals(imageId)) {
-                long start = System.currentTimeMillis();
                 String fileName = recipe.getImage().getUrl().split("/")[2];
                 statsDClient.time("dbquery.get.image", (System.currentTimeMillis() - start));
                 long start = System.currentTimeMillis();
@@ -94,7 +93,7 @@ public class ImageService {
 
 
     public ResponseEntity<Image> saveImage(Recipe recipe, File imageFile) throws Exception {
-        long start = System.currentTimeMillis();
+        
         if (recipe.getImage() == null) {
             String fileName = imageHelper.generateFileName(imageFile);
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, fileName, imageFile);
@@ -102,10 +101,11 @@ public class ImageService {
             meta.setContentLength(imageFile.length());
 
             putObjectRequest.setMetadata(meta);
+            long start1 = System.currentTimeMillis();
             amazonS3.putObject(putObjectRequest);
-            long end = System.currentTimeMillis();
-            long result = end-start;
-            statsDClient.recordExecutionTime("s3.save.image",result);
+            long end1 = System.currentTimeMillis();
+            long result1 = end1-start1;
+            statsDClient.recordExecutionTime("s3.save.image",result1);
             String fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
             System.out.println("******************************file URL *****************************" +fileUrl);
             Image image = new Image();
@@ -129,7 +129,7 @@ public class ImageService {
 
 
     public ResponseEntity<Image> deleteImage(UUID imageId, Recipe recipe) {
-        long start = System.currentTimeMillis();
+        long start1 = System.currentTimeMillis();
         if (recipe.getImage() != null) {
             if (recipe.getImage().getId().equals(imageId)) {
                 String fileName = recipe.getImage().getUrl().split("/")[2];
@@ -137,9 +137,9 @@ public class ImageService {
                 if (s3object != null) {
                     Image image = recipe.getImage();
                     amazonS3.deleteObject(new DeleteObjectRequest(bucketName, fileName));
-                    long end = System.currentTimeMillis();
-                    long result = end-start;
-                    statsDClient.recordExecutionTime("s3.delete.image",result);
+                    long end1 = System.currentTimeMillis();
+                    long result1 = end1-start1;
+                    statsDClient.recordExecutionTime("s3.delete.image",result1);
                     recipe.setImage(null);
                     long start = System.currentTimeMillis();
                     recipeRepository.save(recipe);
