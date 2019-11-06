@@ -52,3 +52,8 @@ https://docs.aws.amazon.com/cli/latest/userguide/install-linux-al2017.html
 https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
 
 ## CI/CD
+1. Run Terraform apply
+2. Build AMI repository in CircleCI
+3. Run Terraform apply again (this will get latest created AMI)
+4. Build ccwebapp in CircleCI
+5. Hit the API endpoints via Postman
