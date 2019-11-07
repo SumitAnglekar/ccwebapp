@@ -1,12 +1,21 @@
-# version: 0.0
-# os: linux
+# code deploy workflow
+version: 0.0
+os: linux
 
-# files:             
-#   - source: ./webapp/build/libs/ROOT.war
-#     destination: /opt/tomcat/webapps
+# giving permission to files and folders to centos user in home directory
+files:
+  - source: ./webapp/recipe/target/recipe.war
+    destination: /opt/tomcat/webapps/
 
-# hooks:
-#   AfterInstall:
-#    - location: ./afterInstall.sh
-#      timeout: 180
-#      runas: centos
+hooks:
+  BeforeInstall:
+    - location: ./infrastructure/aws/codedeploy/beforeInstall.sh
+      timeout: 300
+
+  AfterInstall:
+    - location: ./infrastructure/aws/codedeploy/afterInstall.sh
+      timeout: 300
+
+  ApplicationStart:
+    - location: ./infrastructure/aws/codedeploy/applicationStart.sh
+      timeout: 300

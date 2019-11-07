@@ -64,12 +64,6 @@ variable "aws_db_subnet_group_name" {
   type        = "string"
 }
 
-# ami id
-variable "ami" {
-  type = "string"
-  description = "The AMI to use for the instance"
-}
-
 # subnet id
 variable "subnet_id" {
   type = "string"

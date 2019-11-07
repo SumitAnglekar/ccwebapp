@@ -34,12 +34,17 @@
 8. Restart tomcat to deploy the application.
 
 ## Application Endpoints
-1. Register a User (localhost:8080/v1/user)
-2. Get User records (localhost:8080/v1/user/self)
-3. Update User recordds (localhost:8080/v1/user/self)
-4. Register a Recipe (localhost:8080/v1/recipe/)
-5. Get recipe Information (localhost:8080/v1/recipe/{id})
-6. Delete a particular recipe (localhost:8080/v1/recipe/{id})
+1. Register a User ({instance_ip}:8080/recipe/v1/user)
+2. Get User records ({instance_ip}:8080/recipe/v1/user/self)
+3. Update User records ({instance_ip}:8080/recipe/v1/user/self)
+4. Register a Recipe ({instance_ip}:8080/recipe/v1/recipe/)
+5. Get recipe Information ({instance_ip}:8080/recipe/v1/recipe/{id})
+6. Delete a particular recipe ({instance_ip}:8080/recipe/v1/recipe/{id})
+7. Update recipe Information ({instance_ip}:8080/recipe/v1/recipe/{id})
+8. Get newest recipe information ({instance_ip}:8080/recipe/v1/recipes)
+9. Register an image ({instance_ip}:8080/recipe/v1/recipe/{id}/image)
+10. Get recipe image ({instance_ip}:8080/recipe/v1/recipe/{recipeId}/image/{imageId})
+11. Delete recipe image ({instance_ip}:8080/recipe/v1/recipe/{recipeId}/image/{imageId})
 
 ## Running Tests
 1. Run the "run all tests" configuration for JUnit.
@@ -52,3 +57,14 @@ https://docs.aws.amazon.com/cli/latest/userguide/install-linux-al2017.html
 https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
 
 ## CI/CD
+1. Create policy for circleci IAM user to give access to create new AMI: 
+    `terraform plan -target module.application.aws_iam_user_policy_attachment.circleci_ec2_policy_attach -out run.plan`
+    `terraform apply run.plan`
+2. Trigger the circleci plan to build new AMI:
+    `curl -u <CIRCLECI_TOKEN>: -d build_parameters[CIRCLE_JOB]=build https://circleci.com/api/v1.1/project/github/<ORGANIZATION>/csye6225-fall2019-ami/tree/<BRANCH>`
+3. Once the build is completed a new AMI will be created and registered with AWS.
+4. Create the remaining infrastructure using `terraform apply`.
+5. Once successful, a new EC2 instance would be up and running.
+6. Trigger the circleci build to deploy new version of the app:
+    `curl -u <CIRCLECI_TOKEN>: -d build_parameters[CIRCLE_JOB]=build https://circleci.com/api/v1.1/project/github/<ORGANIZATION>/ccwebapp/tree/<BRANCH>`
+7. The build should complete sucessfully deploying the application to the EC2 instance and also uploading the latest artifact in the S3 bucket.

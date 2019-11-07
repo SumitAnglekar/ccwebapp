@@ -105,6 +105,7 @@ venv.bak/
 
 # terraform
 **/*.terraform/*
+run.plan
 
 # .tfstate files
 **/*.tfstate
