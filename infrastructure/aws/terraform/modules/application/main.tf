@@ -445,7 +445,7 @@ data "aws_iam_policy_document" "sns-topic-policy" {
       variable = "AWS:SourceOwner"
 
       values = [
-        "${var.account-id}",
+        "${local.user_account_id}",
       ]
     }
 
@@ -466,12 +466,12 @@ data "aws_iam_policy_document" "sns-topic-policy" {
 
 #Lambda Function
 resource "aws_lambda_function" "test_lambda" {
-  filename      = "lambda_function_payload.zip"
+  filename      = "recipe.zip"
   function_name = "lambda_function_name"
   role          = "${aws_iam_role.iam_for_lambda.arn}"
   handler       = "exports.test"
   runtime       = "java8"
-  source_code_hash = "${filebase64sha256("lambda_function_payload.zip")}"
+  source_code_hash = "${filebase64sha256("recipe.zip")}"
 }
 
 #SNS topic subscription to Lambda
@@ -488,6 +488,27 @@ resource "aws_lambda_permission" "with_sns" {
   function_name = "${aws_lambda_function.test_lambda.function_name}"
   principal     = "sns.amazonaws.com"
   source_arn    = "${aws_sns_topic.test.arn}"
+}
+
+#Cloudwatch log group
+resource "aws_cloudwatch_log_group" "lambda_log" {
+  name = "lambda_log"
+  }
+
+resource "aws_cloudwatch_log_stream" "lambda_log" {
+  name           = "log_stream"
+  log_group_name = "${aws_cloudwatch_log_group.lambda_log.name}"
+}
+
+
+#Cloudwatch Lambda permission
+resource "aws_lambda_permission" "allow_cloudwatch" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.test_lambda.function_name}"
+  principal     = "events.amazonaws.com"
+  # source_arn    = "arn:aws:events:${var.region}:111122223333:rule/RunDaily"
+  #qualifier     = "${aws_lambda_alias.test_alias.name}"
 }
 
 #IAM Role for lambda with sns
