@@ -17,7 +17,7 @@ import java.util.UUID;
 import org.apache.logging.log4j.Logger;
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/v2")
 @Validated(CustomizedResponseEntityExceptionHandler.class)
 public class RecipeController {
 
