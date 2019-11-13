@@ -22,7 +22,102 @@ resource "aws_s3_bucket" "bucket" {
   }
 }
 
+data "aws_ami" "packer_ami" {
+  owners = ["self"]
+  most_recent = true
+
+  filter {
+    name = "tag:OS_Version"
+    values = ["centos"]
+  }
+}
+
+# AWS LAUNCH CONFIGURATION
+
+resource "aws_launch_configuration" "asg_launch_config" {
+  name          = "asg_launch_config"
+  image_id      = "${data.aws_ami.packer_ami.id}"
+  instance_type = "t2.micro"
+  security_groups = [ "${aws_security_group.application.id}" ]
+  key_name      = "${var.aws_ssh_key}"
+  user_data     = "${templatefile("${path.module}/prepare_aws_instance.sh",
+                                    {
+                                      s3_bucket_name = "${aws_s3_bucket.bucket.id}",
+                                      aws_db_endpoint = "${aws_db_instance.myRDS.endpoint}",
+                                      aws_db_name = "${aws_db_instance.myRDS.name}",
+                                      aws_db_username = "${aws_db_instance.myRDS.username}",
+                                      aws_db_password = "${aws_db_instance.myRDS.password}",
+                                      aws_region = "${var.region}",
+                                      aws_profile = "${var.env}"
+                                    })}"
+
+  associate_public_ip_address = true
+  iam_instance_profile = "${aws_iam_instance_profile.ec2_profile.name}"
+
+  root_block_device {
+    volume_type = "gp2"
+    volume_size = "20"
+    delete_on_termination = true
+  }
+
+  depends_on = [aws_s3_bucket.bucket,aws_db_instance.myRDS]
+}
+
+## AUTOSCALING GROUP
+resource "aws_autoscaling_group" "autoscaling" {
+  name                 = "terraform-asg-example"
+  launch_configuration = "${aws_launch_configuration.asg_launch_config.name}"
+  min_size             = 3
+  max_size             = 10
+  default_cooldown     = 60
+  desired_capacity     = 3
+
+  vpc_zone_identifier = ["${var.subnet_id}"]
+}
+
 #### SECURITY GROUP #####
+##LOAD BALANCER SECURITY GROUP
+resource "aws_security_group" "loadbalancer" {
+  name          = "application_security_group"
+  vpc_id        = "${var.vpc_id}"
+  ingress{
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks  = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks  = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks  = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks  = ["0.0.0.0/0"]
+  }
+  // Egress is used here to communicate anywhere with any given protocol
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags          = {
+    Name        = "LoadBalancer Security Group"
+    Environment = "${var.env}"
+  }
+}
+
+
 
 #Application security group
 resource "aws_security_group" "application" {
@@ -119,48 +214,40 @@ resource "aws_db_instance" "myRDS" {
 
 }
 
-data "aws_ami" "packer_ami" {
-  owners = ["self"]
-  most_recent = true
 
-  filter {
-    name = "tag:OS_Version"
-    values = ["centos"]
-  }
-}
 
-# EC2 Instance
-resource "aws_instance" "ec2_instance" {
-  ami = "${data.aws_ami.packer_ami.id}"
-  instance_type = "t2.micro"
-  security_groups = [ "${aws_security_group.application.id}" ]
-  subnet_id = "${var.subnet_id}"
-  disable_api_termination = false
-  key_name = "${var.aws_ssh_key}"
-  iam_instance_profile = "${aws_iam_instance_profile.ec2_profile.name}"
-  user_data = "${templatefile("${path.module}/prepare_aws_instance.sh",
-                                    {
-                                      s3_bucket_name = "${aws_s3_bucket.bucket.id}",
-                                      aws_db_endpoint = "${aws_db_instance.myRDS.endpoint}",
-                                      aws_db_name = "${aws_db_instance.myRDS.name}",
-                                      aws_db_username = "${aws_db_instance.myRDS.username}",
-                                      aws_db_password = "${aws_db_instance.myRDS.password}",
-                                      aws_region = "${var.region}",
-                                      aws_profile = "${var.env}"
-                                    })}"
+# # EC2 Instance
+# resource "aws_instance" "ec2_instance" {
+#   ami = "${data.aws_ami.packer_ami.id}"
+#   instance_type = "t2.micro"
+#   security_groups = [ "${aws_security_group.application.id}" ]
+#   subnet_id = "${var.subnet_id}"
+#   disable_api_termination = false
+#   key_name = "${var.aws_ssh_key}"
+#   iam_instance_profile = "${aws_iam_instance_profile.ec2_profile.name}"
+#   user_data = "${templatefile("${path.module}/prepare_aws_instance.sh",
+#                                     {
+#                                       s3_bucket_name = "${aws_s3_bucket.bucket.id}",
+#                                       aws_db_endpoint = "${aws_db_instance.myRDS.endpoint}",
+#                                       aws_db_name = "${aws_db_instance.myRDS.name}",
+#                                       aws_db_username = "${aws_db_instance.myRDS.username}",
+#                                       aws_db_password = "${aws_db_instance.myRDS.password}",
+#                                       aws_region = "${var.region}",
+#                                       aws_profile = "${var.env}"
+#                                     })}"
 
-  root_block_device {
-    volume_type = "gp2"
-    volume_size = "20"
-    delete_on_termination = true
-  }
+#   root_block_device {
+#     volume_type = "gp2"
+#     volume_size = "20"
+#     delete_on_termination = true
+#   }
 
-  tags = {
-    Name        = "myEC2Instance"
-  }
+#   tags = {
+#     Name        = "myEC2Instance"
+#   }
 
-  depends_on = [aws_s3_bucket.bucket,aws_db_instance.myRDS]
-}
+#   depends_on = [aws_s3_bucket.bucket,aws_db_instance.myRDS]
+# }
 
 
 #Dynamo db
