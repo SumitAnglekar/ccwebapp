@@ -413,6 +413,125 @@ resource "aws_iam_user_policy_attachment" "circleci_codedeploy_policy_attach" {
   policy_arn = "${aws_iam_policy.CircleCI-Code-Deploy.arn}"
 }
 
+#SNS topic and policies
+
+resource "aws_sns_topic" "test" {
+  name = "my-topic-with-policy"
+}
+
+resource "aws_sns_topic_policy" "default" {
+  arn = "${aws_sns_topic.test.arn}"
+  policy = "${data.aws_iam_policy_document.sns-topic-policy.json}"
+}
+
+data "aws_iam_policy_document" "sns-topic-policy" {
+  policy_id = "__default_policy_ID"
+
+  statement {
+    actions = [
+      "SNS:Subscribe",
+      "SNS:SetTopicAttributes",
+      "SNS:RemovePermission",
+      "SNS:Receive",
+      "SNS:Publish",
+      "SNS:ListSubscriptionsByTopic",
+      "SNS:GetTopicAttributes",
+      "SNS:DeleteTopic",
+      "SNS:AddPermission",
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceOwner"
+
+      values = [
+        "${local.user_account_id}",
+      ]
+    }
+
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    resources = [
+      "${aws_sns_topic.test.arn}",
+    ]
+
+    sid = "__default_statement_ID"
+  }
+}
+
+#Lambda Function
+resource "aws_lambda_function" "test_lambda" {
+  filename      = "recipe.zip"
+  function_name = "lambda_function_name"
+  role          = "${aws_iam_role.iam_for_lambda.arn}"
+  handler       = "exports.test"
+  runtime       = "java8"
+  source_code_hash = "${filebase64sha256("recipe.zip")}"
+}
+
+#SNS topic subscription to Lambda
+resource "aws_sns_topic_subscription" "lambda" {
+  topic_arn = "${aws_sns_topic.test.arn}"
+  protocol  = "lambda"
+  endpoint  = "${aws_lambda_function.test_lambda.arn}"
+}
+
+#SNS Lambda permission
+resource "aws_lambda_permission" "with_sns" {
+  statement_id  = "AllowExecutionFromSNS"
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.test_lambda.function_name}"
+  principal     = "sns.amazonaws.com"
+  source_arn    = "${aws_sns_topic.test.arn}"
+}
+
+#Cloudwatch log group
+resource "aws_cloudwatch_log_group" "lambda_log" {
+  name = "lambda_log"
+  }
+
+resource "aws_cloudwatch_log_stream" "lambda_log" {
+  name           = "log_stream"
+  log_group_name = "${aws_cloudwatch_log_group.lambda_log.name}"
+}
+
+
+#Cloudwatch Lambda permission
+resource "aws_lambda_permission" "allow_cloudwatch" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.test_lambda.function_name}"
+  principal     = "events.amazonaws.com"
+  # source_arn    = "arn:aws:events:${var.region}:111122223333:rule/RunDaily"
+  #qualifier     = "${aws_lambda_alias.test_alias.name}"
+}
+
+#IAM Role for lambda with sns
+resource "aws_iam_role" "iam_for_lambda" {
+  name = "iam_for_lambda"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
 # IAM Role for CodeDeploy
 resource "aws_iam_role" "code_deploy_role" {
   name = "CodeDeployServiceRole"
@@ -439,3 +558,4 @@ resource "aws_iam_role_policy_attachment" "AWSCodeDeployRole" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
   role       = "${aws_iam_role.code_deploy_role.name}"
 }
+
