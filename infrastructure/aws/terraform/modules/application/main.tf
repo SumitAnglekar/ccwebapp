@@ -490,6 +490,73 @@ resource "aws_lambda_permission" "with_sns" {
   source_arn    = "${aws_sns_topic.test.arn}"
 }
 
+#Lambda Policy
+resource "aws_iam_policy" "lambda_policy" {
+ name        = "lambda_policy"
+ description = "Policy for cloud watch and code deploy"
+ policy      = <<EOF
+{
+   "Version": "2012-10-17",
+   "Statement": [
+       {
+           "Action": [
+               "s3:Get*",
+               "s3:List*"
+           ],
+           "Effect": "Allow",
+           "Resource": "*"
+       },
+       {
+           "Effect": "Allow",
+           "Action": [
+               "logs:CreateLogGroup",
+               "logs:CreateLogStream",
+               "logs:PutLogEvents"
+           ],
+           "Resource": "*"
+       },
+       {
+         "Sid": "LambdaDynamoDBAccess",
+         "Effect": "Allow",
+         "Action": [
+             "dynamodb:GetItem",
+             "dynamodb:PutItem",
+             "dynamodb:UpdateItem"
+         ],
+         "Resource": "*"
+       },
+       {
+         "Sid": "LambdaSESAccess",
+         "Effect": "Allow",
+         "Action": [
+             "ses:VerifyEmailAddress",
+             "ses:SendEmail",
+             "ses:SendRawEmail"
+         ],
+         "Resource": "*"
+       },
+       {
+         "Sid": "LambdaS3Access",
+         "Effect": "Allow",
+         "Action": [
+             "s3:GetObject"
+         ],
+         "Resource": "*"
+       },
+       {
+         "Sid": "LambdaSNSAccess",
+         "Effect": "Allow",
+         "Action": [
+             "sns:ConfirmSubscription"
+         ],
+         "Resource": "*"
+       }
+   ]
+}
+ EOF
+}
+
+
 #Cloudwatch log group
 resource "aws_cloudwatch_log_group" "lambda_log" {
   name = "lambda_log"
@@ -559,3 +626,9 @@ resource "aws_iam_role_policy_attachment" "AWSCodeDeployRole" {
   role       = "${aws_iam_role.code_deploy_role.name}"
 }
 
+#Attach the policy for cloudwatch codedeploy role
+resource "aws_iam_role_policy_attachment" "CloudWatch_CodeDeployRole_policy_attach" {
+ role       = "${aws_iam_role.iam_for_lambda.name}"
+#   depends_on = ["aws_iam_role.lambda-sns-role"]
+ policy_arn = "${aws_iam_policy.lambda_policy.arn}"
+}
