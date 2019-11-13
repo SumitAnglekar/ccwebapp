@@ -75,10 +75,12 @@ resource "aws_autoscaling_group" "autoscaling" {
   vpc_zone_identifier = ["${var.subnet_id}"]
 }
 
+#
+
 #### SECURITY GROUP #####
 ##LOAD BALANCER SECURITY GROUP
 resource "aws_security_group" "loadbalancer" {
-  name          = "application_security_group"
+  name          = "loadbalancer_security_group"
   vpc_id        = "${var.vpc_id}"
   ingress{
     from_port   = 22
@@ -117,7 +119,53 @@ resource "aws_security_group" "loadbalancer" {
   }
 }
 
+resource "aws_autoscaling_policy" "WebServerScaleUpPolicy" {
+  name                   = "WebServerScaleUpPolicy"
+  scaling_adjustment     = 1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 60
+  autoscaling_group_name = "${aws_autoscaling_group.autoscaling.name}"
+}
 
+resource "aws_autoscaling_policy" "WebServerScaleDownPolicy" {
+  name                   = "WebServerScaleDownPolicy"
+  scaling_adjustment     = -1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 60
+  autoscaling_group_name = "${aws_autoscaling_group.autoscaling.name}"
+}
+
+resource "aws_cloudwatch_metric_alarm" "CPUAlarmHigh" {
+  alarm_name          = "CPUAlarmHigh"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "300"
+  statistic           = "Average"
+  threshold           = "90"
+  dimensions = {
+    AutoScalingGroupName = "${aws_autoscaling_group.autoscaling.name}"
+  }
+  alarm_description = "This metric monitors ec2 cpu utilization"
+  alarm_actions     = ["${aws_autoscaling_policy.WebServerScaleUpPolicy.arn}"]
+}
+
+resource "aws_cloudwatch_metric_alarm" "CPUAlarmLow" {
+  alarm_name          = "CPUAlarmLow"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "300"
+  statistic           = "Average"
+  threshold           = "70"
+  dimensions = {
+    AutoScalingGroupName = "${aws_autoscaling_group.autoscaling.name}"
+  }
+  alarm_description = "This metric monitors ec2 cpu utilization"
+  alarm_actions     = ["${aws_autoscaling_policy.WebServerScaleDownPolicy.arn}"]
+}
 
 #Application security group
 resource "aws_security_group" "application" {
@@ -129,35 +177,24 @@ resource "aws_security_group" "application" {
     protocol    = "tcp"
     cidr_blocks  = ["0.0.0.0/0"]
   }
-  ingress{
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks  = ["0.0.0.0/0"]
-  }
-  ingress{
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks  = ["0.0.0.0/0"]
-  }
-  ingress{
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks  = ["0.0.0.0/0"]
-  }
-  // Egress is used here to communicate anywhere with any given protocol
-  egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
   tags          = {
     Name        = "Application Security Group"
     Environment = "${var.env}"
   }
+}
+## check this
+# Application security group rule
+resource "aws_security_group_rule" "application"{
+
+  type        = "ingress"
+  from_port   = 8080
+  to_port     = 8080
+  protocol    = "tcp"
+  // cidr_blocks  = "${var.subnet_id_list}"
+  // Source of the traffic should be the loadbalancer security group, hence we pass on the loadbalancer id instance
+  source_security_group_id  = "${aws_security_group.loadbalancer.id}"
+  //Reference the above created application security group
+  security_group_id         = "${aws_security_group.application.id}"
 }
 
 # Database security group
@@ -169,6 +206,7 @@ resource "aws_security_group" "database"{
     Environment = "${var.env}"
   }
 }
+
 
 # Database security group rule
 resource "aws_security_group_rule" "database"{
@@ -213,6 +251,18 @@ resource "aws_db_instance" "myRDS" {
   db_subnet_group_name = "${var.aws_db_subnet_group_name}"
 
 }
+
+# # LoadBalancer
+# resource "aws_lb" "application_loadbalancer" {
+#   name               = "application_loadbalancer"
+#   internal           = false
+#   load_balancer_type = "application"
+#   security_groups    = ["${aws_security_group.loadbalancer.id}"]
+#   subnets            = ["${aws_subnet.public.*.id}"]
+
+#   enable_deletion_protection = true
+
+# }
 
 
 
@@ -526,3 +576,4 @@ resource "aws_iam_role_policy_attachment" "AWSCodeDeployRole" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
   role       = "${aws_iam_role.code_deploy_role.name}"
 }
+
