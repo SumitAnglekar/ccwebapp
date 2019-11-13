@@ -119,3 +119,6 @@ crash.log
 
 #lambda gitignore
 *.zip
+
+# Intellij files
+.idea/
