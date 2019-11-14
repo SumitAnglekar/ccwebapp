@@ -71,8 +71,9 @@ resource "aws_autoscaling_group" "autoscaling" {
   max_size             = 10
   default_cooldown     = 60
   desired_capacity     = 3
-
+  load_balancers       = ["${aws_elb.application_loadbalancer.name}"]
   vpc_zone_identifier = ["${var.subnet_id}"]
+  health_check_type = "ELB"
 }
 
 #
@@ -252,17 +253,29 @@ resource "aws_db_instance" "myRDS" {
 
 }
 
-# # LoadBalancer
-# resource "aws_lb" "application_loadbalancer" {
-#   name               = "application_loadbalancer"
-#   internal           = false
-#   load_balancer_type = "application"
-#   security_groups    = ["${aws_security_group.loadbalancer.id}"]
-#   subnets            = ["${aws_subnet.public.*.id}"]
+# LoadBalancer
+resource "aws_elb" "application_loadbalancer" {
+  name               = "ApplicationLoadbalancer"
+  security_groups    = ["${aws_security_group.loadbalancer.id}"]
+  subnets            = ["${var.subnet_id}"]
+  
+  health_check {
+    healthy_threshold = 3
+    unhealthy_threshold = 5
+    timeout = 5
+    interval = 30
+    target = "HTTP:8080/"
+  }
 
-#   enable_deletion_protection = true
+  listener {
+    instance_port     = 8080
+    instance_protocol = "http"
+    lb_port           = 80
+    lb_protocol       = "http"
+  }
 
-# }
+
+}
 
 
 
