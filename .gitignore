@@ -117,8 +117,5 @@ run.plan
 # Crash log files
 crash.log
 
-#lambda gitignore
-*.zip
-
 # Intellij files
 .idea/

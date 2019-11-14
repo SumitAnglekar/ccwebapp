@@ -22,30 +22,6 @@ resource "aws_s3_bucket" "bucket" {
   }
 }
 
-# S3 Bucket for lambda revisions
-resource "aws_s3_bucket" "lambda_revisions_bucket" {
-  bucket = "lambda.${var.env}.${var.domainName}"
-  acl = "private"
-  force_destroy = "true"
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm     = "aws:kms"
-      }
-    }
-  }
-
-  lifecycle_rule {
-    enabled = true
-
-    transition {
-      days = 30
-      storage_class = "STANDARD_IA"
-    }
-  }
-}
-
 #### SECURITY GROUP #####
 
 #Application security group
@@ -517,16 +493,12 @@ data "aws_iam_policy_document" "sns-topic-policy" {
 
 #Lambda Function
 resource "aws_lambda_function" "sns_lambda_email" {
-//  filename      = "recipe.zip"
+  filename      = "function.zip"
   function_name = "lambda_function_name"
   role          = "${aws_iam_role.iam_for_lambda.arn}"
-  handler       = "exports.test"
-  runtime       = "java8"
-//  source_code_hash = "${filebase64sha256("recipe.zip")}"
-  depends_on = [
-    "aws_s3_bucket.lambda_revisions_bucket",
-    "aws_cloudwatch_log_stream.lambda_cloudwatch_stream"
-  ]
+  handler       = "index.handler"
+  runtime       = "nodejs8.10"
+  source_code_hash = "${filebase64sha256("function.zip")}"
 }
 
 #SNS topic subscription to Lambda
@@ -544,17 +516,6 @@ resource "aws_lambda_permission" "with_sns" {
   principal     = "sns.amazonaws.com"
 //  source_arn    = "${aws_sns_topic.sns_recipes.arn}"
 }
-
-#Cloudwatch Lambda permission
-# MAYBE DONT NEED THIS AS IT GIVES CLOUDWATCH PERMISSION TO INVOKE LAMBDA FUNCTION
-//resource "aws_lambda_permission" "allow_cloudwatch" {
-//  statement_id  = "AllowExecutionFromCloudWatch"
-//  action        = "lambda:InvokeFunction"
-//  function_name = "${aws_lambda_function.sns_lambda_email.function_name}"
-//  principal     = "events.amazonaws.com"
-////  source_arn    = "arn:aws:events:${var.region}:111122223333:rule/RunDaily"
-//  #qualifier     = "${aws_lambda_alias.test_alias.name}"
-//}
 
 #Lambda Policy
 //TODO add exact resource names
@@ -634,12 +595,12 @@ resource "aws_iam_role_policy_attachment" "lambda_role_policy_attach" {
   policy_arn = "${aws_iam_policy.lambda_policy.arn}"
 }
 
-#Cloudwatch log group
-data "aws_cloudwatch_log_group" "lambda_cloudwatch_group" {
-  name = "csye6225_fall2019"
-}
-
-resource "aws_cloudwatch_log_stream" "lambda_cloudwatch_stream" {
-  name           = "lambda"
-  log_group_name = "${data.aws_cloudwatch_log_group.lambda_cloudwatch_group.name}"
-}
+//#Cloudwatch log group
+//data "aws_cloudwatch_log_group" "lambda_cloudwatch_group" {
+//  name = "csye6225_fall2019"
+//}
+//
+//resource "aws_cloudwatch_log_stream" "lambda_cloudwatch_stream" {
+//  name           = "lambda"
+//  log_group_name = "${data.aws_cloudwatch_log_group.lambda_cloudwatch_group.name}"
+//}
