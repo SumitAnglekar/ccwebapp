@@ -116,3 +116,6 @@ run.plan
 
 # Crash log files
 crash.log
+
+# Intellij files
+.idea/
