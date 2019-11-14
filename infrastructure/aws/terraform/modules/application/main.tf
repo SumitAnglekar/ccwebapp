@@ -663,7 +663,7 @@ resource "aws_lambda_permission" "with_sns" {
   action        = "lambda:InvokeFunction"
   function_name = "${aws_lambda_function.sns_lambda_email.function_name}"
   principal     = "sns.amazonaws.com"
-//  source_arn    = "${aws_sns_topic.sns_recipes.arn}"
+  source_arn    = "${aws_sns_topic.sns_recipes.arn}"
 }
 
 #Lambda Policy
@@ -701,14 +701,6 @@ resource "aws_iam_policy" "lambda_policy" {
              "ses:VerifyEmailAddress",
              "ses:SendEmail",
              "ses:SendRawEmail"
-         ],
-         "Resource": "*"
-       },
-       {
-         "Sid": "LambdaSNSAccess",
-         "Effect": "Allow",
-         "Action": [
-             "sns:ConfirmSubscription"
          ],
          "Resource": "*"
        }
