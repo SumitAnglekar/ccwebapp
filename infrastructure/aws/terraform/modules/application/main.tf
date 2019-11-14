@@ -253,7 +253,6 @@ resource "aws_db_instance" "myRDS" {
 
 }
 
-<<<<<<< HEAD
 # LoadBalancer
 resource "aws_elb" "application_loadbalancer" {
   name               = "ApplicationLoadbalancer"
@@ -266,16 +265,6 @@ resource "aws_elb" "application_loadbalancer" {
     timeout = 5
     interval = 30
     target = "HTTP:8080/"
-=======
-# Fetch latest published AMI
-data "aws_ami" "packer_ami" {
-  owners = ["self"]
-  most_recent = true
-
-  filter {
-    name = "tag:OS_Version"
-    values = ["centos"]
->>>>>>> d81e213b1c6fd71adc2170e81e9aac12af15eab5
   }
 
   listener {
@@ -600,8 +589,6 @@ resource "aws_iam_role_policy_attachment" "AWSCodeDeployRole" {
   role       = "${aws_iam_role.code_deploy_role.name}"
 }
 
-<<<<<<< HEAD
-=======
 #SNS topic and policies
 
 resource "aws_sns_topic" "sns_recipes" {
@@ -766,4 +753,3 @@ resource "aws_iam_role_policy_attachment" "lambda_role_policy_attach" {
 //  name           = "lambda"
 //  log_group_name = "${data.aws_cloudwatch_log_group.lambda_cloudwatch_group.name}"
 //}
->>>>>>> d81e213b1c6fd71adc2170e81e9aac12af15eab5
