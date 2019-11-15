@@ -119,3 +119,6 @@ crash.log
 
 # Intellij files
 .idea/
+
+# lambda function zip
+function.zip

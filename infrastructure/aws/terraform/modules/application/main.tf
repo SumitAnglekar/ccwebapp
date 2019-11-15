@@ -181,7 +181,7 @@ resource "aws_dynamodb_table" "basic-dynamodb-table" {
   }
 }
 
-#CodeDeploy App and Group
+#CodeDeploy App and Group for webapp
 resource "aws_codedeploy_app" "code_deploy_app" {
   compute_platform = "Server"
   name             = "csye6225-webapp"
