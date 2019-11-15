@@ -332,6 +332,11 @@ resource "aws_dynamodb_table" "basic-dynamodb-table" {
     type = "S"
   }
 
+  ttl {
+    attribute_name = "ttl"
+    enabled        = true
+  }
+
   tags = {
     Name        = "${var.dynamoName}"
   }
