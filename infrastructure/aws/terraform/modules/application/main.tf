@@ -22,11 +22,66 @@ resource "aws_s3_bucket" "bucket" {
   }
 }
 
-#### SECURITY GROUP #####
+data "aws_ami" "packer_ami" {
+  owners = ["self"]
+  most_recent = true
 
-#Application security group
-resource "aws_security_group" "application" {
-  name          = "application_security_group"
+  filter {
+    name = "tag:OS_Version"
+    values = ["centos"]
+  }
+}
+
+# AWS LAUNCH CONFIGURATION
+
+resource "aws_launch_configuration" "asg_launch_config" {
+  name          = "asg_launch_config"
+  image_id      = "${data.aws_ami.packer_ami.id}"
+  instance_type = "t2.micro"
+  security_groups = [ "${aws_security_group.application.id}" ]
+  key_name      = "${var.aws_ssh_key}"
+  user_data     = "${templatefile("${path.module}/prepare_aws_instance.sh",
+                                    {
+                                      s3_bucket_name = "${aws_s3_bucket.bucket.id}",
+                                      aws_db_endpoint = "${aws_db_instance.myRDS.endpoint}",
+                                      aws_db_name = "${aws_db_instance.myRDS.name}",
+                                      aws_db_username = "${aws_db_instance.myRDS.username}",
+                                      aws_db_password = "${aws_db_instance.myRDS.password}",
+                                      aws_region = "${var.region}",
+                                      aws_profile = "${var.env}"
+                                    })}"
+
+  associate_public_ip_address = true
+  iam_instance_profile = "${aws_iam_instance_profile.ec2_profile.name}"
+
+  root_block_device {
+    volume_type = "gp2"
+    volume_size = "20"
+    delete_on_termination = true
+  }
+
+  depends_on = [aws_s3_bucket.bucket,aws_db_instance.myRDS]
+}
+
+## AUTOSCALING GROUP
+resource "aws_autoscaling_group" "autoscaling" {
+  name                 = "terraform-asg-example"
+  launch_configuration = "${aws_launch_configuration.asg_launch_config.name}"
+  min_size             = 3
+  max_size             = 10
+  default_cooldown     = 60
+  desired_capacity     = 3
+  load_balancers       = ["${aws_elb.application_loadbalancer.name}"]
+  vpc_zone_identifier = ["${var.subnet_id}"]
+  health_check_type = "ELB"
+}
+
+#
+
+#### SECURITY GROUP #####
+##LOAD BALANCER SECURITY GROUP
+resource "aws_security_group" "loadbalancer" {
+  name          = "loadbalancer_security_group"
   vpc_id        = "${var.vpc_id}"
   ingress{
     from_port   = 22
@@ -60,9 +115,87 @@ resource "aws_security_group" "application" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags          = {
+    Name        = "LoadBalancer Security Group"
+    Environment = "${var.env}"
+  }
+}
+
+resource "aws_autoscaling_policy" "WebServerScaleUpPolicy" {
+  name                   = "WebServerScaleUpPolicy"
+  scaling_adjustment     = 1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 60
+  autoscaling_group_name = "${aws_autoscaling_group.autoscaling.name}"
+}
+
+resource "aws_autoscaling_policy" "WebServerScaleDownPolicy" {
+  name                   = "WebServerScaleDownPolicy"
+  scaling_adjustment     = -1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 60
+  autoscaling_group_name = "${aws_autoscaling_group.autoscaling.name}"
+}
+
+resource "aws_cloudwatch_metric_alarm" "CPUAlarmHigh" {
+  alarm_name          = "CPUAlarmHigh"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "300"
+  statistic           = "Average"
+  threshold           = "90"
+  dimensions = {
+    AutoScalingGroupName = "${aws_autoscaling_group.autoscaling.name}"
+  }
+  alarm_description = "This metric monitors ec2 cpu utilization"
+  alarm_actions     = ["${aws_autoscaling_policy.WebServerScaleUpPolicy.arn}"]
+}
+
+resource "aws_cloudwatch_metric_alarm" "CPUAlarmLow" {
+  alarm_name          = "CPUAlarmLow"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "300"
+  statistic           = "Average"
+  threshold           = "70"
+  dimensions = {
+    AutoScalingGroupName = "${aws_autoscaling_group.autoscaling.name}"
+  }
+  alarm_description = "This metric monitors ec2 cpu utilization"
+  alarm_actions     = ["${aws_autoscaling_policy.WebServerScaleDownPolicy.arn}"]
+}
+
+#Application security group
+resource "aws_security_group" "application" {
+  name          = "application_security_group"
+  vpc_id        = "${var.vpc_id}"
+  ingress{
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks  = ["0.0.0.0/0"]
+  }
+  tags          = {
     Name        = "Application Security Group"
     Environment = "${var.env}"
   }
+}
+## check this
+# Application security group rule
+resource "aws_security_group_rule" "application"{
+
+  type        = "ingress"
+  from_port   = 8080
+  to_port     = 8080
+  protocol    = "tcp"
+  // cidr_blocks  = "${var.subnet_id_list}"
+  // Source of the traffic should be the loadbalancer security group, hence we pass on the loadbalancer id instance
+  source_security_group_id  = "${aws_security_group.loadbalancer.id}"
+  //Reference the above created application security group
+  security_group_id         = "${aws_security_group.application.id}"
 }
 
 # Database security group
@@ -74,6 +207,7 @@ resource "aws_security_group" "database"{
     Environment = "${var.env}"
   }
 }
+
 
 # Database security group rule
 resource "aws_security_group_rule" "database"{
@@ -119,49 +253,64 @@ resource "aws_db_instance" "myRDS" {
 
 }
 
-# Fetch latest published AMI
-data "aws_ami" "packer_ami" {
-  owners = ["self"]
-  most_recent = true
-
-  filter {
-    name = "tag:OS_Version"
-    values = ["centos"]
+# LoadBalancer
+resource "aws_elb" "application_loadbalancer" {
+  name               = "ApplicationLoadbalancer"
+  security_groups    = ["${aws_security_group.loadbalancer.id}"]
+  subnets            = ["${var.subnet_id}"]
+  
+  health_check {
+    healthy_threshold = 3
+    unhealthy_threshold = 5
+    timeout = 5
+    interval = 30
+    target = "HTTP:8080/"
   }
+
+  listener {
+    instance_port     = 8080
+    instance_protocol = "http"
+    lb_port           = 80
+    lb_protocol       = "http"
+  }
+
+
 }
 
-# EC2 Instance
-resource "aws_instance" "ec2_instance" {
-  ami = "${data.aws_ami.packer_ami.id}"
-  instance_type = "t2.micro"
-  security_groups = [ "${aws_security_group.application.id}" ]
-  subnet_id = "${var.subnet_id}"
-  disable_api_termination = false
-  key_name = "${var.aws_ssh_key}"
-  iam_instance_profile = "${aws_iam_instance_profile.ec2_profile.name}"
-  user_data = "${templatefile("${path.module}/prepare_aws_instance.sh",
-                                    {
-                                      s3_bucket_name = "${aws_s3_bucket.bucket.id}",
-                                      aws_db_endpoint = "${aws_db_instance.myRDS.endpoint}",
-                                      aws_db_name = "${aws_db_instance.myRDS.name}",
-                                      aws_db_username = "${aws_db_instance.myRDS.username}",
-                                      aws_db_password = "${aws_db_instance.myRDS.password}",
-                                      aws_region = "${var.region}",
-                                      aws_profile = "${var.env}"
-                                    })}"
 
-  root_block_device {
-    volume_type = "gp2"
-    volume_size = "20"
-    delete_on_termination = true
-  }
 
-  tags = {
-    Name        = "myEC2Instance"
-  }
+# # EC2 Instance
+# resource "aws_instance" "ec2_instance" {
+#   ami = "${data.aws_ami.packer_ami.id}"
+#   instance_type = "t2.micro"
+#   security_groups = [ "${aws_security_group.application.id}" ]
+#   subnet_id = "${var.subnet_id}"
+#   disable_api_termination = false
+#   key_name = "${var.aws_ssh_key}"
+#   iam_instance_profile = "${aws_iam_instance_profile.ec2_profile.name}"
+#   user_data = "${templatefile("${path.module}/prepare_aws_instance.sh",
+#                                     {
+#                                       s3_bucket_name = "${aws_s3_bucket.bucket.id}",
+#                                       aws_db_endpoint = "${aws_db_instance.myRDS.endpoint}",
+#                                       aws_db_name = "${aws_db_instance.myRDS.name}",
+#                                       aws_db_username = "${aws_db_instance.myRDS.username}",
+#                                       aws_db_password = "${aws_db_instance.myRDS.password}",
+#                                       aws_region = "${var.region}",
+#                                       aws_profile = "${var.env}"
+#                                     })}"
 
-  depends_on = [aws_s3_bucket.bucket,aws_db_instance.myRDS]
-}
+#   root_block_device {
+#     volume_type = "gp2"
+#     volume_size = "20"
+#     delete_on_termination = true
+#   }
+
+#   tags = {
+#     Name        = "myEC2Instance"
+#   }
+
+#   depends_on = [aws_s3_bucket.bucket,aws_db_instance.myRDS]
+# }
 
 
 #Dynamo db
@@ -514,7 +663,7 @@ resource "aws_lambda_permission" "with_sns" {
   action        = "lambda:InvokeFunction"
   function_name = "${aws_lambda_function.sns_lambda_email.function_name}"
   principal     = "sns.amazonaws.com"
-//  source_arn    = "${aws_sns_topic.sns_recipes.arn}"
+  source_arn    = "${aws_sns_topic.sns_recipes.arn}"
 }
 
 #Lambda Policy
@@ -552,14 +701,6 @@ resource "aws_iam_policy" "lambda_policy" {
              "ses:VerifyEmailAddress",
              "ses:SendEmail",
              "ses:SendRawEmail"
-         ],
-         "Resource": "*"
-       },
-       {
-         "Sid": "LambdaSNSAccess",
-         "Effect": "Allow",
-         "Action": [
-             "sns:ConfirmSubscription"
          ],
          "Resource": "*"
        }
