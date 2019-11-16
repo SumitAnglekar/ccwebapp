@@ -267,13 +267,20 @@ resource "aws_elb" "application_loadbalancer" {
     target = "HTTP:8080/"
   }
 
-  listener {
-    instance_port     = 8080
-    instance_protocol = "http"
-    lb_port           = 80
-    lb_protocol       = "http"
-  }
+  # listener {
+  #   instance_port     = 8080
+  #   instance_protocol = "http"
+  #   lb_port           = 443
+  #   lb_protocol       = "http"
+  # }
 
+  listener {
+    instance_port      = 8080
+    instance_protocol  = "http"
+    lb_port            = 443
+    lb_protocol        = "https"
+    ssl_certificate_id = "${data.aws_acm_certificate.aws_ssl_certificate.arn}"
+  }
 
 }
 
@@ -325,6 +332,11 @@ resource "aws_dynamodb_table" "basic-dynamodb-table" {
     type = "S"
   }
 
+  ttl {
+    attribute_name = "ttl"
+    enabled        = true
+  }
+
   tags = {
     Name        = "${var.dynamoName}"
   }
@@ -362,6 +374,8 @@ resource "aws_codedeploy_deployment_group" "code_deploy_deployment_group" {
     alarms  = ["Deployment-Alarm"]
     enabled = true
   }
+
+  depends_on = [aws_codedeploy_app.code_deploy_app]
 }
 
 ###### IAM ROLES AND POLICIES ######
@@ -745,3 +759,29 @@ resource "aws_iam_role_policy_attachment" "lambda_role_policy_attach" {
 //  name           = "lambda"
 //  log_group_name = "${data.aws_cloudwatch_log_group.lambda_cloudwatch_group.name}"
 //}
+
+
+# Find a certificate issued by (not imported into) ACM
+data "aws_acm_certificate" "aws_ssl_certificate" {
+  domain      = "${var.env}.${var.domainName}"
+  types       = ["AMAZON_ISSUED"]
+  most_recent = true
+}
+
+data "aws_route53_zone" "route53" {
+  name         = "${var.env}.${var.domainName}."
+  # private_zone = false
+}
+
+resource "aws_route53_record" "recordset" {
+  zone_id = "${data.aws_route53_zone.route53.zone_id}"
+  name    = "${data.aws_route53_zone.route53.name}"
+  type    = "A"
+  
+  alias {
+    name    = "${aws_elb.application_loadbalancer.dns_name}"
+    zone_id = "${aws_elb.application_loadbalancer.zone_id}"
+    evaluate_target_health = true
+  }
+}
+
