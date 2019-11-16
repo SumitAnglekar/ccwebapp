@@ -374,6 +374,8 @@ resource "aws_codedeploy_deployment_group" "code_deploy_deployment_group" {
     alarms  = ["Deployment-Alarm"]
     enabled = true
   }
+
+  depends_on = [aws_codedeploy_app.code_deploy_app]
 }
 
 ###### IAM ROLES AND POLICIES ######
