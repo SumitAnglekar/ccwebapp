@@ -1,4 +1,6 @@
+##############################
 # S3 Bucket for recipe images
+##############################
 resource "aws_s3_bucket" "bucket" {
   bucket = "webapp.${var.env}.${var.domainName}"
   acl = "private"
@@ -32,8 +34,9 @@ data "aws_ami" "packer_ami" {
   }
 }
 
+##############################
 # AWS LAUNCH CONFIGURATION
-
+##############################
 resource "aws_launch_configuration" "asg_launch_config" {
   name          = "asg_launch_config"
   image_id      = "${data.aws_ami.packer_ami.id}"
@@ -48,7 +51,9 @@ resource "aws_launch_configuration" "asg_launch_config" {
                                       aws_db_username = "${aws_db_instance.myRDS.username}",
                                       aws_db_password = "${aws_db_instance.myRDS.password}",
                                       aws_region = "${var.region}",
-                                      aws_profile = "${var.env}"
+                                      aws_profile = "${var.env}",
+                                      webapp_domain = "${var.env}.${var.domainName}",
+                                      sns_topic_arn = "${aws_sns_topic.sns_recipes.arn}"
                                     })}"
 
   associate_public_ip_address = true
@@ -63,7 +68,9 @@ resource "aws_launch_configuration" "asg_launch_config" {
   depends_on = [aws_s3_bucket.bucket,aws_db_instance.myRDS]
 }
 
+##############################
 ## AUTOSCALING GROUP
+##############################
 resource "aws_autoscaling_group" "autoscaling" {
   name                 = "terraform-asg-example"
   launch_configuration = "${aws_launch_configuration.asg_launch_config.name}"
@@ -74,11 +81,17 @@ resource "aws_autoscaling_group" "autoscaling" {
   load_balancers       = ["${aws_elb.application_loadbalancer.name}"]
   vpc_zone_identifier = ["${var.subnet_id}"]
   health_check_type = "ELB"
+  tag {
+    key                 = "Name"
+    value               = "myEC2Instance"
+    propagate_at_launch = true
+  }
 }
 
-#
-
+##############################
 #### SECURITY GROUP #####
+##############################
+
 ##LOAD BALANCER SECURITY GROUP
 resource "aws_security_group" "loadbalancer" {
   name          = "loadbalancer_security_group"
@@ -139,12 +152,12 @@ resource "aws_autoscaling_policy" "WebServerScaleDownPolicy" {
 resource "aws_cloudwatch_metric_alarm" "CPUAlarmHigh" {
   alarm_name          = "CPUAlarmHigh"
   comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "2"
+  evaluation_periods  = "3"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/EC2"
-  period              = "300"
+  period              = "120"
   statistic           = "Average"
-  threshold           = "90"
+  threshold           = "10"
   dimensions = {
     AutoScalingGroupName = "${aws_autoscaling_group.autoscaling.name}"
   }
@@ -155,12 +168,12 @@ resource "aws_cloudwatch_metric_alarm" "CPUAlarmHigh" {
 resource "aws_cloudwatch_metric_alarm" "CPUAlarmLow" {
   alarm_name          = "CPUAlarmLow"
   comparison_operator = "LessThanThreshold"
-  evaluation_periods  = "2"
+  evaluation_periods  = "3"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/EC2"
-  period              = "300"
+  period              = "120"
   statistic           = "Average"
-  threshold           = "70"
+  threshold           = "8"
   dimensions = {
     AutoScalingGroupName = "${aws_autoscaling_group.autoscaling.name}"
   }
@@ -178,24 +191,22 @@ resource "aws_security_group" "application" {
     protocol    = "tcp"
     cidr_blocks  = ["0.0.0.0/0"]
   }
+  ingress{
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks  = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks  = ["0.0.0.0/0"]
+  }
   tags          = {
     Name        = "Application Security Group"
     Environment = "${var.env}"
   }
-}
-## check this
-# Application security group rule
-resource "aws_security_group_rule" "application"{
-
-  type        = "ingress"
-  from_port   = 8080
-  to_port     = 8080
-  protocol    = "tcp"
-  // cidr_blocks  = "${var.subnet_id_list}"
-  // Source of the traffic should be the loadbalancer security group, hence we pass on the loadbalancer id instance
-  source_security_group_id  = "${aws_security_group.loadbalancer.id}"
-  //Reference the above created application security group
-  security_group_id         = "${aws_security_group.application.id}"
 }
 
 # Database security group
@@ -216,7 +227,6 @@ resource "aws_security_group_rule" "database"{
   from_port   = 5432
   to_port     = 5432
   protocol    = "tcp"
-  // cidr_blocks  = "${var.subnet_id_list}"
   // Source of the traffic should be the application security group, hence we pass on the application id instance
   source_security_group_id  = "${aws_security_group.application.id}"
   //Reference the above created database security group
@@ -239,7 +249,7 @@ resource "aws_db_instance" "myRDS" {
   vpc_security_group_ids = [ "${aws_security_group.database.id}" ]
   final_snapshot_identifier = "${var.rdsInstanceIdentifier}-SNAPSHOT"
   skip_final_snapshot = true
-  
+
   publicly_accessible = true
   multi_az = false
 
@@ -258,7 +268,7 @@ resource "aws_elb" "application_loadbalancer" {
   name               = "ApplicationLoadbalancer"
   security_groups    = ["${aws_security_group.loadbalancer.id}"]
   subnets            = ["${var.subnet_id}"]
-  
+
   health_check {
     healthy_threshold = 3
     unhealthy_threshold = 5
@@ -283,7 +293,6 @@ resource "aws_elb" "application_loadbalancer" {
   }
 
 }
-
 
 
 # # EC2 Instance
@@ -349,17 +358,17 @@ resource "aws_codedeploy_app" "code_deploy_app" {
 }
 
 resource "aws_codedeploy_deployment_group" "code_deploy_deployment_group" {
-  app_name              = "csye6225-webapp"
+  app_name              = "${aws_codedeploy_app.code_deploy_app.name}"
   deployment_group_name = "csye6225-webapp-deployment"
   deployment_config_name = "CodeDeployDefault.AllAtOnce"
   service_role_arn      = "${aws_iam_role.code_deploy_role.arn}"
-
+  autoscaling_groups    = ["${aws_autoscaling_group.autoscaling.name}"]
   ec2_tag_filter {
     key   = "Name"
     type  = "KEY_AND_VALUE"
     value = "myEC2Instance"
   }
-    
+
   deployment_style {
     deployment_option = "WITHOUT_TRAFFIC_CONTROL"
     deployment_type   = "IN_PLACE"
@@ -401,7 +410,7 @@ resource "aws_iam_role" "EC2_Role" {
 EOF
 
   tags = {
-      Name = "EC2 Role"
+    Name = "EC2 Role"
   }
 }
 
@@ -597,14 +606,19 @@ resource "aws_iam_role" "code_deploy_role" {
 EOF
 }
 
-# Attach the policy for CodeDeploy role
+# Attach the policy for CodeDeploy role for webapp
 resource "aws_iam_role_policy_attachment" "AWSCodeDeployRole" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
   role       = "${aws_iam_role.code_deploy_role.name}"
 }
 
-#SNS topic and policies
+# Attach the policy for CodeDeploy role for lambda
+resource "aws_iam_role_policy_attachment" "AWSCodeDeployRoleforLambda" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRoleForLambda"
+  role       = "${aws_iam_role.code_deploy_role.name}"
+}
 
+#SNS topic and policies
 resource "aws_sns_topic" "sns_recipes" {
   name = "SNS_Topic_Recipes"
 }
@@ -683,10 +697,17 @@ resource "aws_lambda_permission" "with_sns" {
 #Lambda Policy
 //TODO add exact resource names
 resource "aws_iam_policy" "lambda_policy" {
+<<<<<<< HEAD
  name        = "lambda_policy"
  description = "Policy for cloud watch and code deploy"
  policy      = <<EOF
   {
+=======
+  name        = "lambda_policy"
+  description = "Policy for cloud watch and code deploy"
+  policy      = <<EOF
+{
+>>>>>>> ac2a3a6ea69c2b130cc06f7370c260de8b7ee594
    "Version": "2012-10-17",
    "Statement": [
        {
@@ -763,7 +784,7 @@ resource "aws_iam_role_policy_attachment" "lambda_role_policy_attach" {
 
 # Find a certificate issued by (not imported into) ACM
 data "aws_acm_certificate" "aws_ssl_certificate" {
-  domain      = "${var.env}.${var.domainName}"
+  domain = "*.${var.domainName}"
   types       = ["AMAZON_ISSUED"]
   most_recent = true
 }
@@ -777,7 +798,7 @@ resource "aws_route53_record" "recordset" {
   zone_id = "${data.aws_route53_zone.route53.zone_id}"
   name    = "${data.aws_route53_zone.route53.name}"
   type    = "A"
-  
+
   alias {
     name    = "${aws_elb.application_loadbalancer.dns_name}"
     zone_id = "${aws_elb.application_loadbalancer.zone_id}"
