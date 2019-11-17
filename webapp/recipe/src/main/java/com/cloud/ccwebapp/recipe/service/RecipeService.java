@@ -2,6 +2,7 @@ package com.cloud.ccwebapp.recipe.service;
 
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.model.PublishRequest;
+import com.amazonaws.services.sns.model.PublishResult;
 import com.cloud.ccwebapp.recipe.exception.InvalidInputException;
 import com.cloud.ccwebapp.recipe.exception.RecipeNotFoundException;
 import com.cloud.ccwebapp.recipe.exception.UserNotAuthorizedException;
@@ -165,9 +166,11 @@ public class RecipeService {
     }
 
     public ResponseEntity getAllRecipesAndEmailUser(String authorEmail) {
+        LOGGER.info("Getting all recipes created by user : " + authorEmail);
         List<Recipe> userRecipes = new ArrayList<>();
         Optional<User> dbUser = userRepository.findUserByEmailaddress(authorEmail);
         if(dbUser.isPresent()) {
+            LOGGER.info("User found, fetching recipes");
             userRecipes = recipeRepository.findAllByAuthorId(dbUser.get().getId());
         }
         JSONObject jsonObject = new JSONObject();
@@ -176,12 +179,17 @@ public class RecipeService {
 
         JSONArray jsonArray = new JSONArray();
         for (Recipe recipe : userRecipes) {
+            LOGGER.info("Found recipe: " + recipe.getId());
             jsonArray.put(constructRecipeURL(recipe.getId().toString()));
         }
 
         jsonObject.put("recipes", jsonArray);
+        LOGGER.info("JSON string created: " + jsonObject.toString());
+        LOGGER.info("Publishing the message to SNS...");
 
-        amazonSNS.publish(new PublishRequest(snsTopicArn, jsonObject.toString()));
+        PublishResult publishResult = amazonSNS.publish(new PublishRequest(snsTopicArn, jsonObject.toString()));
+
+        LOGGER.info("SNS message published: " + publishResult.toString());
 
         return new ResponseEntity(HttpStatus.OK);
     }

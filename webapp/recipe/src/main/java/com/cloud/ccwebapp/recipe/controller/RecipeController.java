@@ -98,4 +98,10 @@ public class RecipeController {
     statsDClient.recordExecutionTime("timer.recipe.getall",result);
     return (ResponseEntity<Recipe>)object;
   }
+
+  //Get user's recipes and email the recipe links using SNS topic arn
+  @GetMapping("/myrecipes")
+  public ResponseEntity getRecipesForUser(Authentication authentication) {
+    return recipeService.getAllRecipesAndEmailUser(authentication.getName());
+  }
 }
