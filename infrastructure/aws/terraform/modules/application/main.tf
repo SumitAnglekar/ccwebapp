@@ -687,7 +687,7 @@ resource "aws_iam_role_policy_attachment" "AWSCodeDeployRoleforLambda" {
 
 #SNS topic and policies
 resource "aws_sns_topic" "sns_recipes" {
-  name = "SNS_Topic_Recipes"
+  name = "email_request"
 }
 
 resource "aws_sns_topic_policy" "sns_recipes_policy" {
@@ -733,6 +733,31 @@ data "aws_iam_policy_document" "sns-topic-policy" {
 
     sid = "__default_statement_ID"
   }
+}
+
+# IAM policy for SNS
+resource "aws_iam_policy" "sns_iam_policy" {
+  name = "ec2_iam_policy"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "SNS:Publish"
+      ],
+      "Resource": "${aws_sns_topic.sns_recipes.arn}"
+    }
+  ]
+}
+EOF
+}
+
+# Attach the SNS topic policy to the EC2 role
+resource "aws_iam_role_policy_attachment" "ec2_sns" {
+  policy_arn = "${aws_iam_policy.sns_iam_policy.arn}"
+  role = "${aws_iam_role.EC2_Role.name}"
 }
 
 #Lambda Function
