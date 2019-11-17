@@ -539,6 +539,7 @@ resource "aws_iam_policy" "circleci_user_policy" {
 EOF
 }
 
+
 resource "aws_iam_policy" "CircleCI-Upload-To-S3" {
   name = "circleci_s3_policy"
   policy = <<EOF
@@ -550,7 +551,29 @@ resource "aws_iam_policy" "CircleCI-Upload-To-S3" {
       "Action": [
         "s3:PutObject"
         ],
-      "Resource": "arn:aws:s3:::codedeploy.${var.env}.${var.domainName}/*"
+      "Resource":[ 
+        "arn:aws:s3:::codedeploy.${var.env}.${var.domainName}/*",
+        "arn:aws:s3:::lambda.${var.env}.${var.domainName}/*"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_policy" "CircleCI-Lambda" {
+  name = "circleci_s3_policy"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "lambda:*"
+        ],
+        
+      "Resource": "arn:aws:lambda:${var.region}:${local.user_account_id}:function:${aws_lambda_function.sns_lambda_email.function_name}"
     }
   ]
 }
@@ -645,7 +668,7 @@ resource "aws_iam_role_policy_attachment" "AWSCodeDeployRole" {
   role       = "${aws_iam_role.code_deploy_role.name}"
 }
 
-# Attach the policy for CodeDeploy role for lambda
+# # Attach the policy for CodeDeploy role for lambda
 resource "aws_iam_role_policy_attachment" "AWSCodeDeployRoleforLambda" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRoleForLambda"
   role       = "${aws_iam_role.code_deploy_role.name}"
