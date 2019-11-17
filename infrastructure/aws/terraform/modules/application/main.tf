@@ -791,24 +791,24 @@ resource "aws_cloudformation_stack" "firewallowasp" {
     name: "firewallowasp"
 
     parameters{
-
+      
     }
 
       template_body = <<STACK
-      {
+      { 
          "Parameters": {
-        "IPtoBlock1": {
-            "Description": "IPAddress to be blocked",
-            "Default": "155.33.133.6/32",
-            "Type": "String"
-        },
-        "IPtoBlock2": {
-            "Description": "IPAddress to be blocked",
-            "Default": "192.0.7.0/24",
-            "Type": "String"
-        }
-    },
-    "Resources": {
+            "IPtoBlock1": {
+                "Description": "IPAddress to be blocked",
+                "Default": "155.33.133.6/32",
+                "Type": "String"
+            },
+            "IPtoBlock2": {
+                "Description": "IPAddress to be blocked",
+                "Default": "192.0.7.0/24",
+                "Type": "String"
+            }
+          },
+        "Resources": {
         "wafrSQLiSet": {
             "Type": "AWS::WAFRegional::SqlInjectionMatchSet",
             "Properties": {
@@ -1190,8 +1190,287 @@ resource "aws_cloudformation_stack" "firewallowasp" {
                 ]
             }
         },
-
-      }
-      STACK
+        "BadReferers": {
+            "Type": "AWS::WAFRegional::ByteMatchSet",
+            "Properties": {
+                "Name": "Bad Referers",
+                "ByteMatchTuples": [
+                    {
+                        "FieldToMatch": {
+                            "Type": "HEADER",
+                            "Data": "cookie"
+                        },
+                        "TargetString": "badrefer1",
+                        "TextTransformation": "URL_DECODE",
+                        "PositionalConstraint": "CONTAINS"
+                    },
+                    {
+                        "FieldToMatch": {
+                            "Type": "HEADER",
+                            "Data": "authorization"
+                        },
+                        "TargetString": "QGdtYWlsLmNvbQ==",
+                        "TextTransformation": "URL_DECODE",
+                        "PositionalConstraint": "CONTAINS"
+                    }
+                ]
+            }
+        },
+        "BadReferersRule": {
+            "Type": "AWS::WAFRegional::Rule",
+            "Properties": {
+                "Name": "BadReferersRule",
+                "MetricName": "BadReferersRule",
+                "Predicates": [
+                    {
+                        "DataId": {
+                            "Ref": "BadReferers"
+                        },
+                        "Negated": false,
+                        "Type": "ByteMatch"
+                    }
+                ]
+            }
+        },
+        "ServerSideIncludesSet": {
+            "Type": "AWS::WAFRegional::ByteMatchSet",
+            "Properties": {
+                "Name": "Server Side Includes Set",
+                "ByteMatchTuples": [
+                    {
+                        "FieldToMatch": {
+                            "Type": "URI"
+                        },
+                        "TargetString": "/includes",
+                        "TextTransformation": "URL_DECODE",
+                        "PositionalConstraint": "STARTS_WITH"
+                    },
+                    {
+                        "FieldToMatch": {
+                            "Type": "URI"
+                        },
+                        "TargetString": ".cfg",
+                        "TextTransformation": "LOWERCASE",
+                        "PositionalConstraint": "ENDS_WITH"
+                    },
+                    {
+                        "FieldToMatch": {
+                            "Type": "URI"
+                        },
+                        "TargetString": ".conf",
+                        "TextTransformation": "LOWERCASE",
+                        "PositionalConstraint": "ENDS_WITH"
+                    },
+                    {
+                        "FieldToMatch": {
+                            "Type": "URI"
+                        },
+                        "TargetString": ".config",
+                        "TextTransformation": "LOWERCASE",
+                        "PositionalConstraint": "ENDS_WITH"
+                    },
+                    {
+                        "FieldToMatch": {
+                            "Type": "URI"
+                        },
+                        "TargetString": ".ini",
+                        "TextTransformation": "LOWERCASE",
+                        "PositionalConstraint": "ENDS_WITH"
+                    },
+                    {
+                        "FieldToMatch": {
+                            "Type": "URI"
+                        },
+                        "TargetString": ".log",
+                        "TextTransformation": "LOWERCASE",
+                        "PositionalConstraint": "ENDS_WITH"
+                    },
+                    {
+                        "FieldToMatch": {
+                            "Type": "URI"
+                        },
+                        "TargetString": ".bak",
+                        "TextTransformation": "LOWERCASE",
+                        "PositionalConstraint": "ENDS_WITH"
+                    },
+                    {
+                        "FieldToMatch": {
+                            "Type": "URI"
+                        },
+                        "TargetString": ".bakup",
+                        "TextTransformation": "LOWERCASE",
+                        "PositionalConstraint": "ENDS_WITH"
+                    },
+                    {
+                        "FieldToMatch": {
+                            "Type": "URI"
+                        },
+                        "TargetString": ".txt",
+                        "TextTransformation": "LOWERCASE",
+                        "PositionalConstraint": "ENDS_WITH"
+                    }
+                ]
+            }
+        },
+        "ServerSideIncludesRule": {
+            "Type": "AWS::WAFRegional::Rule",
+            "Properties": {
+                "Name": "ServerSideIncludesRule",
+                "MetricName": "ServerSideIncludesRule",
+                "Predicates": [
+                    {
+                        "DataId": {
+                            "Ref": "ServerSideIncludesSet"
+                        },
+                        "Negated": false,
+                        "Type": "ByteMatch"
+                    }
+                ]
+            }
+        },
+         "WAFAutoBlockSet": {
+            "Type": "AWS::WAFRegional::IPSet",
+            "Properties": {
+                "Name": "Auto Block Set"
+            }
+        },
+        "MyAutoBlockRule": {
+            "Type": "AWS::WAFRegional::Rule",
+            "DependsOn": "WAFAutoBlockSet",
+            "Properties": {
+                "Name": "Auto Block Rule",
+                "MetricName": "AutoBlockRule",
+                "Predicates": [
+                    {
+                        "DataId": {
+                            "Ref": "WAFAutoBlockSet"
+                        },
+                        "Negated": false,
+                        "Type": "IPMatch"
+                    }
+                ]
+            }
+        },
+         "MyWebACL": {
+            "Type": "AWS::WAFRegional::WebACL",
+            "Properties": {
+                "Name": "MyWebACL",
+                "DefaultAction": {
+                    "Type": "ALLOW"
+                },
+                "MetricName": "MyWebACL",
+                "Rules": [
+                    {
+                        "Action": {
+                            "Type": "BLOCK"
+                        },
+                        "Priority": 1,
+                        "RuleId": {
+                            "Ref": "reqSizeRule"
+                        }
+                    },
+                    {
+                        "Action": {
+                            "Type": "ALLOW"
+                        },
+                        "Priority": 2,
+                        "RuleId": {
+                            "Ref": "MyIPSetWhiteListRule"
+                        }
+                    },
+                    {
+                        "Action": {
+                            "Type": "BLOCK"
+                        },
+                        "Priority": 3,
+                        "RuleId": {
+                            "Ref": "myIPSetBlacklistRule"
+                        }
+                    },
+                    {
+                        "Action": {
+                            "Type": "BLOCK"
+                        },
+                        "Priority": 4,
+                        "RuleId": {
+                            "Ref": "MyAutoBlockRule"
+                        }
+                    },
+                    {
+                        "Action": {
+                            "Type": "BLOCK"
+                        },
+                        "Priority": 5,
+                        "RuleId": {
+                            "Ref": "wafrSQLiRule"
+                        }
+                    },
+                    {
+                        "Action": {
+                            "Type": "BLOCK"
+                        },
+                        "Priority": 6,
+                        "RuleId": {
+                            "Ref": "BadReferersRule"
+                        }
+                    },
+                    {
+                        "Action": {
+                            "Type": "BLOCK"
+                        },
+                        "Priority": 7,
+                        "RuleId": {
+                            "Ref": "PathStringSetReferersRule"
+                        }
+                    },
+                    {
+                        "Action": {
+                            "Type": "BLOCK"
+                        },
+                        "Priority": 8,
+                        "RuleId": {
+                            "Ref": "ServerSideIncludesRule"
+                        }
+                    },
+                    {
+                        "Action": {
+                            "Type": "BLOCK"
+                        },
+                        "Priority": 9,
+                        "RuleId": {
+                            "Ref": "XSSRule"
+                        }
+                    },
+                    {
+                        "Action": {
+                            "Type": "BLOCK"
+                        },
+                        "Priority": 10,
+                        "RuleId": {
+                            "Ref": "MyScansProbesRule"
+                        }
+                    }
+                ]
+            }
+        },
+        "MyWebACLAssociation": {
+            "Type": "AWS::WAFRegional::WebACLAssociation",
+            "DependsOn": [
+                "MyWebACL"
+            ],
+            "Properties": {
+                "ResourceArn": {
+                    "Fn::ImportValue": "ApplicationLoadBalancer"
+                },
+                "WebACLId": {
+                    "Ref": "MyWebACL"
+                }
+            }
+        }
+    }
+  }                    
+  STACK
 }
+
+#Firewall config ended (Need to pass loadbalancer resource ARN in the final rule and also update the IP for whitelist and blacklist)
 
