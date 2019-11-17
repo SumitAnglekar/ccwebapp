@@ -39,7 +39,7 @@ public class Recipe {
     private Date updated_ts;
 
     @ReadOnlyProperty
-    private UUID author_id;
+    private UUID authorId;
 
     @Min(value = 1, message = "cook_time_in_min must be greater than 1")
     private int cook_time_in_min;
@@ -105,12 +105,12 @@ public class Recipe {
         this.updated_ts = updated_ts;
     }
 
-    public UUID getAuthor_id() {
-        return author_id;
+    public UUID getAuthorId() {
+        return authorId;
     }
 
-    public void setAuthor_id(UUID author_id) {
-        this.author_id = author_id;
+    public void setAuthorId(UUID authorId) {
+        this.authorId = authorId;
     }
 
     public int getCook_time_in_min() {
@@ -201,7 +201,7 @@ public class Recipe {
                 ", id=" + id +
                 ", created_ts=" + createdts +
                 ", updated_ts=" + updated_ts +
-                ", author_id=" + author_id +
+                ", author_id=" + authorId +
                 ", cook_time_in_min=" + cook_time_in_min +
                 ", prep_time_in_min=" + prep_time_in_min +
                 ", total_time_in_min=" + total_time_in_min +

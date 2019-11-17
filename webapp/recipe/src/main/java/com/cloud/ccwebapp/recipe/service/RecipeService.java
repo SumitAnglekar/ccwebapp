@@ -76,7 +76,7 @@ public class RecipeService {
             throw new RecipeNotFoundException("Recipe is not present!!");
         }
         Recipe recipeDb = dbRecordRecipe.get();
-        Optional<User> dbUser = userRepository.findById(recipeDb.getAuthor_id());
+        Optional<User> dbUser = userRepository.findById(recipeDb.getAuthorId());
         if (!dbUser.isPresent()) {
             LOGGER.error("Invalid userId");
             throw new InvalidInputException("Invalid user id");
@@ -103,7 +103,7 @@ public class RecipeService {
             recipeHelper.isRecipeValid(recipe);
 
             User user = dbRecord.get();
-            recipe.setAuthor_id(user.getId());
+            recipe.setAuthorId(user.getId());
             recipe.setTotal_time_in_min(recipe.getCook_time_in_min() + recipe.getPrep_time_in_min());
             long start = System.currentTimeMillis();
             recipeRepository.save(recipe);
@@ -122,7 +122,7 @@ public class RecipeService {
             LOGGER.error("Recipe with recipeId "+recipe.getId()+" is not present");
             throw new RecipeNotFoundException("Recipe is not present!!");
             }
-        Optional<User> dbUser = userRepository.findById(dbRecipe.get().getAuthor_id());
+        Optional<User> dbUser = userRepository.findById(dbRecipe.get().getAuthorId());
         if (!dbUser.isPresent()) {
             LOGGER.error("Error has been occured for recipeId "+recipe.getId());
             throw new InvalidInputException("Unknown error");
@@ -168,7 +168,7 @@ public class RecipeService {
         List<Recipe> userRecipes = new ArrayList<>();
         Optional<User> dbUser = userRepository.findUserByEmailaddress(authorEmail);
         if(dbUser.isPresent()) {
-            userRecipes = recipeRepository.findAllByAuthor_id();
+            userRecipes = recipeRepository.findAllByAuthorId(dbUser.get().getId());
         }
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("from", "noreply@"+webappDomain);

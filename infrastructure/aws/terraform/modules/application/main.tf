@@ -108,6 +108,7 @@ resource "aws_lb_target_group" "alb-target-group" {
   }
 }
 
+##############################
 #### SECURITY GROUP #####
 ##############################
 
@@ -572,7 +573,7 @@ EOF
 }
 
 resource "aws_iam_policy" "CircleCI-Lambda" {
-  name = "circleci_s3_policy"
+  name = "circleci_s3_policy_lambda"
   policy = <<EOF
 {
   "Version": "2012-10-17",
