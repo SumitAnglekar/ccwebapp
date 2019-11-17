@@ -130,12 +130,12 @@ resource "aws_security_group" "loadbalancer" {
   #   cidr_blocks  = ["0.0.0.0/0"]
   # }
   # // Egress is used here to communicate anywhere with any given protocol
-  # egress {
-  #   from_port = 0
-  #   to_port = 0
-  #   protocol = "-1"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   tags          = {
     Name        = "LoadBalancer Security Group"
     Environment = "${var.env}"
