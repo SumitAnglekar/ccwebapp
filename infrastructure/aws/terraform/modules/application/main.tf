@@ -763,17 +763,10 @@ resource "aws_lambda_permission" "with_sns" {
 #Lambda Policy
 //TODO add exact resource names
 resource "aws_iam_policy" "lambda_policy" {
-<<<<<<< HEAD
- name        = "lambda_policy"
- description = "Policy for cloud watch and code deploy"
- policy      = <<EOF
-  {
-=======
   name        = "lambda_policy"
   description = "Policy for cloud watch and code deploy"
   policy      = <<EOF
 {
->>>>>>> ac2a3a6ea69c2b130cc06f7370c260de8b7ee594
    "Version": "2012-10-17",
    "Statement": [
        {
