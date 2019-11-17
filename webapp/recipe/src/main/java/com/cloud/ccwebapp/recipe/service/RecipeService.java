@@ -52,7 +52,7 @@ public class RecipeService {
     private AmazonSNS amazonSNS;
     @Value("${webapp.domain}")
     private String webappDomain;
-    @Value("${sns.topic.arn")
+    @Value("${sns.topic.arn}")
     private String snsTopicArn;
 
     public ResponseEntity<Recipe> getRecipe(UUID id){
