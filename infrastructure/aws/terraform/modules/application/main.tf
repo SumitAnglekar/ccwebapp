@@ -33,7 +33,6 @@ data "aws_ami" "packer_ami" {
 }
 
 # AWS LAUNCH CONFIGURATION
-
 resource "aws_launch_configuration" "asg_launch_config" {
   name          = "asg_launch_config"
   image_id      = "${data.aws_ami.packer_ami.id}"
@@ -80,8 +79,6 @@ resource "aws_autoscaling_group" "autoscaling" {
     propagate_at_launch = true
   }
 }
-
-#
 
 #### SECURITY GROUP #####
 ##LOAD BALANCER SECURITY GROUP
@@ -183,30 +180,22 @@ resource "aws_security_group" "application" {
     protocol    = "tcp"
     cidr_blocks  = ["0.0.0.0/0"]
   }
-  # ingress{
-  #   from_port   = 8080
-  #   to_port     = 8080
-  #   protocol    = "tcp"
-  #   cidr_blocks  = ["0.0.0.0/0"]
-  # }
+  ingress{
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks  = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks  = ["0.0.0.0/0"]
+  }
   tags          = {
     Name        = "Application Security Group"
     Environment = "${var.env}"
   }
-}
-## check this
-# Application security group rule
-resource "aws_security_group_rule" "application"{
-
-  type        = "ingress"
-  from_port   = 8080
-  to_port     = 8080
-  protocol    = "tcp"
-  // cidr_blocks  = "${var.subnet_id_list}"
-  // Source of the traffic should be the loadbalancer security group, hence we pass on the loadbalancer id instance
-  source_security_group_id  = "${aws_security_group.loadbalancer.id}"
-  //Reference the above created application security group
-  security_group_id         = "${aws_security_group.application.id}"
 }
 
 # Database security group
@@ -227,7 +216,6 @@ resource "aws_security_group_rule" "database"{
   from_port   = 5432
   to_port     = 5432
   protocol    = "tcp"
-  // cidr_blocks  = "${var.subnet_id_list}"
   // Source of the traffic should be the application security group, hence we pass on the application id instance
   source_security_group_id  = "${aws_security_group.application.id}"
   //Reference the above created database security group
@@ -277,13 +265,6 @@ resource "aws_elb" "application_loadbalancer" {
     interval = 30
     target = "HTTP:8080/"
   }
-
-  # listener {
-  #   instance_port     = 8080
-  #   instance_protocol = "http"
-  #   lb_port           = 443
-  #   lb_protocol       = "http"
-  # }
 
   listener {
     instance_port      = 8080
@@ -360,11 +341,11 @@ resource "aws_codedeploy_app" "code_deploy_app" {
 }
 
 resource "aws_codedeploy_deployment_group" "code_deploy_deployment_group" {
-  app_name              = "csye6225-webapp"
+  app_name              = "${aws_codedeploy_app.code_deploy_app.name}"
   deployment_group_name = "csye6225-webapp-deployment"
   deployment_config_name = "CodeDeployDefault.AllAtOnce"
   service_role_arn      = "${aws_iam_role.code_deploy_role.arn}"
-
+  autoscaling_groups    = ["${aws_autoscaling_group.autoscaling.name}"]
   ec2_tag_filter {
     key   = "Name"
     type  = "KEY_AND_VALUE"
@@ -608,14 +589,19 @@ resource "aws_iam_role" "code_deploy_role" {
 EOF
 }
 
-# Attach the policy for CodeDeploy role
+# Attach the policy for CodeDeploy role for webapp
 resource "aws_iam_role_policy_attachment" "AWSCodeDeployRole" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
   role       = "${aws_iam_role.code_deploy_role.name}"
 }
 
-#SNS topic and policies
+# Attach the policy for CodeDeploy role for lambda
+resource "aws_iam_role_policy_attachment" "AWSCodeDeployRoleforLambda" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRoleForLambda"
+  role       = "${aws_iam_role.code_deploy_role.name}"
+}
 
+#SNS topic and policies
 resource "aws_sns_topic" "sns_recipes" {
   name = "SNS_Topic_Recipes"
 }
