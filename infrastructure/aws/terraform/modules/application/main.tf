@@ -70,13 +70,33 @@ resource "aws_autoscaling_group" "autoscaling" {
   max_size             = 10
   default_cooldown     = 60
   desired_capacity     = 3
-  load_balancers       = ["${aws_elb.application_loadbalancer.name}"]
+  # load_balancers       = ["${aws_lb.appLoadbalancer.name}"]
   vpc_zone_identifier = ["${var.subnet_id}"]
-  health_check_type = "ELB"
+  
+  target_group_arns    = ["${aws_lb_target_group.alb-target-group.arn}"]
+
   tag {
     key                 = "Name"
     value               = "myEC2Instance"
     propagate_at_launch = true
+  }
+}
+
+resource "aws_lb_target_group" "alb-target-group" {  
+  name     = "alb-target-group"  
+  port     = "8080"  
+  protocol = "HTTP"  
+  vpc_id   = "${var.vpc_id}"   
+  tags     = {    
+    name = "alb-target-group"    
+  }   
+  health_check {    
+    healthy_threshold   = 3
+    unhealthy_threshold = 5
+    timeout             = 5
+    interval            = 30
+    path                = "/"
+    port                = "8080"
   }
 }
 
@@ -85,18 +105,18 @@ resource "aws_autoscaling_group" "autoscaling" {
 resource "aws_security_group" "loadbalancer" {
   name          = "loadbalancer_security_group"
   vpc_id        = "${var.vpc_id}"
-  ingress{
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks  = ["0.0.0.0/0"]
-  }
-  ingress{
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks  = ["0.0.0.0/0"]
-  }
+  # ingress{
+  #   from_port   = 22
+  #   to_port     = 22
+  #   protocol    = "tcp"
+  #   cidr_blocks  = ["0.0.0.0/0"]
+  # }
+  # ingress{
+  #   from_port   = 80
+  #   to_port     = 80
+  #   protocol    = "tcp"
+  #   cidr_blocks  = ["0.0.0.0/0"]
+  # }
   ingress{
     from_port   = 443
     to_port     = 443
@@ -109,13 +129,13 @@ resource "aws_security_group" "loadbalancer" {
     protocol    = "tcp"
     cidr_blocks  = ["0.0.0.0/0"]
   }
-  // Egress is used here to communicate anywhere with any given protocol
-  egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  # // Egress is used here to communicate anywhere with any given protocol
+  # egress {
+  #   from_port = 0
+  #   to_port = 0
+  #   protocol = "-1"
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
   tags          = {
     Name        = "LoadBalancer Security Group"
     Environment = "${var.env}"
@@ -253,30 +273,53 @@ resource "aws_db_instance" "myRDS" {
 }
 
 # LoadBalancer
-resource "aws_elb" "application_loadbalancer" {
-  name               = "ApplicationLoadbalancer"
-  security_groups    = ["${aws_security_group.loadbalancer.id}"]
-  subnets            = ["${var.subnet_id}"]
+# resource "aws_elb" "appLoadbalancer" {
+#   name               = "ApplicationLoadbalancer"
+#   security_groups    = ["${aws_security_group.loadbalancer.id}"]
+#   subnets            = ["${var.subnet_id}"]
   
-  health_check {
-    healthy_threshold = 3
-    unhealthy_threshold = 5
-    timeout = 5
-    interval = 30
-    target = "HTTP:8080/"
-  }
+#   health_check {
+#     healthy_threshold = 3
+#     unhealthy_threshold = 5
+#     timeout = 5
+#     interval = 30
+#     target = "HTTP:8080/"
+#   }
 
-  listener {
-    instance_port      = 8080
-    instance_protocol  = "http"
-    lb_port            = 443
-    lb_protocol        = "https"
-    ssl_certificate_id = "${data.aws_acm_certificate.aws_ssl_certificate.arn}"
-  }
+#   listener {
+#     instance_port      = 8080
+#     instance_protocol  = "http"
+#     lb_port            = 443
+#     lb_protocol        = "https"
+#     ssl_certificate_id = "${data.aws_acm_certificate.aws_ssl_certificate.arn}"
+#   }
 
+# }
+
+resource "aws_lb" "appLoadbalancer" {
+  name               = "appLoadbalancer"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = ["${aws_security_group.loadbalancer.id}"]
+  subnets            = "${var.subnet_id_list}"
+  ip_address_type    = "ipv4"
+  tags = {
+    Environment = "${var.env}"
+    Name = "appLoadbalancer"
+  }
 }
 
+resource "aws_lb_listener" "webapp_listener" {
+  load_balancer_arn = "${aws_lb.appLoadbalancer.arn}"
+  port              = "443"
+  protocol          = "HTTPS"
+  certificate_arn   = "${data.aws_acm_certificate.aws_ssl_certificate.arn}"
 
+  default_action {
+    type             = "forward"
+    target_group_arn = "${aws_lb_target_group.alb-target-group.arn}"
+  }
+}
 
 # # EC2 Instance
 # resource "aws_instance" "ec2_instance" {
@@ -346,6 +389,13 @@ resource "aws_codedeploy_deployment_group" "code_deploy_deployment_group" {
   deployment_config_name = "CodeDeployDefault.AllAtOnce"
   service_role_arn      = "${aws_iam_role.code_deploy_role.arn}"
   autoscaling_groups    = ["${aws_autoscaling_group.autoscaling.name}"]
+
+  load_balancer_info {
+    target_group_info {
+      name = "${aws_lb_target_group.alb-target-group.name}"
+    }
+  }
+
   ec2_tag_filter {
     key   = "Name"
     type  = "KEY_AND_VALUE"
@@ -776,8 +826,8 @@ resource "aws_route53_record" "recordset" {
   type    = "A"
   
   alias {
-    name    = "${aws_elb.application_loadbalancer.dns_name}"
-    zone_id = "${aws_elb.application_loadbalancer.zone_id}"
+    name    = "${aws_lb.appLoadbalancer.dns_name}"
+    zone_id = "${aws_lb.appLoadbalancer.zone_id}"
     evaluate_target_health = true
   }
 }
