@@ -81,6 +81,11 @@ resource "aws_autoscaling_group" "autoscaling" {
   load_balancers       = ["${aws_elb.application_loadbalancer.name}"]
   vpc_zone_identifier = ["${var.subnet_id}"]
   health_check_type = "ELB"
+  tag {
+    key                 = "Name"
+    value               = "myEC2Instance"
+    propagate_at_launch = true
+  }
 }
 
 ##############################
@@ -147,12 +152,12 @@ resource "aws_autoscaling_policy" "WebServerScaleDownPolicy" {
 resource "aws_cloudwatch_metric_alarm" "CPUAlarmHigh" {
   alarm_name          = "CPUAlarmHigh"
   comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "2"
+  evaluation_periods  = "3"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/EC2"
-  period              = "300"
+  period              = "120"
   statistic           = "Average"
-  threshold           = "90"
+  threshold           = "10"
   dimensions = {
     AutoScalingGroupName = "${aws_autoscaling_group.autoscaling.name}"
   }
@@ -163,12 +168,12 @@ resource "aws_cloudwatch_metric_alarm" "CPUAlarmHigh" {
 resource "aws_cloudwatch_metric_alarm" "CPUAlarmLow" {
   alarm_name          = "CPUAlarmLow"
   comparison_operator = "LessThanThreshold"
-  evaluation_periods  = "2"
+  evaluation_periods  = "3"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/EC2"
-  period              = "300"
+  period              = "120"
   statistic           = "Average"
-  threshold           = "70"
+  threshold           = "8"
   dimensions = {
     AutoScalingGroupName = "${aws_autoscaling_group.autoscaling.name}"
   }
@@ -186,24 +191,22 @@ resource "aws_security_group" "application" {
     protocol    = "tcp"
     cidr_blocks  = ["0.0.0.0/0"]
   }
+  ingress{
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks  = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks  = ["0.0.0.0/0"]
+  }
   tags          = {
     Name        = "Application Security Group"
     Environment = "${var.env}"
   }
-}
-## check this
-# Application security group rule
-resource "aws_security_group_rule" "application"{
-
-  type        = "ingress"
-  from_port   = 8080
-  to_port     = 8080
-  protocol    = "tcp"
-  // cidr_blocks  = "${var.subnet_id_list}"
-  // Source of the traffic should be the loadbalancer security group, hence we pass on the loadbalancer id instance
-  source_security_group_id  = "${aws_security_group.loadbalancer.id}"
-  //Reference the above created application security group
-  security_group_id         = "${aws_security_group.application.id}"
 }
 
 # Database security group
@@ -224,7 +227,6 @@ resource "aws_security_group_rule" "database"{
   from_port   = 5432
   to_port     = 5432
   protocol    = "tcp"
-  // cidr_blocks  = "${var.subnet_id_list}"
   // Source of the traffic should be the application security group, hence we pass on the application id instance
   source_security_group_id  = "${aws_security_group.application.id}"
   //Reference the above created database security group
@@ -356,11 +358,11 @@ resource "aws_codedeploy_app" "code_deploy_app" {
 }
 
 resource "aws_codedeploy_deployment_group" "code_deploy_deployment_group" {
-  app_name              = "csye6225-webapp"
+  app_name              = "${aws_codedeploy_app.code_deploy_app.name}"
   deployment_group_name = "csye6225-webapp-deployment"
   deployment_config_name = "CodeDeployDefault.AllAtOnce"
   service_role_arn      = "${aws_iam_role.code_deploy_role.arn}"
-
+  autoscaling_groups    = ["${aws_autoscaling_group.autoscaling.name}"]
   ec2_tag_filter {
     key   = "Name"
     type  = "KEY_AND_VALUE"
@@ -604,14 +606,19 @@ resource "aws_iam_role" "code_deploy_role" {
 EOF
 }
 
-# Attach the policy for CodeDeploy role
+# Attach the policy for CodeDeploy role for webapp
 resource "aws_iam_role_policy_attachment" "AWSCodeDeployRole" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
   role       = "${aws_iam_role.code_deploy_role.name}"
 }
 
-#SNS topic and policies
+# Attach the policy for CodeDeploy role for lambda
+resource "aws_iam_role_policy_attachment" "AWSCodeDeployRoleforLambda" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRoleForLambda"
+  role       = "${aws_iam_role.code_deploy_role.name}"
+}
 
+#SNS topic and policies
 resource "aws_sns_topic" "sns_recipes" {
   name = "SNS_Topic_Recipes"
 }
