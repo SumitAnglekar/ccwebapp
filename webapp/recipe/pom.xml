@@ -11,7 +11,7 @@
 	<groupId>com.cloud.ccwebapp</groupId>
 	<artifactId>recipe</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>recipe</name>
+	<name>ROOT</name>
 	<packaging>war</packaging>
 	<description>Cloud Assignment - Recipe Management</description>
 

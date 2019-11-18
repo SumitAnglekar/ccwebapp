@@ -890,4 +890,3 @@ resource "aws_route53_record" "recordset" {
     evaluate_target_health = true
   }
 }
-
