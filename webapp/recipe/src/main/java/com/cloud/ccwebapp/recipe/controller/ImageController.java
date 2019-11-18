@@ -1,7 +1,6 @@
 package com.cloud.ccwebapp.recipe.controller;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.cloud.ccwebapp.recipe.configuration.MetricsConfiguration;
 import com.cloud.ccwebapp.recipe.exception.CustomizedResponseEntityExceptionHandler;
 import com.cloud.ccwebapp.recipe.exception.InvalidImageFormatException;
 import com.cloud.ccwebapp.recipe.exception.RecipeNotFoundException;
@@ -122,7 +121,7 @@ public class ImageController {
     Recipe recipe = recipeService.getRecipe(recipeId).getBody();
     if (recipe != null) {
       Optional<User> dbRecord = userRepository.findUserByEmailaddress(authentication.getName());
-      if (dbRecord.get().getId().equals(recipe.getAuthor_id())) {
+      if (dbRecord.get().getId().equals(recipe.getAuthorId())) {
         LOGGER.info("Deleting image id "+imageId+" for recipeId "+recipeId);
         Object object = imageService.deleteImage(imageId, recipe);
         long end = System.currentTimeMillis();

@@ -103,11 +103,13 @@ resource "aws_lb_target_group" "alb-target-group" {
     unhealthy_threshold = 5
     timeout             = 5
     interval            = 30
-    path                = "/"
+    path                = "/healthstatus"
     port                = "8080"
+    matcher = "200"
   }
 }
 
+##############################
 #### SECURITY GROUP #####
 ##############################
 
@@ -572,7 +574,7 @@ EOF
 }
 
 resource "aws_iam_policy" "CircleCI-Lambda" {
-  name = "circleci_s3_policy"
+  name = "circleci_s3_policy_lambda"
   policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -686,7 +688,7 @@ resource "aws_iam_role_policy_attachment" "AWSCodeDeployRoleforLambda" {
 
 #SNS topic and policies
 resource "aws_sns_topic" "sns_recipes" {
-  name = "SNS_Topic_Recipes"
+  name = "email_request"
 }
 
 resource "aws_sns_topic_policy" "sns_recipes_policy" {
@@ -732,6 +734,31 @@ data "aws_iam_policy_document" "sns-topic-policy" {
 
     sid = "__default_statement_ID"
   }
+}
+
+# IAM policy for SNS
+resource "aws_iam_policy" "sns_iam_policy" {
+  name = "ec2_iam_policy"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "SNS:Publish"
+      ],
+      "Resource": "${aws_sns_topic.sns_recipes.arn}"
+    }
+  ]
+}
+EOF
+}
+
+# Attach the SNS topic policy to the EC2 role
+resource "aws_iam_role_policy_attachment" "ec2_sns" {
+  policy_arn = "${aws_iam_policy.sns_iam_policy.arn}"
+  role = "${aws_iam_role.EC2_Role.name}"
 }
 
 #Lambda Function
@@ -830,17 +857,6 @@ resource "aws_iam_role_policy_attachment" "lambda_role_policy_attach" {
   policy_arn = "${aws_iam_policy.lambda_policy.arn}"
 }
 
-//#Cloudwatch log group
-//data "aws_cloudwatch_log_group" "lambda_cloudwatch_group" {
-//  name = "csye6225_fall2019"
-//}
-//
-//resource "aws_cloudwatch_log_stream" "lambda_cloudwatch_stream" {
-//  name           = "lambda"
-//  log_group_name = "${data.aws_cloudwatch_log_group.lambda_cloudwatch_group.name}"
-//}
-
-
 # Find a certificate issued by (not imported into) ACM
 data "aws_acm_certificate" "aws_ssl_certificate" {
   domain = "*.${var.domainName}"
@@ -864,4 +880,3 @@ resource "aws_route53_record" "recordset" {
     evaluate_target_health = true
   }
 }
-
