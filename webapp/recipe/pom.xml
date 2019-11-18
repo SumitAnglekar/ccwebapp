@@ -11,7 +11,7 @@
 	<groupId>com.cloud.ccwebapp</groupId>
 	<artifactId>recipe</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ROOT</name>
+	<name>recipe</name>
 	<packaging>war</packaging>
 	<description>Cloud Assignment - Recipe Management</description>
 
@@ -108,7 +108,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>recipe</finalName>
+		<finalName>ROOT</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
