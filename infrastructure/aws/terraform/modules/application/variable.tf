@@ -79,3 +79,8 @@ variable "aws_ssh_key" {
   type = "string"
   description = "The ssh key pair name configured in AWS"
 }
+
+variable "timeToLive" {
+  type = number
+  description = "TimeToLive for DynamoDB"
+}

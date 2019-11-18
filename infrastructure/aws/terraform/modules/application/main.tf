@@ -769,6 +769,11 @@ resource "aws_lambda_function" "sns_lambda_email" {
   handler       = "index.handler"
   runtime       = "nodejs8.10"
   source_code_hash = "${filebase64sha256("function.zip")}"
+  environment {
+    variables = {
+      timeToLive = "${var.timeToLive}"
+    }
+  }
 }
 
 #SNS topic subscription to Lambda
