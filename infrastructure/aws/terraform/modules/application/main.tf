@@ -103,8 +103,9 @@ resource "aws_lb_target_group" "alb-target-group" {
     unhealthy_threshold = 5
     timeout             = 5
     interval            = 30
-    path                = "/"
+    path                = "/healthstatus"
     port                = "8080"
+    matcher = "200"
   }
 }
 
@@ -855,17 +856,6 @@ resource "aws_iam_role_policy_attachment" "lambda_role_policy_attach" {
   role       = "${aws_iam_role.iam_for_lambda.name}"
   policy_arn = "${aws_iam_policy.lambda_policy.arn}"
 }
-
-//#Cloudwatch log group
-//data "aws_cloudwatch_log_group" "lambda_cloudwatch_group" {
-//  name = "csye6225_fall2019"
-//}
-//
-//resource "aws_cloudwatch_log_stream" "lambda_cloudwatch_stream" {
-//  name           = "lambda"
-//  log_group_name = "${data.aws_cloudwatch_log_group.lambda_cloudwatch_group.name}"
-//}
-
 
 # Find a certificate issued by (not imported into) ACM
 data "aws_acm_certificate" "aws_ssl_certificate" {
