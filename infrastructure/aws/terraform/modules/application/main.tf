@@ -859,7 +859,7 @@ resource "aws_iam_role_policy_attachment" "lambda_role_policy_attach" {
 
 # Find a certificate issued by (not imported into) ACM
 data "aws_acm_certificate" "aws_ssl_certificate" {
-  domain = "*.${var.domainName}"
+  domain = "${var.env}.${var.domainName}"
   types       = ["AMAZON_ISSUED"]
   most_recent = true
 }
