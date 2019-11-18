@@ -868,13 +868,12 @@ resource "aws_route53_record" "recordset" {
 
 #Firewall Config
 
-resource "aws_cloudformation_stack" "firewallowasp" {
-    name: "firewallowasp"
-
-    parameters{
-      
+resource "aws_cloudformation_stack" "network" {
+    name = "networking-stack"
+    
+    parameters = {
+      ALB = "${aws_lb.appLoadbalancer.arn}"
     }
-
       template_body = <<STACK
       { 
          "Parameters": {
@@ -886,6 +885,11 @@ resource "aws_cloudformation_stack" "firewallowasp" {
             "IPtoBlock2": {
                 "Description": "IPAddress to be blocked",
                 "Default": "192.0.7.0/24",
+                "Type": "String"
+            },
+            "ALB":{
+                "Description": "LoadBalancer arn for Rule10",
+                "Default": "${aws_lb.appLoadbalancer.arn}",
                 "Type": "String"
             }
           },
@@ -1541,7 +1545,7 @@ resource "aws_cloudformation_stack" "firewallowasp" {
             ],
             "Properties": {
                 "ResourceArn": {
-                    "Fn::ImportValue": "ApplicationLoadBalancer"
+                    "Ref": "ALB"
                 },
                 "WebACLId": {
                     "Ref": "MyWebACL"
