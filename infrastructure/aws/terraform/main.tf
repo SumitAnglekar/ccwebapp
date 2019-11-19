@@ -28,6 +28,7 @@ module "application" {
   subnetCidrBlock = "${var.subnetCidrBlock}"
   aws_db_subnet_group_name = module.networking.aws_db_subnet_group_name
   aws_ssh_key = "${var.aws_ssh_key}"
+  timeToLive = "${var.timeToLive}"
 
   vpc_id = module.networking.vpc_id
   subnet_id = module.networking.subnet_id

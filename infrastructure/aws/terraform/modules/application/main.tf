@@ -769,6 +769,11 @@ resource "aws_lambda_function" "sns_lambda_email" {
   handler       = "index.handler"
   runtime       = "nodejs8.10"
   source_code_hash = "${filebase64sha256("function.zip")}"
+  environment {
+    variables = {
+      timeToLive = "${var.timeToLive}"
+    }
+  }
 }
 
 #SNS topic subscription to Lambda
@@ -859,7 +864,7 @@ resource "aws_iam_role_policy_attachment" "lambda_role_policy_attach" {
 
 # Find a certificate issued by (not imported into) ACM
 data "aws_acm_certificate" "aws_ssl_certificate" {
-  domain = "*.${var.domainName}"
+  domain = "${var.env}.${var.domainName}"
   types       = ["AMAZON_ISSUED"]
   most_recent = true
 }
