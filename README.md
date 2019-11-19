@@ -68,3 +68,12 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
 6. Trigger the circleci build to deploy new version of the app:
     `curl -u <CIRCLECI_TOKEN>: -d build_parameters[CIRCLE_JOB]=build https://circleci.com/api/v1.1/project/github/<ORGANIZATION>/ccwebapp/tree/<BRANCH>`
 7. The build should complete sucessfully deploying the application to the EC2 instance and also uploading the latest artifact in the S3 bucket.
+
+## JMETER
+
+1. Create a plan and name it.
+2. Create two independent thread groups (USER Thread Group, RECIPE Thread Group). 
+3. `USER Thread Group` includes user post request, it's protocols, server IP and path.
+4. Similarly, `RECIPE Thread Group` includes user post request.
+5. Both the thread groups have Http Header Manager (to provide the API headers), View Results in Table and View Results in Tree (to check the API status after hitting the endpoints)
+ 
