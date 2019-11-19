@@ -162,7 +162,7 @@ resource "aws_cloudwatch_metric_alarm" "CPUAlarmHigh" {
   namespace           = "AWS/EC2"
   period              = "60"
   statistic           = "Average"
-  threshold           = "90"
+  threshold           = "50"
   dimensions = {
     AutoScalingGroupName = "${aws_autoscaling_group.autoscaling.name}"
   }
@@ -178,7 +178,7 @@ resource "aws_cloudwatch_metric_alarm" "CPUAlarmLow" {
   namespace           = "AWS/EC2"
   period              = "60"
   statistic           = "Average"
-  threshold           = "70"
+  threshold           = "30"
   dimensions = {
     AutoScalingGroupName = "${aws_autoscaling_group.autoscaling.name}"
   }

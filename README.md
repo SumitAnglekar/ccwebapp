@@ -71,9 +71,8 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
 
 ## JMETER
 
-1. Create a plan and name it.
-2. Create two independent thread groups (USER Thread Group, RECIPE Thread Group). 
-3. `USER Thread Group` includes user post request, it's protocols, server IP and path.
-4. Similarly, `RECIPE Thread Group` includes user post request.
-5. Both the thread groups have Http Header Manager (to provide the API headers), View Results in Table and View Results in Tree (to check the API status after hitting the endpoints)
- 
+1. Download and install jmeter locally from the link: http://jmeter.apache.org/download_jmeter.cgi
+2. Launch jmeter and open the plan from the directory ./jmeter/recipeTest.jmx
+3. To create a user, enable `USER Thread Group` and update the `User Post` request with the data you want to post
+4. Similarly, to create recipes enable `RECIPE Thread Group` and update the credentials in `HTTP Authorization Manager` along with the recipe details in `recipepost` request
+5. You can update the number of consecutive requests you want by updating the Thread group's Thread properties
