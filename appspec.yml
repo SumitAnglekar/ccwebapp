@@ -4,7 +4,7 @@ os: linux
 
 # giving permission to files and folders to centos user in home directory
 files:
-  - source: ./webapp/recipe/target/recipe.war
+  - source: ./webapp/recipe/target/ROOT.war
     destination: /opt/tomcat/webapps/
 
 hooks:

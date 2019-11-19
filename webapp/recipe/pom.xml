@@ -108,7 +108,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>recipe</finalName>
+		<finalName>ROOT</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
