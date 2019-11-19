@@ -24,6 +24,7 @@ resource "aws_s3_bucket" "bucket" {
   }
 }
 
+// Fetch latest published AMI
 data "aws_ami" "packer_ami" {
   owners = ["self"]
   most_recent = true
@@ -117,31 +118,13 @@ resource "aws_lb_target_group" "alb-target-group" {
 resource "aws_security_group" "loadbalancer" {
   name          = "loadbalancer_security_group"
   vpc_id        = "${var.vpc_id}"
-  # ingress{
-  #   from_port   = 22
-  #   to_port     = 22
-  #   protocol    = "tcp"
-  #   cidr_blocks  = ["0.0.0.0/0"]
-  # }
-  # ingress{
-  #   from_port   = 80
-  #   to_port     = 80
-  #   protocol    = "tcp"
-  #   cidr_blocks  = ["0.0.0.0/0"]
-  # }
   ingress{
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks  = ["0.0.0.0/0"]
   }
-  # ingress{
-  #   from_port   = 8080
-  #   to_port     = 8080
-  #   protocol    = "tcp"
-  #   cidr_blocks  = ["0.0.0.0/0"]
-  # }
-  # // Egress is used here to communicate anywhere with any given protocol
+  # Egress is used here to communicate anywhere with any given protocol
   egress {
     from_port = 0
     to_port = 0
@@ -154,6 +137,7 @@ resource "aws_security_group" "loadbalancer" {
   }
 }
 
+## Auto scaling policies
 resource "aws_autoscaling_policy" "WebServerScaleUpPolicy" {
   name                   = "WebServerScaleUpPolicy"
   scaling_adjustment     = 1
@@ -284,30 +268,9 @@ resource "aws_db_instance" "myRDS" {
 
 }
 
-# LoadBalancer
-# resource "aws_elb" "appLoadbalancer" {
-#   name               = "ApplicationLoadbalancer"
-#   security_groups    = ["${aws_security_group.loadbalancer.id}"]
-#   subnets            = ["${var.subnet_id}"]
-  
-#   health_check {
-#     healthy_threshold = 3
-#     unhealthy_threshold = 5
-#     timeout = 5
-#     interval = 30
-#     target = "HTTP:8080/"
-#   }
-
-#   listener {
-#     instance_port      = 8080
-#     instance_protocol  = "http"
-#     lb_port            = 443
-#     lb_protocol        = "https"
-#     ssl_certificate_id = "${data.aws_acm_certificate.aws_ssl_certificate.arn}"
-#   }
-
-# }
-
+##########################
+# Load Balancer resource
+##########################
 resource "aws_lb" "appLoadbalancer" {
   name               = "appLoadbalancer"
   internal           = false
@@ -551,7 +514,6 @@ resource "aws_iam_policy" "circleci_user_policy" {
 EOF
 }
 
-
 resource "aws_iam_policy" "CircleCI-Upload-To-S3" {
   name = "circleci_s3_policy"
   policy = <<EOF
@@ -677,12 +639,6 @@ EOF
 # Attach the policy for CodeDeploy role for webapp
 resource "aws_iam_role_policy_attachment" "AWSCodeDeployRole" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
-  role       = "${aws_iam_role.code_deploy_role.name}"
-}
-
-# # Attach the policy for CodeDeploy role for lambda
-resource "aws_iam_role_policy_attachment" "AWSCodeDeployRoleforLambda" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRoleForLambda"
   role       = "${aws_iam_role.code_deploy_role.name}"
 }
 
@@ -864,7 +820,7 @@ resource "aws_iam_role_policy_attachment" "lambda_role_policy_attach" {
 
 # Find a certificate issued by (not imported into) ACM
 data "aws_acm_certificate" "aws_ssl_certificate" {
-  domain = "${var.env}.${var.domainName}"
+  domain = "*.${var.domainName}"
   types       = ["AMAZON_ISSUED"]
   most_recent = true
 }
