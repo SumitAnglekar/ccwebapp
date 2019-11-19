@@ -615,6 +615,12 @@ resource "aws_iam_user_policy_attachment" "circleci_codedeploy_policy_attach" {
   policy_arn = "${aws_iam_policy.CircleCI-Code-Deploy.arn}"
 }
 
+resource "aws_iam_user_policy_attachment" "circleci_lambda_policy_attach" {
+  user = "circleci"
+  policy_arn = "${aws_iam_policy.CircleCI-Lambda.arn}"
+}
+
+
 # IAM Role for CodeDeploy
 resource "aws_iam_role" "code_deploy_role" {
   name = "CodeDeployServiceRole"
