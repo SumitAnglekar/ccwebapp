@@ -755,7 +755,6 @@ resource "aws_lambda_permission" "with_sns" {
 }
 
 #Lambda Policy
-//TODO add exact resource names
 resource "aws_iam_policy" "lambda_policy" {
   name        = "lambda_policy"
   description = "Policy for cloud watch and code deploy"
@@ -780,7 +779,7 @@ resource "aws_iam_policy" "lambda_policy" {
              "dynamodb:PutItem",
              "dynamodb:UpdateItem"
          ],
-         "Resource": "*"
+         "Resource": "arn:aws:dynamodb:${var.region}:${local.user_account_id}:table/${var.dynamoName}"
        },
        {
          "Sid": "LambdaSESAccess",
