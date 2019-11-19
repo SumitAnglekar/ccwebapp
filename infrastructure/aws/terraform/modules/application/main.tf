@@ -157,12 +157,12 @@ resource "aws_autoscaling_policy" "WebServerScaleDownPolicy" {
 resource "aws_cloudwatch_metric_alarm" "CPUAlarmHigh" {
   alarm_name          = "CPUAlarmHigh"
   comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "3"
+  evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/EC2"
-  period              = "120"
+  period              = "60"
   statistic           = "Average"
-  threshold           = "10"
+  threshold           = "50"
   dimensions = {
     AutoScalingGroupName = "${aws_autoscaling_group.autoscaling.name}"
   }
@@ -173,12 +173,12 @@ resource "aws_cloudwatch_metric_alarm" "CPUAlarmHigh" {
 resource "aws_cloudwatch_metric_alarm" "CPUAlarmLow" {
   alarm_name          = "CPUAlarmLow"
   comparison_operator = "LessThanThreshold"
-  evaluation_periods  = "3"
+  evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/EC2"
-  period              = "120"
+  period              = "60"
   statistic           = "Average"
-  threshold           = "8"
+  threshold           = "30"
   dimensions = {
     AutoScalingGroupName = "${aws_autoscaling_group.autoscaling.name}"
   }
@@ -825,7 +825,7 @@ resource "aws_iam_role_policy_attachment" "lambda_role_policy_attach" {
 
 # Find a certificate issued by (not imported into) ACM
 data "aws_acm_certificate" "aws_ssl_certificate" {
-  domain = "*.${var.domainName}"
+  domain = "${var.env}.${var.domainName}"
   types       = ["AMAZON_ISSUED"]
   most_recent = true
 }
