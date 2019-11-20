@@ -157,12 +157,12 @@ resource "aws_autoscaling_policy" "WebServerScaleDownPolicy" {
 resource "aws_cloudwatch_metric_alarm" "CPUAlarmHigh" {
   alarm_name          = "CPUAlarmHigh"
   comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "3"
+  evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/EC2"
-  period              = "120"
+  period              = "60"
   statistic           = "Average"
-  threshold           = "10"
+  threshold           = "50"
   dimensions = {
     AutoScalingGroupName = "${aws_autoscaling_group.autoscaling.name}"
   }
@@ -173,12 +173,12 @@ resource "aws_cloudwatch_metric_alarm" "CPUAlarmHigh" {
 resource "aws_cloudwatch_metric_alarm" "CPUAlarmLow" {
   alarm_name          = "CPUAlarmLow"
   comparison_operator = "LessThanThreshold"
-  evaluation_periods  = "3"
+  evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/EC2"
-  period              = "120"
+  period              = "60"
   statistic           = "Average"
-  threshold           = "8"
+  threshold           = "30"
   dimensions = {
     AutoScalingGroupName = "${aws_autoscaling_group.autoscaling.name}"
   }
@@ -615,6 +615,12 @@ resource "aws_iam_user_policy_attachment" "circleci_codedeploy_policy_attach" {
   policy_arn = "${aws_iam_policy.CircleCI-Code-Deploy.arn}"
 }
 
+resource "aws_iam_user_policy_attachment" "circleci_lambda_policy_attach" {
+  user = "circleci"
+  policy_arn = "${aws_iam_policy.CircleCI-Lambda.arn}"
+}
+
+
 # IAM Role for CodeDeploy
 resource "aws_iam_role" "code_deploy_role" {
   name = "CodeDeployServiceRole"
@@ -749,7 +755,6 @@ resource "aws_lambda_permission" "with_sns" {
 }
 
 #Lambda Policy
-//TODO add exact resource names
 resource "aws_iam_policy" "lambda_policy" {
   name        = "lambda_policy"
   description = "Policy for cloud watch and code deploy"
@@ -774,7 +779,7 @@ resource "aws_iam_policy" "lambda_policy" {
              "dynamodb:PutItem",
              "dynamodb:UpdateItem"
          ],
-         "Resource": "*"
+         "Resource": "arn:aws:dynamodb:${var.region}:${local.user_account_id}:table/${var.dynamoName}"
        },
        {
          "Sid": "LambdaSESAccess",
@@ -820,7 +825,7 @@ resource "aws_iam_role_policy_attachment" "lambda_role_policy_attach" {
 
 # Find a certificate issued by (not imported into) ACM
 data "aws_acm_certificate" "aws_ssl_certificate" {
-  domain = "*.${var.domainName}"
+  domain = "${var.env}.${var.domainName}"
   types       = ["AMAZON_ISSUED"]
   most_recent = true
 }

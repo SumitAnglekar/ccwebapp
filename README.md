@@ -34,17 +34,18 @@
 8. Restart tomcat to deploy the application.
 
 ## Application Endpoints
-1. Register a User ({instance_ip}:8080/recipe/v1/user)
-2. Get User records ({instance_ip}:8080/recipe/v1/user/self)
-3. Update User records ({instance_ip}:8080/recipe/v1/user/self)
-4. Register a Recipe ({instance_ip}:8080/recipe/v1/recipe/)
-5. Get recipe Information ({instance_ip}:8080/recipe/v1/recipe/{id})
-6. Delete a particular recipe ({instance_ip}:8080/recipe/v1/recipe/{id})
-7. Update recipe Information ({instance_ip}:8080/recipe/v1/recipe/{id})
-8. Get newest recipe information ({instance_ip}:8080/recipe/v1/recipes)
-9. Register an image ({instance_ip}:8080/recipe/v1/recipe/{id}/image)
-10. Get recipe image ({instance_ip}:8080/recipe/v1/recipe/{recipeId}/image/{imageId})
-11. Delete recipe image ({instance_ip}:8080/recipe/v1/recipe/{recipeId}/image/{imageId})
+1. Register a User (https://{domain_name}/recipe/v1/user)
+2. Get User records (https://{domain_name}/recipe/v1/user/self)
+3. Update User records (https://{domain_name}/recipe/v1/user/self)
+4. Register a Recipe (https://{domain_name}/recipe/v1/recipe/)
+5. Get recipe Information (https://{domain_name}/recipe/v1/recipe/{id})
+6. Delete a particular recipe (https://{domain_name}/recipe/v1/recipe/{id})
+7. Update recipe Information (https://{domain_name}/recipe/v1/recipe/{id})
+8. Get newest recipe information (https://{domain_name}/recipe/v1/recipes)
+9. Register an image (https://{domain_name}/recipe/v1/recipe/{id}/image)
+10. Get recipe image (https://{domain_name}/recipe/v1/recipe/{recipeId}/image/{imageId})
+11. Delete recipe image (https://{domain_name}/recipe/v1/recipe/{recipeId}/image/{imageId})
+12. Get all your recipes over email (https://{domain_name}/v1/myrecipes)
 
 ## Running Tests
 1. Run the "run all tests" configuration for JUnit.
@@ -68,6 +69,19 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
 6. Trigger the circleci build to deploy new version of the app:
     `curl -u <CIRCLECI_TOKEN>: -d build_parameters[CIRCLE_JOB]=build https://circleci.com/api/v1.1/project/github/<ORGANIZATION>/ccwebapp/tree/<BRANCH>`
 7. The build should complete sucessfully deploying the application to the EC2 instance and also uploading the latest artifact in the S3 bucket.
+8. Trigger the circleci build to update the new version of lambda function:
+    `curl -u <CIRCLECI_TOKEN>: -d build_parameters[CIRCLE_JOB]=build https://circleci.com/api/v1.1/project/github/<ORGANIZATION>/csye6225-fa19-lambda/tree/<BRANCH>`
+9. The build should complete sucessfully updating the lambda function and also uploading the latest artifact in the S3 bucket.
+
+## SSL Certificate:
+1. Register your domain in the certificate manager and get it verified (ex. `*.csye.me`)
+1. Verify you have your domain set in SES Domains (ex.`dev.csye.me`/`prod.csye.me`)
+2. Create a new recipient email address under `Email Addresses` (ex.`noreply@dev.csye.me`)  
+3. Next, create a rule set under SES home.
+4. Create a new S3 bucket (ex. `email.dev.csye.me`)for receiving emails.
+5. Add the recipient email id created previously (ex.`noreply@dev.csye.me`)
+6. Name the group set (ex. `email_rule`) and create it.
+7. Verify recipient id in the S3 bucket.
 
 ## SSL Certificate:
 1. Register your domain in the certificate manager and get it verified (ex. `*.csye.me`)
@@ -81,9 +95,8 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
 
 ## JMETER
 
-1. Create a plan and name it.
-2. Create two independent thread groups (USER Thread Group, RECIPE Thread Group). 
-3. `USER Thread Group` includes user post request, it's protocols, server IP and path.
-4. Similarly, `RECIPE Thread Group` includes user post request.
-5. Both the thread groups have Http Header Manager (to provide the API headers), View Results in Table and View Results in Tree (to check the API status after hitting the endpoints)
- 
+1. Download and install jmeter locally from the link: http://jmeter.apache.org/download_jmeter.cgi
+2. Launch jmeter and open the plan from the directory ./jmeter/recipeTest.jmx
+3. To create a user, enable `USER Thread Group` and update the `User Post` request with the data you want to post
+4. Similarly, to create recipes enable `RECIPE Thread Group` and update the credentials in `HTTP Authorization Manager` along with the recipe details in `recipepost` request
+5. You can update the number of consecutive requests you want by updating the Thread group's Thread properties
