@@ -1060,7 +1060,7 @@ resource "aws_cloudformation_stack" "network" {
                 ]
             }
         },
-        "DetectXSS": {
+        "wafrXSSSet": {
             "Type": "AWS::WAFRegional::XssMatchSet",
             "Properties": {
                 "Name": "XssMatchSet",
@@ -1092,15 +1092,15 @@ resource "aws_cloudformation_stack" "network" {
                 ]
             }
         },
-        "XSSRule": {
+        "wafrXSSRule": {
             "Type": "AWS::WAFRegional::Rule",
             "Properties": {
-                "Name": "XSSRule",
-                "MetricName": "XSSRule",
+                "Name": "wafrXSSRule",
+                "MetricName": "wafrXSSRule",
                 "Predicates": [
                     {
                         "DataId": {
-                            "Ref": "DetectXSS"
+                            "Ref": "wafrXSSSet"
                         },
                         "Negated": false,
                         "Type": "XssMatch"
@@ -1298,7 +1298,7 @@ resource "aws_cloudformation_stack" "network" {
                 ]
             }
         },
-        "ServerSideIncludesSet": {
+        "wafrCSRFMethodStringSet": {
             "Type": "AWS::WAFRegional::ByteMatchSet",
             "Properties": {
                 "Name": "Server Side Includes Set",
@@ -1378,15 +1378,15 @@ resource "aws_cloudformation_stack" "network" {
                 ]
             }
         },
-        "ServerSideIncludesRule": {
+        "wafrCSRFRule": {
             "Type": "AWS::WAFRegional::Rule",
             "Properties": {
-                "Name": "ServerSideIncludesRule",
-                "MetricName": "ServerSideIncludesRule",
+                "Name": "wafrCSRFRule",
+                "MetricName": "wafrCSRFRule",
                 "Predicates": [
                     {
                         "DataId": {
-                            "Ref": "ServerSideIncludesSet"
+                            "Ref": "wafrCSRFMethodStringSet"
                         },
                         "Negated": false,
                         "Type": "ByteMatch"
@@ -1491,11 +1491,11 @@ resource "aws_cloudformation_stack" "network" {
                     },
                     {
                         "Action": {
-                            "Type": "BLOCK"
+                            "Type": "_e6724743024bb285c8678a56e621e8a4.kirrbxfjtw.acm-validations.aws.BLOCK"
                         },
                         "Priority": 8,
                         "RuleId": {
-                            "Ref": "ServerSideIncludesRule"
+                            "Ref": "wafrCSRFRule"
                         }
                     },
                     {
@@ -1504,7 +1504,7 @@ resource "aws_cloudformation_stack" "network" {
                         },
                         "Priority": 9,
                         "RuleId": {
-                            "Ref": "XSSRule"
+                            "Ref": "wafrXSSRule"
                         }
                     },
                     {
