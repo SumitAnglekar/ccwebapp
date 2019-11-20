@@ -1537,6 +1537,3 @@ resource "aws_cloudformation_stack" "network" {
   }                    
   STACK
 }
-
-#Firewall config ended (Need to pass loadbalancer resource ARN in the final rule and also update the IP for whitelist and blacklist)
-

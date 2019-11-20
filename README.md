@@ -75,13 +75,7 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
 
 ## SSL Certificate:
 1. Register your domain in the certificate manager and get it verified (ex. `*.csye.me`)
-1. Verify you have your domain set in SES Domains (ex.`dev.csye.me`/`prod.csye.me`)
-2. Create a new recipient email address under `Email Addresses` (ex.`noreply@dev.csye.me`)  
-3. Next, create a rule set under SES home.
-4. Create a new S3 bucket (ex. `email.dev.csye.me`)for receiving emails.
-5. Add the recipient email id created previously (ex.`noreply@dev.csye.me`)
-6. Name the group set (ex. `email_rule`) and create it.
-7. Verify recipient id in the S3 bucket.
+2. Verify you have your domain set in SES Domains (ex.`dev.csye.me`/`prod.csye.me`)
 
 ## JMETER
 
