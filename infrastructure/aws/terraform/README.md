@@ -80,3 +80,19 @@
 
 ## Security Group (Application and Database)
 1. We have created 3 ingrees rule to allow TCP traffic to the ports 22,80,443 from anywhere in the world ()
+
+## Firewall OWASP
+1. https://s3.us-east-2.amazonaws.com/awswaf-owasp/owasp_10_base.yml provides the reference for OWASP rules
+2.  The OWASP Top 10 list consists of the 10 most seen application vulnerabilities:
+    1. Injection
+    2. Broken Authentication
+    3. Sensitive data exposure
+    4. XML External Entities (XXE)
+    5. Broken Access control
+    6. Security misconfigurations
+    7. Cross Site Scripting (XSS)
+    8. Insecure Deserialization
+    9. Using Components with known vulnerabilities
+    10. Insufficient logging and monitoring
+3. Verifying the WebACL Association:
+    In the s3 bucket traverse to the security groups to check if the given LB configuration is verified.

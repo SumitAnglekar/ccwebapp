@@ -116,3 +116,9 @@ run.plan
 
 # Crash log files
 crash.log
+
+# Intellij files
+.idea/
+
+# lambda function zip
+function.zip

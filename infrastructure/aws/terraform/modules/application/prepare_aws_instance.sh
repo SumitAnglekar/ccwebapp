@@ -7,5 +7,7 @@ sudo echo 'JAVA_OPTS="$JAVA_OPTS -Dspring.datasource.username='${aws_db_username
 sudo echo 'JAVA_OPTS="$JAVA_OPTS -Dspring.datasource.password='${aws_db_password}'"' >> /opt/tomcat/bin/setenv.sh
 sudo echo 'JAVA_OPTS="$JAVA_OPTS -Daws.region='${aws_region}'"' >> /opt/tomcat/bin/setenv.sh
 sudo echo 'JAVA_OPTS="$JAVA_OPTS -Daws.profile='${aws_profile}'"' >> /opt/tomcat/bin/setenv.sh
+sudo echo 'JAVA_OPTS="$JAVA_OPTS -Dwebapp.domain='${webapp_domain}'"' >> /opt/tomcat/bin/setenv.sh
+sudo echo 'JAVA_OPTS="$JAVA_OPTS -Dsns.topic.arn='${sns_topic_arn}'"' >> /opt/tomcat/bin/setenv.sh
 sudo echo 'JAVA_OPTS="$JAVA_OPTS -Dlogging.file.name=/opt/tomcat/logs/csye6225.log"' >> /opt/tomcat/bin/setenv.sh
 sudo systemctl restart tomcat

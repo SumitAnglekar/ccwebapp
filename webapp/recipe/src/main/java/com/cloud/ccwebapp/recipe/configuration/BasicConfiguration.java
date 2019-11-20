@@ -47,6 +47,8 @@ public class BasicConfiguration extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .antMatchers(HttpMethod.POST, "/v1/user")
                 .permitAll()
+                .antMatchers(HttpMethod.GET, "/healthstatus")
+                .permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()

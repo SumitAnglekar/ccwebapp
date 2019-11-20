@@ -1,5 +1,8 @@
 package com.cloud.ccwebapp.recipe.service;
 
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.model.PublishRequest;
+import com.amazonaws.services.sns.model.PublishResult;
 import com.cloud.ccwebapp.recipe.exception.InvalidInputException;
 import com.cloud.ccwebapp.recipe.exception.RecipeNotFoundException;
 import com.cloud.ccwebapp.recipe.exception.UserNotAuthorizedException;
@@ -10,7 +13,10 @@ import com.cloud.ccwebapp.recipe.repository.NutritionalInformationRepository;
 import com.cloud.ccwebapp.recipe.repository.RecipeRepository;
 import com.cloud.ccwebapp.recipe.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +24,7 @@ import org.springframework.stereotype.Service;
 import com.timgroup.statsd.StatsDClient;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,7 +48,12 @@ public class RecipeService {
 
     @Autowired
     ImageService imageService;
-
+    @Autowired
+    private AmazonSNS amazonSNS;
+    @Value("${webapp.domain}")
+    private String webappDomain;
+    @Value("${sns.topic.arn}")
+    private String snsTopicArn;
 
     public ResponseEntity<Recipe> getRecipe(UUID id){
         Optional<Recipe> dbRecord = recipeRepository.findRecipesById(id);
@@ -65,7 +77,7 @@ public class RecipeService {
             throw new RecipeNotFoundException("Recipe is not present!!");
         }
         Recipe recipeDb = dbRecordRecipe.get();
-        Optional<User> dbUser = userRepository.findById(recipeDb.getAuthor_id());
+        Optional<User> dbUser = userRepository.findById(recipeDb.getAuthorId());
         if (!dbUser.isPresent()) {
             LOGGER.error("Invalid userId");
             throw new InvalidInputException("Invalid user id");
@@ -92,7 +104,7 @@ public class RecipeService {
             recipeHelper.isRecipeValid(recipe);
 
             User user = dbRecord.get();
-            recipe.setAuthor_id(user.getId());
+            recipe.setAuthorId(user.getId());
             recipe.setTotal_time_in_min(recipe.getCook_time_in_min() + recipe.getPrep_time_in_min());
             long start = System.currentTimeMillis();
             recipeRepository.save(recipe);
@@ -111,7 +123,7 @@ public class RecipeService {
             LOGGER.error("Recipe with recipeId "+recipe.getId()+" is not present");
             throw new RecipeNotFoundException("Recipe is not present!!");
             }
-        Optional<User> dbUser = userRepository.findById(dbRecipe.get().getAuthor_id());
+        Optional<User> dbUser = userRepository.findById(dbRecipe.get().getAuthorId());
         if (!dbUser.isPresent()) {
             LOGGER.error("Error has been occured for recipeId "+recipe.getId());
             throw new InvalidInputException("Unknown error");
@@ -151,6 +163,39 @@ public class RecipeService {
         }
         LOGGER.info("No Recipes available!!");
         throw new RecipeNotFoundException("No Recipes available!!");
+    }
+
+    public ResponseEntity getAllRecipesAndEmailUser(String authorEmail) {
+        LOGGER.info("Getting all recipes created by user : " + authorEmail);
+        List<Recipe> userRecipes = new ArrayList<>();
+        Optional<User> dbUser = userRepository.findUserByEmailaddress(authorEmail);
+        if(dbUser.isPresent()) {
+            LOGGER.info("User found, fetching recipes");
+            userRecipes = recipeRepository.findAllByAuthorId(dbUser.get().getId());
+        }
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("from", "noreply@"+webappDomain);
+        jsonObject.put("to", authorEmail);
+
+        JSONArray jsonArray = new JSONArray();
+        for (Recipe recipe : userRecipes) {
+            LOGGER.info("Found recipe: " + recipe.getId());
+            jsonArray.put(constructRecipeURL(recipe.getId().toString()));
+        }
+
+        jsonObject.put("recipes", jsonArray);
+        LOGGER.info("JSON string created: " + jsonObject.toString());
+        LOGGER.info("Publishing the message to SNS...");
+
+        PublishResult publishResult = amazonSNS.publish(new PublishRequest(snsTopicArn, jsonObject.toString()));
+
+        LOGGER.info("SNS message published: " + publishResult.toString());
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    private String constructRecipeURL(String recipeId) {
+        return ("https://" + webappDomain + "/v1/recipe/" + recipeId);
     }
 
 }
