@@ -1491,7 +1491,7 @@ resource "aws_cloudformation_stack" "network" {
                     },
                     {
                         "Action": {
-                            "Type": "_e6724743024bb285c8678a56e621e8a4.kirrbxfjtw.acm-validations.aws.BLOCK"
+                            "Type": "BLOCK"
                         },
                         "Priority": 8,
                         "RuleId": {
